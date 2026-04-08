@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="CapRush – Overdrive! Corrida de tampinhas com física real, traço anime e economia blockchain na Fogo SVM.">
+<title>CapRush – Overdrive!</title>
+<style>
+/* ─── RESET & TOKENS ─────────────────────────────────── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --or:#FF5500; --or2:#FF8C00; --cy:#00EEFF; --cy2:#0055FF;
+  --gd:#FFD700; --dk:#020110; --dk2:#080818; --dk3:#0d0d28;
+  --wh:#FFFFFF; --mu:#1e3055; --mu2:#2a3f60;
+  --display:"Impact","Arial Black",Arial,sans-serif;
+  --mono:"Courier New",Courier,monospace;
+}
+html{scroll-behavior:smooth;font-size:16px}
+body{
+  background:var(--dk); color:var(--wh);
+  font-family:var(--mono); overflow-x:hidden;
+  cursor:crosshair;
+}
+
+/* ─── CURSOR ─────────────────────────────────── */
+a,button,[role=button]{cursor:pointer}
+
+/* ─── GRID TEXTURE ─────────────────────────────────── */
+.grid-tex{
+  background-image:
+    repeating-linear-gradient(-22deg,transparent,transparent 43px,rgba(255,85,0,.018) 43px,rgba(255,85,0,.018) 44px),
+    repeating-linear-gradient(68deg,transparent,transparent 43px,rgba(0,100,255,.012) 43px,rgba(0,100,255,.012) 44px);
+}
+
+/* ─── SCANLINE ANIM ─────────────────────────────────── */
+@keyframes scan{from{transform:translateX(-120%)}to{transform:translateX(110vw)}}
+@keyframes blink{0%,94%,100%{opacity:1}95%{opacity:.4}97%{opacity:1}98%{opacity:.6}}
+@keyframes slideL{from{transform:translateX(-80px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes slideR{from{transform:translateX(80px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes fadeU{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
+@keyframes drift{from{transform:translateX(0)}to{transform:translateX(-240px)}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes capSpin{from{transform:rotate(0deg)}to{transform:rotate(-360deg)}}
+@keyframes gearPulse{0%,100%{opacity:.07}50%{opacity:.14}}
+
+/* ─── NAV ─────────────────────────────────── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 40px; height:52px;
+  background:rgba(2,1,16,.92);
+  border-bottom:1px solid rgba(255,85,0,.15);
+  backdrop-filter:blur(8px);
+}
+.nav-logo{
+  font-family:var(--display);font-size:22px;letter-spacing:-1px;
+  text-decoration:none;
+  display:flex;align-items:center;gap:10px;
+}
+.nav-logo .cap{color:var(--wh)}
+.nav-logo .rush{color:var(--or)}
+.nav-logo .od{
+  font-size:11px;letter-spacing:3px;font-style:italic;
+  color:var(--cy);margin-left:4px;font-family:var(--display);
+}
+.nav-links{display:flex;gap:28px;list-style:none}
+.nav-links a{
+  font-size:10px;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--mu2);text-decoration:none;
+  transition:color .2s;
+}
+.nav-links a:hover{color:var(--or)}
+.nav-cta{
+  background:var(--or);color:#fff;border:none;
+  padding:8px 20px;font-family:var(--mono);
+  font-size:11px;letter-spacing:2px;text-transform:uppercase;
+  border-radius:1px;transition:background .2s,transform .1s;
+  text-decoration:none;display:inline-block;
+}
+.nav-cta:hover{background:#FF7700;transform:translateY(-1px)}
+
+/* ─── HERO ─────────────────────────────────── */
+#hero{
+  min-height:100vh;position:relative;overflow:hidden;
+  display:flex;align-items:center;
+  padding:120px 40px 80px;
+}
+.hero-bg{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 60% 80% at 20% 50%,rgba(255,85,0,.06) 0%,transparent 70%),
+    radial-gradient(ellipse 40% 60% at 80% 30%,rgba(0,100,255,.04) 0%,transparent 70%),
+    var(--dk);
+}
+.hero-scan{
+  position:absolute;top:0;bottom:0;width:120px;
+  background:linear-gradient(90deg,transparent,rgba(255,85,0,.04),transparent);
+  animation:scan 8s linear infinite;pointer-events:none;
+}
+.hero-watermark{
+  position:absolute;right:-80px;top:50%;transform:translateY(-50%);
+  font-family:var(--display);font-size:380px;line-height:1;
+  color:rgba(255,85,0,.028);letter-spacing:-20px;pointer-events:none;
+  user-select:none;
+}
+
+/* Telemetry brackets - HUD corners */
+.hud-frame{position:absolute;inset:20px;pointer-events:none}
+.hud-frame::before,.hud-frame::after,
+.hud-frame .br,.hud-frame .bl{
+  content:'';position:absolute;width:28px;height:28px;
+}
+.hud-frame::before{top:0;left:0;border-top:2px solid rgba(255,85,0,.5);border-left:2px solid rgba(255,85,0,.5)}
+.hud-frame::after{top:0;right:0;border-top:2px solid rgba(255,85,0,.5);border-right:2px solid rgba(255,85,0,.5)}
+.hud-frame .bl{bottom:0;left:0;border-bottom:2px solid rgba(0,238,255,.4);border-left:2px solid rgba(0,238,255,.4)}
+.hud-frame .br{bottom:0;right:0;border-bottom:2px solid rgba(0,238,255,.4);border-right:2px solid rgba(0,238,255,.4)}
+
+.hero-content{position:relative;z-index:2;max-width:680px}
+
+/* Speed lines above logo */
+.speed-group{margin-bottom:24px;overflow:hidden}
+.speed-line{
+  height:1.5px;border-radius:1px;margin-bottom:6px;
+  background:linear-gradient(90deg,rgba(255,85,0,.9),transparent);
+  animation:slideL .5s ease both;
+}
+.speed-line:nth-child(1){width:380px;animation-delay:.05s}
+.speed-line:nth-child(2){width:260px;height:2.5px;animation-delay:.1s;background:linear-gradient(90deg,rgba(255,85,0,.6),transparent)}
+.speed-line:nth-child(3){width:160px;animation-delay:.15s;opacity:.5}
+
+.hero-label{
+  font-size:10px;letter-spacing:4px;color:var(--mu2);
+  margin-bottom:12px;animation:fadeIn .4s .2s ease both;
+}
+.hero-label::before{content:'◆ ';color:var(--or)}
+
+.hero-title{
+  font-family:var(--display);line-height:.95;
+  margin-bottom:0;letter-spacing:-4px;
+}
+.hero-cap{
+  font-size:clamp(80px,14vw,148px);
+  background:linear-gradient(180deg,#fff 30%,#7799dd 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  display:block;animation:slideL .5s .25s ease both;
+}
+.hero-rush{
+  font-size:clamp(80px,14vw,148px);
+  background:linear-gradient(180deg,#FF8C00 0%,#DD1500 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  display:block;animation:slideR .5s .3s ease both;
+}
+.hero-rule{
+  height:3px;width:100%;max-width:640px;border-radius:2px;margin:8px 0 0;
+  background:linear-gradient(90deg,rgba(255,85,0,.9),transparent);
+  animation:slideL .5s .4s ease both;
+}
+.hero-od{
+  font-family:var(--display);
+  font-size:clamp(20px,3.5vw,38px);
+  font-style:italic;letter-spacing:8px;
+  background:linear-gradient(90deg,#00FFEE,#0055FF);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-top:10px;animation:fadeU .5s .5s ease both;
+}
+.hero-desc{
+  max-width:480px;line-height:1.75;
+  color:rgba(255,255,255,.45);font-size:14px;
+  margin:24px 0;animation:fadeU .5s .6s ease both;
+  border-left:2px solid rgba(255,85,0,.4);padding-left:18px;
+}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap;animation:fadeU .5s .75s ease both}
+.btn-play{
+  display:inline-flex;align-items:center;gap:10px;
+  background:var(--or);color:#fff;border:none;
+  padding:16px 34px;font-family:var(--mono);
+  font-size:13px;letter-spacing:2px;text-transform:uppercase;
+  border-radius:1px;text-decoration:none;
+  position:relative;overflow:hidden;
+  transition:background .2s,transform .15s;
+}
+.btn-play::before{
+  content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);
+  transition:left .4s ease;
+}
+.btn-play:hover{background:#FF6600;transform:translateY(-2px)}
+.btn-play:hover::before{left:150%}
+.btn-ghost{
+  display:inline-flex;align-items:center;gap:8px;
+  background:transparent;color:var(--cy);
+  border:1px solid rgba(0,238,255,.35);
+  padding:16px 28px;font-family:var(--mono);
+  font-size:13px;letter-spacing:2px;text-transform:uppercase;
+  border-radius:1px;text-decoration:none;
+  transition:border-color .2s,color .2s,transform .15s;
+}
+.btn-ghost:hover{border-color:var(--cy);transform:translateY(-2px)}
+
+/* Telemetry readouts beside hero */
+.hero-telem{
+  position:absolute;right:60px;top:50%;transform:translateY(-50%);
+  z-index:2;display:flex;flex-direction:column;gap:18px;
+  animation:fadeIn .6s 1s ease both;
+}
+.telem-row{
+  display:flex;flex-direction:column;gap:4px;
+  border-left:2px solid rgba(255,85,0,.3);padding-left:14px;
+}
+.telem-label{font-size:9px;letter-spacing:3px;color:var(--mu)}
+.telem-val{
+  font-family:var(--display);font-size:26px;
+  letter-spacing:-1px;color:var(--or);
+  animation:blink 6s ease infinite;
+}
+.telem-val.cy{color:var(--cy);animation-delay:2s}
+.telem-val.gd{color:var(--gd);animation-delay:4s}
+
+/* ─── DIAGONAL CUT ─────────────────────────────────── */
+.cut{
+  height:80px;
+  clip-path:polygon(0 0,100% 50%,100% 100%,0 100%);
+  background:var(--dk2);
+  margin-top:-1px;
+}
+.cut-rev{
+  height:80px;
+  clip-path:polygon(0 50%,100% 0,100% 100%,0 100%);
+  background:var(--dk3);
+  margin-top:-1px;
+}
+
+/* ─── SECTION BASE ─────────────────────────────────── */
+section{padding:100px 60px;position:relative;overflow:hidden}
+.sec-num{
+  font-family:var(--display);font-size:160px;
+  color:rgba(255,85,0,.04);position:absolute;
+  top:-20px;left:-10px;line-height:1;pointer-events:none;
+  user-select:none;letter-spacing:-10px;
+}
+.sec-label{
+  font-size:9px;letter-spacing:5px;color:var(--mu);
+  text-transform:uppercase;margin-bottom:16px;
+  display:flex;align-items:center;gap:10px;
+}
+.sec-label::before{content:'';width:40px;height:1px;background:var(--or);display:block}
+.sec-title{
+  font-family:var(--display);letter-spacing:-2px;line-height:1;
+  margin-bottom:0;
+}
+
+/* ─── WHAT IS ─────────────────────────────────── */
+#what{background:var(--dk2)}
+.what-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:80px;
+  align-items:start;margin-top:60px;
+}
+.what-left .big-text{
+  font-family:var(--display);font-size:clamp(36px,5vw,64px);
+  line-height:1.05;letter-spacing:-2px;
+}
+.what-left .big-text em{
+  font-style:normal;
+  background:linear-gradient(90deg,var(--or),#FF2200);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.what-left .big-text .cy-txt{
+  background:linear-gradient(90deg,var(--cy),var(--cy2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.what-left p{
+  margin-top:24px;color:rgba(255,255,255,.4);
+  font-size:14px;line-height:1.8;
+  border-left:2px solid rgba(0,238,255,.3);padding-left:18px;
+}
+.what-right{display:flex;flex-direction:column;gap:1px}
+.fact-row{
+  display:flex;align-items:flex-start;gap:20px;
+  padding:22px 0;border-bottom:1px solid rgba(255,255,255,.04);
+  transition:background .2s;
+}
+.fact-row:hover{background:rgba(255,85,0,.03)}
+.fact-num{
+  font-family:var(--display);font-size:42px;
+  color:rgba(255,85,0,.25);letter-spacing:-2px;
+  min-width:60px;line-height:1;
+}
+.fact-text strong{
+  display:block;font-size:14px;letter-spacing:.5px;
+  margin-bottom:6px;color:var(--wh);font-family:var(--mono);
+}
+.fact-text span{font-size:12px;color:var(--mu2);line-height:1.6}
+
+/* ─── MODES ─────────────────────────────────── */
+#modes{background:var(--dk3)}
+.modes-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:2px;
+  margin-top:60px;
+}
+.mode-card{
+  background:var(--dk2);padding:36px 28px;
+  position:relative;overflow:hidden;
+  border-top:2px solid transparent;
+  transition:border-color .2s,transform .2s;
+}
+.mode-card:hover{border-color:var(--or);transform:translateY(-4px)}
+.mode-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,var(--or),transparent);
+  opacity:0;transition:opacity .3s;
+}
+.mode-card:hover::before{opacity:1}
+.mode-num{
+  font-family:var(--display);font-size:72px;letter-spacing:-4px;
+  color:rgba(255,85,0,.08);line-height:1;margin-bottom:20px;
+  display:block;
+}
+.mode-icon{font-size:28px;margin-bottom:14px;display:block}
+.mode-name{
+  font-family:var(--display);font-size:28px;letter-spacing:-1px;
+  display:block;margin-bottom:8px;
+}
+.mode-sub{font-size:11px;color:var(--mu2);letter-spacing:1px;line-height:1.6}
+.mode-tag{
+  display:inline-block;margin-top:14px;padding:4px 10px;
+  background:rgba(255,85,0,.08);border:1px solid rgba(255,85,0,.2);
+  font-size:9px;letter-spacing:2px;color:var(--or);
+}
+
+/* ─── TRACKS ─────────────────────────────────── */
+#tracks{background:var(--dk2)}
+.tracks-scroll{
+  display:flex;gap:16px;margin-top:50px;
+  overflow-x:auto;padding-bottom:16px;
+  scrollbar-width:thin;scrollbar-color:var(--or) var(--dk3);
+}
+.track-card{
+  min-width:220px;background:var(--dk3);
+  border:1px solid rgba(255,255,255,.04);
+  padding:28px;flex-shrink:0;
+  position:relative;overflow:hidden;
+  transition:border-color .2s;
+}
+.track-card:hover{border-color:rgba(255,85,0,.3)}
+.track-card::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:3px;
+  background:var(--track-col,var(--or));opacity:.6;
+}
+.track-num{
+  font-family:var(--display);font-size:52px;letter-spacing:-3px;
+  color:rgba(255,255,255,.04);position:absolute;top:10px;right:10px;
+}
+.track-icon{font-size:22px;margin-bottom:14px;display:block}
+.track-name{font-family:var(--display);font-size:22px;letter-spacing:-1px;margin-bottom:6px;display:block}
+.track-sub{font-size:11px;color:var(--mu2);line-height:1.6}
+.track-attrs{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.attr{
+  font-size:9px;letter-spacing:1px;
+  padding:3px 8px;background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.06);color:var(--mu2);
+}
+
+/* ─── ROADMAP ─────────────────────────────────── */
+#roadmap{background:var(--dk)}
+.road-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:2px;margin-top:60px;
+}
+.phase-card{
+  padding:32px 24px;border-top:3px solid rgba(255,255,255,.04);
+  position:relative;
+  transition:border-color .2s;
+}
+.phase-card.active{border-color:var(--or)}
+.phase-card.done{border-color:rgba(68,255,136,.5)}
+.phase-label{
+  font-size:9px;letter-spacing:3px;color:var(--mu);
+  margin-bottom:12px;
+}
+.phase-title{
+  font-family:var(--display);font-size:20px;letter-spacing:-1px;
+  margin-bottom:10px;line-height:1.1;
+}
+.phase-card.active .phase-title{color:var(--or)}
+.phase-card.done .phase-title{color:rgba(68,255,136,.8)}
+.phase-items{
+  list-style:none;display:flex;flex-direction:column;gap:6px;
+  margin-top:16px;
+}
+.phase-items li{
+  font-size:11px;color:var(--mu2);
+  padding-left:14px;position:relative;line-height:1.5;
+}
+.phase-items li::before{
+  content:'—';position:absolute;left:0;color:rgba(255,85,0,.4);
+}
+.phase-card.active .phase-items li::before{color:var(--or)}
+.phase-card.done .phase-items li::before{content:'✓';color:rgba(68,255,136,.7)}
+.phase-badge{
+  display:inline-block;margin-top:18px;
+  padding:4px 10px;font-size:9px;letter-spacing:2px;
+}
+.phase-badge.active-b{background:rgba(255,85,0,.12);color:var(--or);border:1px solid rgba(255,85,0,.3)}
+.phase-badge.done-b{background:rgba(68,255,136,.08);color:rgba(68,255,136,.8);border:1px solid rgba(68,255,136,.2)}
+.phase-badge.soon-b{background:rgba(255,255,255,.03);color:var(--mu2);border:1px solid rgba(255,255,255,.08)}
+
+/* ─── JOIN ─────────────────────────────────── */
+#join{
+  background:var(--dk2);text-align:center;
+  position:relative;overflow:hidden;
+}
+.join-bg-text{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:var(--display);font-size:260px;letter-spacing:-20px;
+  color:rgba(255,85,0,.025);pointer-events:none;user-select:none;
+  white-space:nowrap;
+}
+.join-title{
+  font-family:var(--display);font-size:clamp(36px,6vw,72px);
+  letter-spacing:-3px;line-height:1;position:relative;z-index:2;
+}
+.join-title span{
+  background:linear-gradient(90deg,var(--or),#FF2200);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.join-sub{
+  font-size:14px;color:rgba(255,255,255,.35);margin:20px auto;
+  max-width:500px;line-height:1.7;position:relative;z-index:2;
+}
+.join-form{
+  display:flex;gap:0;max-width:480px;margin:36px auto 0;
+  position:relative;z-index:2;
+}
+.join-input{
+  flex:1;background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,85,0,.2);border-right:none;
+  padding:14px 18px;font-family:var(--mono);font-size:13px;
+  color:var(--wh);outline:none;
+  transition:border-color .2s;
+}
+.join-input::placeholder{color:var(--mu)}
+.join-input:focus{border-color:rgba(255,85,0,.6)}
+.join-btn{
+  background:var(--or);color:#fff;border:none;
+  padding:14px 24px;font-family:var(--mono);font-size:12px;
+  letter-spacing:2px;text-transform:uppercase;cursor:pointer;
+  transition:background .2s;
+}
+.join-btn:hover{background:#FF7700}
+.join-tags{
+  display:flex;justify-content:center;gap:12px;
+  margin-top:28px;flex-wrap:wrap;position:relative;z-index:2;
+}
+.join-tag{
+  font-size:10px;letter-spacing:1.5px;color:var(--mu2);
+  padding:5px 12px;border:1px solid var(--mu);
+}
+
+/* ─── FOOTER ─────────────────────────────────── */
+footer{
+  background:var(--dk);border-top:1px solid rgba(255,85,0,.1);
+  padding:40px 60px;
+  display:grid;grid-template-columns:1fr auto 1fr;
+  align-items:center;gap:20px;
+}
+.footer-logo{
+  font-family:var(--display);font-size:18px;letter-spacing:-1px;
+}
+.footer-logo .r{color:var(--or)}
+.footer-mid{text-align:center;font-size:10px;letter-spacing:2px;color:var(--mu)}
+.footer-right{
+  text-align:right;display:flex;flex-direction:column;gap:6px;
+}
+.footer-right a{
+  font-size:10px;letter-spacing:2px;color:var(--mu);
+  text-decoration:none;transition:color .2s;
+}
+.footer-right a:hover{color:var(--or)}
+
+/* ─── CAP ICON (SVG canvas) ─────────────────────────── */
+.cap-icon-wrap{display:inline-flex;align-items:center}
+
+/* ─── SCROLLBAR ─────────────────────────────────── */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--dk)}
+::-webkit-scrollbar-thumb{background:rgba(255,85,0,.4);border-radius:2px}
+
+/* ─── MOBILE ─────────────────────────────────── */
+@media(max-width:900px){
+  nav{padding:0 20px}
+  .nav-links{display:none}
+  .hero-telem{display:none}
+  section{padding:70px 28px}
+  .what-grid{grid-template-columns:1fr;gap:48px}
+  .modes-grid{grid-template-columns:1fr 1fr;gap:2px}
+  .road-grid{grid-template-columns:1fr 1fr;gap:2px}
+  footer{grid-template-columns:1fr;text-align:center;gap:12px}
+  .footer-right{align-items:center}
+  #hero{padding:100px 28px 60px}
+}
+@media(max-width:540px){
+  .modes-grid,.road-grid{grid-template-columns:1fr}
+  .join-form{flex-direction:column}
+  .join-input{border-right:1px solid rgba(255,85,0,.2);border-bottom:none}
+}
+</style>
+</head>
+<body class="grid-tex">
+
+<!-- ── NAV ──────────────────────────────────────── -->
+<nav>
+  <a href="#hero" class="nav-logo">
+    <svg width="26" height="26" viewBox="-13 -13 26 26" id="nav-cap"></svg>
+    <span class="cap">CAP</span><span class="rush">RUSH</span>
+    <span class="od">OVERDRIVE!</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#what">O Jogo</a></li>
+    <li><a href="#modes">Modos</a></li>
+    <li><a href="#tracks">Pistas</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#join">Comunidade</a></li>
+  </ul>
+  <a href="caprush-game.html" class="nav-cta">▶ JOGAR GRÁTIS</a>
+</nav>
+
+<!-- ── HERO ──────────────────────────────────────── -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-scan"></div>
+  <div class="hero-watermark">CR</div>
+  <div class="hud-frame"><span class="bl"></span><span class="br"></span></div>
+
+  <div class="hero-content">
+    <div class="speed-group">
+      <div class="speed-line"></div>
+      <div class="speed-line"></div>
+      <div class="speed-line"></div>
+    </div>
+
+    <p class="hero-label">Prototype v0.1 · Fogo SVM · Devnet</p>
+
+    <h1 class="hero-title">
+      <span class="hero-cap">CAP</span>
+      <span class="hero-rush">RUSH</span>
+    </h1>
+    <div class="hero-rule"></div>
+    <div class="hero-od">— OVERDRIVE!</div>
+
+    <p class="hero-desc">
+      Corrida de tampinhas com física estilo Angry Birds, traço anime cinematográfico e economia NFT real na blockchain Fogo SVM. Sem pay-to-win — tampinhas com atributos, torneios com premiação em $CR.
+    </p>
+
+    <div class="hero-actions">
+      <a href="caprush-game.html" class="btn-play">▶ Jogar agora — grátis</a>
+      <a href="caprush-brand.html" class="btn-ghost">◈ Brand Kit</a>
+    </div>
+  </div>
+
+  <!-- Telemetry sidebar -->
+  <div class="hero-telem">
+    <div class="telem-row">
+      <span class="telem-label">PISTAS ATIVAS</span>
+      <span class="telem-val">01</span>
+    </div>
+    <div class="telem-row">
+      <span class="telem-label">TOKEN</span>
+      <span class="telem-val cy">$CR</span>
+    </div>
+    <div class="telem-row">
+      <span class="telem-label">PERSONAGENS</span>
+      <span class="telem-val gd">04</span>
+    </div>
+    <div class="telem-row">
+      <span class="telem-label">REDE</span>
+      <span class="telem-val" style="font-size:18px;color:rgba(68,255,136,.8)">FOGO SVM</span>
+    </div>
+  </div>
+</section>
+
+<div class="cut"></div>
+
+<!-- ── O QUE É ──────────────────────────────────────── -->
+<section id="what">
+  <span class="sec-num">01</span>
+  <p class="sec-label">O Conceito</p>
+  <div class="what-grid">
+    <div class="what-left">
+      <h2 class="big-text">
+        Tampinha.<br>
+        <em>Física real.</em><br>
+        <span class="cy-txt">Blockchain</span><br>
+        que faz sentido.
+      </h2>
+      <p>
+        CapRush combina a jogabilidade visceral de Angry Birds com a estratégia de sinuca e a progressão de um RPG. Cada tampinha é um NFT com atributos reais — velocidade, controle, aerodinâmica — que afetam diretamente como você corre.
+      </p>
+    </div>
+    <div class="what-right">
+      <div class="fact-row">
+        <span class="fact-num">01</span>
+        <div class="fact-text">
+          <strong>Motor de física com arrasto real</strong>
+          <span>Velocidade, ângulo e força calculados frame a frame. Cada lançamento é único.</span>
+        </div>
+      </div>
+      <div class="fact-row">
+        <span class="fact-num">02</span>
+        <div class="fact-text">
+          <strong>NFTs com atributos funcionais</strong>
+          <span>Tampinhas com velocidade, controle e aerodinâmica. Upgrades via combinação de itens.</span>
+        </div>
+      </div>
+      <div class="fact-row">
+        <span class="fact-num">03</span>
+        <div class="fact-text">
+          <strong>Login para todos</strong>
+          <span>Google para quem quer jogar. Phantom/TipLink para quem quer tokens e NFTs.</span>
+        </div>
+      </div>
+      <div class="fact-row">
+        <span class="fact-num">04</span>
+        <div class="fact-text">
+          <strong>Narrativa e campanha</strong>
+          <span>4 personagens anime, modo história, rivalidades, diálogos. Não é só corrida.</span>
+        </div>
+      </div>
+      <div class="fact-row" style="border-bottom:none">
+        <span class="fact-num">05</span>
+        <div class="fact-text">
+          <strong>Comunidade que cria</strong>
+          <span>Replays compartilháveis, ranking entre amigos, pistas personalizadas.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="cut-rev"></div>
+
+<!-- ── MODOS ──────────────────────────────────────── -->
+<section id="modes">
+  <span class="sec-num">02</span>
+  <p class="sec-label">Modos de Jogo</p>
+  <h2 class="sec-title" style="font-family:var(--display);font-size:clamp(32px,5vw,56px);letter-spacing:-2px">
+    Jogue do seu<br>
+    <span style="color:var(--or)">jeito.</span>
+  </h2>
+  <div class="modes-grid">
+    <div class="mode-card">
+      <span class="mode-num">1</span>
+      <span class="mode-icon">🎯</span>
+      <span class="mode-name">Solo</span>
+      <p class="mode-sub">Campanha narrativa, treino livre, time attack. Seu ritmo, sua tampinha.</p>
+      <span class="mode-tag">DISPONÍVEL</span>
+    </div>
+    <div class="mode-card">
+      <span class="mode-num">2</span>
+      <span class="mode-icon">⚔️</span>
+      <span class="mode-name">1 × 1</span>
+      <p class="mode-sub">Duelo direto. Melhor de 3. Apostas em $CR com resultado on-chain.</p>
+      <span class="mode-tag">EM BREVE</span>
+    </div>
+    <div class="mode-card">
+      <span class="mode-num">3</span>
+      <span class="mode-icon">🔺</span>
+      <span class="mode-name">1 × 1 × 1</span>
+      <p class="mode-sub">Três na pista. Alianças instáveis. Física de colisão entre jogadores.</p>
+      <span class="mode-tag">EM BREVE</span>
+    </div>
+    <div class="mode-card">
+      <span class="mode-num">4</span>
+      <span class="mode-icon">🤝</span>
+      <span class="mode-name">2 × 2</span>
+      <p class="mode-sub">Equipes de dois. Estratégia coletiva. Recompensas divididas.</p>
+      <span class="mode-tag">EM BREVE</span>
+    </div>
+  </div>
+</section>
+
+<div class="cut"></div>
+
+<!-- ── PISTAS ──────────────────────────────────────── -->
+<section id="tracks">
+  <span class="sec-num">03</span>
+  <p class="sec-label">Pistas</p>
+  <h2 class="sec-title" style="font-family:var(--display);font-size:clamp(32px,5vw,56px);letter-spacing:-2px">
+    Nenhuma corrida<br>
+    <span style="color:var(--cy)">igual à outra.</span>
+  </h2>
+  <div class="tracks-scroll">
+    <div class="track-card" style="--track-col:#FF5500">
+      <span class="track-num">01</span>
+      <span class="track-icon">🟤</span>
+      <span class="track-name">Terra & Cascalho</span>
+      <p class="track-sub">Pista de estreia. Atrito alto, curvas fechadas. Perfeita para aprender a física.</p>
+      <div class="track-attrs"><span class="attr">ATRITO ALTO</span><span class="attr">CURVAS TÉCNICAS</span></div>
+    </div>
+    <div class="track-card" style="--track-col:#FFCC00">
+      <span class="track-num">02</span>
+      <span class="track-icon">🏜️</span>
+      <span class="track-name">Areia do Deserto</span>
+      <p class="track-sub">Deslizamento extremo. Tampinhas leves escorregam mais. Vento lateral.</p>
+      <div class="track-attrs"><span class="attr">BAIXO ATRITO</span><span class="attr">VENTO</span></div>
+    </div>
+    <div class="track-card" style="--track-col:#44FF88">
+      <span class="track-num">03</span>
+      <span class="track-icon">🌲</span>
+      <span class="track-name">Floresta</span>
+      <p class="track-sub">Raízes, buracos, neblina. Visibilidade reduzida. Alta imprevisibilidade.</p>
+      <div class="track-attrs"><span class="attr">BURACOS</span><span class="attr">NEBLINA</span></div>
+    </div>
+    <div class="track-card" style="--track-col:#4488FF">
+      <span class="track-num">04</span>
+      <span class="track-icon">🌧️</span>
+      <span class="track-name">Chuva Intensa</span>
+      <p class="track-sub">Poças d'água alteram a física em tempo real. Aquaplanagem simulada.</p>
+      <div class="track-attrs"><span class="attr">DINÂMICO</span><span class="attr">AQUAPLANING</span></div>
+    </div>
+    <div class="track-card" style="--track-col:#CC44FF">
+      <span class="track-num">05</span>
+      <span class="track-icon">☠️</span>
+      <span class="track-name">Corrida Mortal</span>
+      <p class="track-sub">Modo Screamer. Rampas, obstáculos ativos, gravidade variável. Alta recompensa.</p>
+      <div class="track-attrs"><span class="attr">EXTREMO</span><span class="attr">RECOMPENSA 2×</span></div>
+    </div>
+    <div class="track-card" style="--track-col:#00EEFF">
+      <span class="track-num">06</span>
+      <span class="track-icon">🚀</span>
+      <span class="track-name">Futurista</span>
+      <p class="track-sub">Pista anti-gravidade. Inversões. Loops. Estética sci-fi. Apenas para elite.</p>
+      <div class="track-attrs"><span class="attr">ANTI-GRAV</span><span class="attr">RANK S</span></div>
+    </div>
+    <div class="track-card" style="--track-col:#FF8833">
+      <span class="track-num">07</span>
+      <span class="track-icon">🎌</span>
+      <span class="track-name">Estilo Mario K.</span>
+      <p class="track-sub">Items na pista, boosts, armadilhas. Sorte e habilidade em equilíbrio.</p>
+      <div class="track-attrs"><span class="attr">ITEMS</span><span class="attr">CASUAL</span></div>
+    </div>
+    <div class="track-card" style="--track-col:#888888">
+      <span class="track-num">08</span>
+      <span class="track-icon">🏔️</span>
+      <span class="track-name">Enduro</span>
+      <p class="track-sub">Pista longa, resistência. 10 voltas. Gestão de lançamentos é a chave.</p>
+      <div class="track-attrs"><span class="attr">RESISTÊNCIA</span><span class="attr">10 VOLTAS</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="cut-rev"></div>
+
+<!-- ── ROADMAP ──────────────────────────────────────── -->
+<section id="roadmap">
+  <span class="sec-num">04</span>
+  <p class="sec-label">Desenvolvimento</p>
+  <h2 class="sec-title" style="font-family:var(--display);font-size:clamp(32px,5vw,56px);letter-spacing:-2px">
+    Roadmap<br>
+    <span style="color:var(--or)">transparente.</span>
+  </h2>
+  <div class="road-grid">
+    <div class="phase-card done">
+      <p class="phase-label">FASE 01 · CONCLUÍDO</p>
+      <h3 class="phase-title">Conceito & Brand</h3>
+      <ul class="phase-items">
+        <li>Nome e identidade visual</li>
+        <li>Logotipo e paleta oficial</li>
+        <li>Arquitetura do sistema</li>
+        <li>Protótipo jogável Phaser.js</li>
+      </ul>
+      <span class="phase-badge done-b">✓ ENTREGUE</span>
+    </div>
+    <div class="phase-card active">
+      <p class="phase-label">FASE 02 · EM ANDAMENTO</p>
+      <h3 class="phase-title">Motor & Blockchain</h3>
+      <ul class="phase-items">
+        <li>Smart contracts Anchor</li>
+        <li>NFTs de tampinhas ($CR token)</li>
+        <li>Login Google + TipLink + Phantom</li>
+        <li>SQLite · ranking · inventário</li>
+      </ul>
+      <span class="phase-badge active-b">◆ ATIVO</span>
+    </div>
+    <div class="phase-card">
+      <p class="phase-label">FASE 03 · PRÓXIMO</p>
+      <h3 class="phase-title">Arte & Narrativa</h3>
+      <ul class="phase-items">
+        <li>4 personagens anime finalizados</li>
+        <li>Efeitos: poeira, chuva, neblina</li>
+        <li>Campanha narrativa completa</li>
+        <li>Trilha sonora e SFX</li>
+      </ul>
+      <span class="phase-badge soon-b">EM BREVE</span>
+    </div>
+    <div class="phase-card">
+      <p class="phase-label">FASE 04 · FUTURO</p>
+      <h3 class="phase-title">Economia & Multiplayer</h3>
+      <ul class="phase-items">
+        <li>Marketplace Metaplex live</li>
+        <li>Modos 1v1, 1v1v1, 2v2</li>
+        <li>Temporadas e ligas</li>
+        <li>Pistas da comunidade</li>
+      </ul>
+      <span class="phase-badge soon-b">EM BREVE</span>
+    </div>
+  </div>
+</section>
+
+<div class="cut"></div>
+
+<!-- ── JOIN ──────────────────────────────────────── -->
+<section id="join">
+  <div class="join-bg-text">CR</div>
+  <h2 class="join-title">
+    Entre na<br><span>corrida</span><br>agora.
+  </h2>
+  <p class="join-sub">
+    Cadastre seu e-mail para receber acesso antecipado, whitelist de NFTs e atualizações do desenvolvimento.
+  </p>
+  <div class="join-form">
+    <input class="join-input" type="email" placeholder="seu@email.com" id="emailInput">
+    <button class="join-btn" onclick="handleJoin()">ENTRAR</button>
+  </div>
+  <div class="join-tags">
+    <span class="join-tag">SEM SPAM</span>
+    <span class="join-tag">WHITELIST NFT</span>
+    <span class="join-tag">ACESSO ANTECIPADO</span>
+    <span class="join-tag">$CR BÔNUS</span>
+  </div>
+</section>
+
+<!-- ── FOOTER ──────────────────────────────────────── -->
+<footer>
+  <div>
+    <div class="footer-logo">CAP<span class="r">RUSH</span></div>
+    <div style="font-size:9px;letter-spacing:2px;color:var(--mu);margin-top:4px">OVERDRIVE!</div>
+  </div>
+  <div class="footer-mid">
+    Fogo SVM · Metaplex · Phaser.js · Anchor<br>
+    <span style="color:rgba(255,255,255,.15)">Prototype v0.1 · 2025</span>
+  </div>
+  <div class="footer-right">
+    <a href="caprush-game.html">▶ Jogar</a>
+    <a href="caprush-brand.html">◈ Brand Kit</a>
+    <a href="#roadmap">Roadmap</a>
+    <a href="https://github.com" target="_blank">GitHub</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // ─── Draw bottle cap icon ──────────────────────────
+  function drawCap(svgEl, R1, R2, n, fillColor, strokeColor, hasCR, crSize){
+    var ns='http://www.w3.org/2000/svg';
+    var pts=[];
+    for(var i=0;i<n*2;i++){
+      var a=i*Math.PI/n-Math.PI/2, r=i%2?R2:R1;
+      pts.push((r*Math.cos(a)).toFixed(2)+','+(r*Math.sin(a)).toFixed(2));
+    }
+    var p=document.createElementNS(ns,'path');
+    p.setAttribute('d','M'+pts.join('L')+'Z');
+    p.setAttribute('fill',fillColor);
+    svgEl.appendChild(p);
+
+    var ci=document.createElementNS(ns,'circle');
+    ci.setAttribute('r',(R2*.87).toFixed(1));
+    ci.setAttribute('fill','none');
+    ci.setAttribute('stroke',strokeColor||fillColor);
+    ci.setAttribute('stroke-width','1');
+    svgEl.appendChild(ci);
+
+    if(hasCR){
+      var t=document.createElementNS(ns,'text');
+      t.setAttribute('font-family',"Impact,'Arial Black',sans-serif");
+      t.setAttribute('font-size',crSize||'6');
+      t.setAttribute('fill','#ffffff');
+      t.setAttribute('text-anchor','middle');
+      t.setAttribute('dominant-baseline','central');
+      t.textContent='CR';
+      svgEl.appendChild(t);
+    }
+  }
+
+  // Nav cap icon
+  drawCap(document.getElementById('nav-cap'),11,9.5,18,'#FF5500','#FF8C00',true,'5');
+
+  // ─── Scroll animations ────────────────────────────
+  var observer=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        e.target.style.opacity='1';
+        e.target.style.transform='translateY(0)';
+      }
+    });
+  },{threshold:0.1});
+
+  document.querySelectorAll('.fact-row,.mode-card,.track-card,.phase-card').forEach(function(el){
+    el.style.opacity='0';
+    el.style.transform='translateY(20px)';
+    el.style.transition='opacity .5s ease, transform .5s ease';
+    observer.observe(el);
+  });
+
+  // ─── Join form ────────────────────────────────────
+  window.handleJoin=function(){
+    var input=document.getElementById('emailInput');
+    var val=input.value.trim();
+    if(!val||!val.includes('@')){
+      input.style.borderColor='rgba(255,50,50,.6)';
+      setTimeout(function(){input.style.borderColor='';},1500);
+      return;
+    }
+    input.value='';
+    input.placeholder='Cadastro recebido! Em breve no whitelist 🎌';
+    input.style.borderColor='rgba(68,255,136,.5)';
+  };
+
+  // ─── Active nav link ─────────────────────────────
+  var sections=document.querySelectorAll('section[id]');
+  var navLinks=document.querySelectorAll('.nav-links a');
+  window.addEventListener('scroll',function(){
+    var cur='';
+    sections.forEach(function(s){
+      if(window.scrollY>=s.offsetTop-200) cur=s.id;
+    });
+    navLinks.forEach(function(a){
+      a.style.color=a.getAttribute('href')==='#'+cur?'#FF5500':'';
+    });
+  });
+
+  // ─── Telem blink interval ────────────────────────
+  var telemVals=document.querySelectorAll('.telem-val');
+  setInterval(function(){
+    var idx=Math.floor(Math.random()*telemVals.length);
+    telemVals[idx].style.opacity='.3';
+    setTimeout(function(){telemVals[idx].style.opacity='';},80);
+  },3000);
+})();
+</script>
+</body>
+</html>
