@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CapRush – Overdrive! | Brand Identity</title>
+<style>
+:root {
+  --cr-primary: #FF5500;
+  --cr-secondary: #00EEFF;
+  --cr-dark: #020110;
+  --cr-dark2: #08091a;
+  --cr-white: #FFFFFF;
+  --cr-muted: #1e3050;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--cr-dark); color:var(--cr-white); font-family:'Courier New',Courier,monospace; overflow-x:hidden; }
+
+@keyframes slideIn   { from{transform:translateX(-60px);opacity:0} to{transform:translateX(0);opacity:1} }
+@keyframes slideInR  { from{transform:translateX(60px);opacity:0}  to{transform:translateX(0);opacity:1} }
+@keyframes fadeUp    { from{transform:translateY(30px);opacity:0}  to{transform:translateY(0);opacity:1} }
+@keyframes spin      { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+@keyframes pulse     { 0%,100%{opacity:.7} 50%{opacity:1} }
+@keyframes scanline  { from{transform:translateX(-120%)} to{transform:translateX(120vw)} }
+
+section { padding:80px 60px; border-bottom:1px solid #0d1630; }
+h2.section-label { font-size:10px; letter-spacing:4px; color:var(--cr-muted); text-transform:uppercase; margin-bottom:32px; }
+
+/* ── HERO ─────────────────────────────── */
+.hero {
+  min-height:100vh; display:flex; align-items:center; justify-content:center;
+  position:relative; overflow:hidden; padding:0;
+}
+.hero-bg {
+  position:absolute; inset:0;
+  background:radial-gradient(ellipse at 30% 50%, #1a0800 0%, #020110 65%);
+}
+.hero-grid {
+  position:absolute; inset:0;
+  background-image:repeating-linear-gradient(-22deg,transparent,transparent 43px,rgba(255,255,255,0.018) 43px,rgba(255,255,255,0.018) 44px);
+}
+.scanline {
+  position:absolute; top:0; bottom:0; width:80px;
+  background:linear-gradient(90deg,transparent,rgba(255,85,0,.06),transparent);
+  animation:scanline 5s linear infinite;
+}
+.hero-content { position:relative; z-index:2; text-align:left; max-width:800px; padding:60px; }
+
+.speed-lines { margin-bottom:28px; }
+.sl { height:1px; background:linear-gradient(90deg,rgba(255,85,0,.85),transparent); margin-bottom:5px; animation:slideIn .6s ease both; }
+.sl:nth-child(1) { width:420px; animation-delay:.1s; }
+.sl:nth-child(2) { width:300px; height:2.5px; animation-delay:.15s; }
+.sl:nth-child(3) { width:180px; animation-delay:.2s; }
+
+.logo-accent { width:5px; height:165px; background:linear-gradient(180deg,#FF8C00,#FF1500,transparent); border-radius:3px; float:left; margin-right:18px; animation:fadeUp .5s .25s ease both; }
+
+.logo-wordmark { overflow:hidden; }
+.logo-cap {
+  font-family:Impact,'Arial Black',Arial,sans-serif; font-size:120px; line-height:1;
+  color:#fff; letter-spacing:-4px;
+  background:linear-gradient(180deg,#fff 0%,#88BBFF 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  animation:slideIn .5s .3s ease both;
+  display:inline-block;
+}
+.logo-rush {
+  font-family:Impact,'Arial Black',Arial,sans-serif; font-size:120px; line-height:1; letter-spacing:-4px;
+  background:linear-gradient(90deg,#FF8C00,#FF1500);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  animation:slideInR .5s .35s ease both;
+  display:inline-block; margin-left:2px;
+}
+.logo-rule { height:3px; background:linear-gradient(90deg,rgba(255,85,0,.9),transparent); border-radius:2px; animation:slideIn .5s .5s ease both; }
+.logo-overdrive {
+  font-family:Impact,'Arial Black',Arial,sans-serif; font-size:34px; font-style:italic;
+  letter-spacing:10px; margin-top:12px;
+  background:linear-gradient(90deg,#00FFEE,#0055FF);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  animation:fadeUp .5s .6s ease both;
+}
+.logo-tagline { font-size:10px; letter-spacing:2.5px; color:var(--cr-muted); margin-top:16px; animation:fadeUp .5s .75s ease both; }
+
+.hero-badge { position:absolute; right:-20px; top:50%; transform:translateY(-50%); opacity:.1; animation:spin 60s linear infinite; }
+
+.hero-cta { display:flex; gap:16px; margin-top:48px; animation:fadeUp .5s .9s ease both; }
+.btn-primary {
+  background:var(--cr-primary); color:#fff; border:none; padding:16px 36px;
+  font-family:'Courier New',monospace; font-size:14px; letter-spacing:2px;
+  text-transform:uppercase; cursor:pointer; border-radius:2px;
+  transition:background .2s, transform .1s;
+}
+.btn-primary:hover { background:#FF7722; transform:translateY(-1px); }
+.btn-secondary {
+  background:transparent; color:var(--cr-secondary); border:1px solid rgba(0,238,255,.4);
+  padding:16px 36px; font-family:'Courier New',monospace; font-size:14px;
+  letter-spacing:2px; text-transform:uppercase; cursor:pointer; border-radius:2px;
+  transition:border-color .2s, transform .1s;
+}
+.btn-secondary:hover { border-color:var(--cr-secondary); transform:translateY(-1px); }
+
+.hero-features { display:flex; gap:12px; margin-top:28px; flex-wrap:wrap; animation:fadeUp .5s 1s ease both; }
+.feature-pill {
+  background:rgba(255,85,0,.08); border:1px solid rgba(255,85,0,.2);
+  padding:6px 14px; border-radius:2px; font-size:11px; letter-spacing:1.5px; color:#cc7755;
+}
+
+/* ── COLORS ─────────────────────────────── */
+.palette { display:flex; gap:20px; flex-wrap:wrap; }
+.swatch { width:160px; }
+.swatch-color { height:100px; border-radius:4px; margin-bottom:12px; }
+.swatch-name { font-size:12px; letter-spacing:1px; color:var(--cr-white); margin-bottom:4px; }
+.swatch-hex { font-size:11px; color:var(--cr-muted); }
+
+/* ── TYPOGRAPHY ─────────────────────────────── */
+.type-row { margin-bottom:40px; border-bottom:1px solid #0d1630; padding-bottom:40px; }
+.type-label { font-size:10px; letter-spacing:3px; color:var(--cr-muted); margin-bottom:12px; }
+.type-sample-display {
+  font-family:Impact,'Arial Black',Arial,sans-serif; font-size:72px; line-height:1;
+  background:linear-gradient(90deg,#FF8C00,#FF1500);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.type-sample-display-b {
+  font-family:Impact,'Arial Black',Arial,sans-serif; font-size:48px; line-height:1;
+  background:linear-gradient(90deg,#00FFEE,#0055FF);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  font-style:italic; letter-spacing:6px;
+}
+.type-sample-body { font-size:16px; color:#8899bb; line-height:1.7; max-width:540px; margin-top:8px; }
+.type-sample-mono { font-size:11px; letter-spacing:3px; color:var(--cr-muted); margin-top:8px; }
+
+/* ── ICON MARK ─────────────────────────────── */
+.icon-grid { display:flex; gap:40px; align-items:flex-end; flex-wrap:wrap; }
+.icon-item { text-align:center; }
+.icon-label { font-size:10px; letter-spacing:2px; color:var(--cr-muted); margin-top:12px; }
+
+/* ── USAGE ─────────────────────────────── */
+.usage-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+.usage-card {
+  padding:48px; border-radius:4px;
+  display:flex; flex-direction:column; align-items:flex-start; gap:20px;
+}
+.usage-dark { background:#020110; border:1px solid #0d1630; }
+.usage-light { background:#f0ece4; }
+
+/* ── FOOTER ─────────────────────────────── */
+footer {
+  padding:40px 60px; display:flex; justify-content:space-between; align-items:center;
+  border-top:1px solid #0d1630;
+}
+.footer-logo { font-family:Impact,'Arial Black',sans-serif; font-size:20px; letter-spacing:-1px; }
+.footer-logo span { color:var(--cr-primary); }
+.footer-tag { font-size:10px; letter-spacing:2px; color:var(--cr-muted); }
+</style>
+</head>
+<body>
+
+<!-- ── HERO ──────────────────────────── -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="scanline"></div>
+
+  <div class="hero-content">
+    <div class="speed-lines">
+      <div class="sl"></div>
+      <div class="sl"></div>
+      <div class="sl"></div>
+    </div>
+
+    <div class="logo-accent"></div>
+    <div class="logo-wordmark">
+      <div>
+        <span class="logo-cap">CAP</span><span class="logo-rush">RUSH</span>
+      </div>
+      <div class="logo-rule"></div>
+      <div class="logo-overdrive">— OVERDRIVE!</div>
+    </div>
+    <div class="logo-tagline" style="clear:both; padding-top:16px">
+      BOTTLE CAP RACING &nbsp;·&nbsp; ANIME STYLE &nbsp;·&nbsp; BLOCKCHAIN ECONOMY
+    </div>
+
+    <div class="hero-cta">
+      <button class="btn-primary">▶ JOGAR AGORA</button>
+      <button class="btn-secondary">◈ VER WHITEPAPER</button>
+    </div>
+
+    <div class="hero-features">
+      <span class="feature-pill">🏁 Física Real</span>
+      <span class="feature-pill">🎌 Estilo Anime</span>
+      <span class="feature-pill">💎 NFTs via Metaplex</span>
+      <span class="feature-pill">🪙 Token $CapRush</span>
+      <span class="feature-pill">🌐 Fogo SVM</span>
+      <span class="feature-pill">🆓 Free to Play</span>
+    </div>
+  </div>
+
+  <div class="hero-badge">
+    <svg id="hero-cap-svg" width="360" height="360" viewBox="-180 -180 360 360"></svg>
+  </div>
+</section>
+
+<!-- ── PALETTE ──────────────────────────── -->
+<section>
+  <h2 class="section-label">Paleta de Cores</h2>
+  <div class="palette">
+    <div class="swatch">
+      <div class="swatch-color" style="background:linear-gradient(135deg,#FF8C00,#FF1500)"></div>
+      <div class="swatch-name">OVERDRIVE ORANGE</div>
+      <div class="swatch-hex">#FF5500 · Primária</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:linear-gradient(135deg,#00FFEE,#0055FF)"></div>
+      <div class="swatch-name">BOOST CYAN</div>
+      <div class="swatch-hex">#00EEFF · Secundária</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#020110; border:1px solid #0d1630;"></div>
+      <div class="swatch-name">NIGHT TRACK</div>
+      <div class="swatch-hex">#020110 · Background</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#FFFFFF"></div>
+      <div class="swatch-name">FLASH WHITE</div>
+      <div class="swatch-hex">#FFFFFF · Texto principal</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#1e3050"></div>
+      <div class="swatch-name">DEEP TRACK</div>
+      <div class="swatch-hex">#1e3050 · Texto secundário</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:linear-gradient(135deg,#FFD700,#FF8800)"></div>
+      <div class="swatch-name">$CR TOKEN GOLD</div>
+      <div class="swatch-hex">#FFD700 · Token accent</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TYPOGRAPHY ──────────────────────────── -->
+<section>
+  <h2 class="section-label">Tipografia</h2>
+
+  <div class="type-row">
+    <div class="type-label">DISPLAY · IMPACT — Títulos e Logotipo</div>
+    <div class="type-sample-display">CAPRUSH 2025</div>
+    <div class="type-sample-display-b">OVERDRIVE!</div>
+  </div>
+  <div class="type-row">
+    <div class="type-label">BODY COPY · COURIER NEW — Textos e Interface</div>
+    <div class="type-sample-body">
+      Um jogo de corrida de tampinhas inspirado em Screamer (PlayStation), com traço anime cinematográfico, narrativa envolvente e economia blockchain. Física realista, NFTs funcionais e progressão justa.
+    </div>
+  </div>
+  <div class="type-row" style="border-bottom:none; padding-bottom:0">
+    <div class="type-label">LABELS & BADGES · COURIER MONOSPACE</div>
+    <div class="type-sample-mono">VOLTA 1/2 &nbsp;·&nbsp; 🚀 12 LANÇAMENTOS &nbsp;·&nbsp; 🪙 $CR 840 &nbsp;·&nbsp; CHECKPOINT 3/3</div>
+  </div>
+</section>
+
+<!-- ── ICON MARK ──────────────────────────── -->
+<section>
+  <h2 class="section-label">Símbolo — Tampinha (Icon Mark)</h2>
+  <div class="icon-grid">
+    <div class="icon-item"><svg id="cap-lg" width="140" height="140" viewBox="-70 -70 140 140"></svg><div class="icon-label">LARGE · 140px</div></div>
+    <div class="icon-item"><svg id="cap-md" width="80" height="80" viewBox="-40 -40 80 80"></svg><div class="icon-label">MEDIUM · 80px</div></div>
+    <div class="icon-item"><svg id="cap-sm" width="48" height="48" viewBox="-24 -24 48 48"></svg><div class="icon-label">SMALL · 48px</div></div>
+    <div class="icon-item"><svg id="cap-xs" width="28" height="28" viewBox="-14 -14 28 28"></svg><div class="icon-label">XSMALL · 28px</div></div>
+    <div class="icon-item" style="background:#f0ece4; padding:20px; border-radius:4px;">
+      <svg id="cap-lgt" width="80" height="80" viewBox="-40 -40 80 80"></svg>
+      <div class="icon-label" style="color:#555">LIGHT BG</div>
+    </div>
+    <div class="icon-item" style="background:#FF5500; padding:20px; border-radius:4px;">
+      <svg id="cap-inv" width="80" height="80" viewBox="-40 -40 80 80"></svg>
+      <div class="icon-label">ON PRIMARY</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── USAGE ──────────────────────────── -->
+<section>
+  <h2 class="section-label">Usos do Logotipo</h2>
+  <div class="usage-grid">
+    <div class="usage-card usage-dark">
+      <div style="display:flex; align-items:center; gap:14px">
+        <svg id="usage-cap" width="44" height="44" viewBox="-22 -22 44 44"></svg>
+        <div>
+          <div style="font-family:Impact,'Arial Black',sans-serif; font-size:28px; letter-spacing:-1px; background:linear-gradient(90deg,#fff,#88BBFF); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; display:inline">CAP</div><div style="font-family:Impact,'Arial Black',sans-serif; font-size:28px; letter-spacing:-1px; background:linear-gradient(90deg,#FF8C00,#FF1500); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; display:inline">RUSH</div>
+        </div>
+      </div>
+      <div style="font-size:10px; letter-spacing:2px; color:#1e3050">LOCKUP HORIZONTAL · USO PREFERENCIAL</div>
+    </div>
+    <div class="usage-card usage-light">
+      <div style="display:flex; align-items:center; gap:14px">
+        <svg id="usage-cap2" width="44" height="44" viewBox="-22 -22 44 44"></svg>
+        <div>
+          <div style="font-family:Impact,'Arial Black',sans-serif; font-size:28px; letter-spacing:-1px; color:#FF3300; display:inline">CAP</div><div style="font-family:Impact,'Arial Black',sans-serif; font-size:28px; letter-spacing:-1px; color:#cc2200; display:inline">RUSH</div>
+        </div>
+      </div>
+      <div style="font-size:10px; letter-spacing:2px; color:#8899bb">LOCKUP EM FUNDO CLARO</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ──────────────────────────── -->
+<footer>
+  <div>
+    <div class="footer-logo">CAP<span>RUSH</span></div>
+    <div style="font-size:9px; letter-spacing:2px; color:#0d1630; margin-top:4px">OVERDRIVE!</div>
+  </div>
+  <div class="footer-tag">BRAND IDENTITY v1.0 · 2025</div>
+  <div style="font-size:10px; letter-spacing:1px; color:#0d1630">
+    FOGO SVM · METAPLEX · PHASER.JS · ANCHOR
+  </div>
+</footer>
+
+<script>
+(function(){
+  function drawCap(svgEl, R1, R2, n, fillColor, textColor, strokeColor, textSize, showText){
+    var ns='http://www.w3.org/2000/svg';
+    var pts=[];
+    for(var i=0;i<n*2;i++){
+      var a=i*Math.PI/n-Math.PI/2, r=i%2?R2:R1;
+      pts.push((r*Math.cos(a)).toFixed(2)+','+(r*Math.sin(a)).toFixed(2));
+    }
+    var p=document.createElementNS(ns,'path');
+    p.setAttribute('d','M'+pts.join('L')+'Z');
+    p.setAttribute('fill',fillColor);
+    svgEl.appendChild(p);
+
+    var ci=document.createElementNS(ns,'circle');
+    ci.setAttribute('r',(R2*.88).toFixed(1));
+    ci.setAttribute('fill','none');
+    ci.setAttribute('stroke',strokeColor||fillColor);
+    ci.setAttribute('stroke-width','1.5');
+    svgEl.appendChild(ci);
+
+    if(showText){
+      var t=document.createElementNS(ns,'text');
+      t.setAttribute('font-family',"Impact,'Arial Black',sans-serif");
+      t.setAttribute('font-size',textSize||'14');
+      t.setAttribute('fill',textColor||'#fff');
+      t.setAttribute('text-anchor','middle');
+      t.setAttribute('dominant-baseline','central');
+      t.textContent='CR';
+      svgEl.appendChild(t);
+    }
+  }
+
+  // Hero badge (large, orange)
+  var hcap=document.getElementById('hero-cap-svg');
+  drawCap(hcap,170,148,24,'#FF5500','#FF5500','#FF8C00',60,false);
+
+  // Icon sizes
+  drawCap(document.getElementById('cap-lg'),  62,54,24,'#FF5500','#fff','#FF8C00',24,true);
+  drawCap(document.getElementById('cap-md'),  35,30,24,'#FF5500','#fff','#FF8C00',14,true);
+  drawCap(document.getElementById('cap-sm'),  21,18,24,'#FF5500','#fff','#FF8C00', 8,true);
+  drawCap(document.getElementById('cap-xs'),  12,10,24,'#FF5500','#fff','#FF8C00', 5,false);
+  drawCap(document.getElementById('cap-lgt'), 35,30,24,'#FF5500','#fff','#FF8C00',14,true);
+  drawCap(document.getElementById('cap-inv'), 35,30,24,'#ffffff','#FF5500','#fff',14,true);
+
+  // Usage lockups
+  drawCap(document.getElementById('usage-cap'),  19,16,24,'#FF5500','#fff','#FF8C00', 7,true);
+  drawCap(document.getElementById('usage-cap2'), 19,16,24,'#FF5500','#fff','#FF7700', 7,true);
+})();
+</script>
+</body>
+</html>
