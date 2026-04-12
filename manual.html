@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CapRush – Manual</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--red:#FF2A2A;--gold:#FFD700;--dark:#0A0A0F;--panel:#0E0E1A;--acc:#00E5FF;--muted:#666680;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--dark);color:#E8E8F0;font-family:'Rajdhani',sans-serif;min-height:100vh;line-height:1.7;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(255,42,42,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,42,42,.03) 1px,transparent 1px);background-size:40px 40px;z-index:0;pointer-events:none;}
+nav{position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:10px 32px;background:rgba(8,8,18,.97);border-bottom:2px solid var(--red);}
+.nlogo{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:4px;background:linear-gradient(135deg,var(--red),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-decoration:none;}
+.nlinks{display:flex;gap:1.6rem;align-items:center;}
+.nlinks a{color:var(--muted);font-size:.8rem;letter-spacing:2px;text-decoration:none;text-transform:uppercase;transition:color .2s;}
+.nlinks a:hover,.nlinks a.active{color:var(--gold);}
+.nbadge{background:var(--red);color:#fff;font-size:.63rem;padding:2px 8px;border-radius:2px;letter-spacing:2px;text-transform:uppercase;}
+.content{max-width:820px;margin:3rem auto 6rem;padding:0 2rem;position:relative;z-index:1;}
+h1{font-family:'Bebas Neue',sans-serif;font-size:3.5rem;letter-spacing:6px;background:linear-gradient(135deg,var(--red),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.5rem;}
+h2{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:4px;color:var(--gold);margin:2.5rem 0 1rem;border-bottom:1px solid rgba(255,215,0,.2);padding-bottom:.5rem;}
+h3{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:3px;color:var(--acc);margin:1.5rem 0 .5rem;}
+p{color:#B0B0C0;margin-bottom:.8rem;font-size:1rem;}
+.card-box{background:var(--panel);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem;}
+.card-box.red{border-left:3px solid var(--red);}
+.card-box.gold{border-left:3px solid var(--gold);}
+.card-box.cyan{border-left:3px solid var(--acc);}
+.card-box.green{border-left:3px solid #00FF88;}
+table{width:100%;border-collapse:collapse;margin-bottom:1.5rem;}
+th{background:rgba(255,42,42,.15);color:var(--red);font-family:'Bebas Neue',sans-serif;letter-spacing:2px;padding:10px 14px;text-align:left;font-size:.9rem;}
+td{padding:8px 14px;border-bottom:1px solid rgba(255,255,255,.05);color:#B0B0C0;font-size:.9rem;}
+tr:hover td{background:rgba(255,255,255,.03);}
+.badge{display:inline-block;background:rgba(0,229,255,.15);color:var(--acc);font-size:.75rem;letter-spacing:2px;padding:2px 8px;border-radius:4px;border:1px solid rgba(0,229,255,.3);}
+.badge.gold{background:rgba(255,215,0,.15);color:var(--gold);border-color:rgba(255,215,0,.3);}
+.badge.red{background:rgba(255,42,42,.15);color:var(--red);border-color:rgba(255,42,42,.3);}
+kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:4px;padding:2px 8px;font-family:monospace;font-size:.85rem;color:#E8E8F0;}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nlogo">CAP RUSH</a>
+  <div class="nlinks">
+    <a href="caprush-game.html">Jogar</a>
+    <a href="personagens.html">Pilotos</a>
+    <a href="ranking.html">Ranking</a>
+    <a href="manual.html" class="active">Manual</a>
+    <span class="nbadge">Prototype v0.2</span>
+  </div>
+</nav>
+
+<div class="content">
+<h1>MANUAL DO PILOTO</h1>
+<p style="color:var(--muted);letter-spacing:3px;font-size:.9rem;text-transform:uppercase;margin-bottom:2rem;">CapRush &ndash; Overdrive! &middot; Prototype v0.2</p>
+
+<h2>O QUE &Eacute; CAPRUSH?</h2>
+<div class="card-box gold">
+<p>CapRush &eacute; um jogo de corrida de tampinhas com f&iacute;sica estilo <strong style="color:var(--gold)">Angry Birds + Sinuca</strong>. Cada tampinha &eacute; um NFT com atributos reais que afetam diretamente como ela se comporta na pista: velocidade m&aacute;xima, precis&atilde;o de mira e resist&ecirc;ncia ao arrasto.</p>
+<p>A corrida &eacute; disputada por <strong style="color:var(--gold)">turnos de peteleco</strong>: voc&ecirc; mira, define a for&ccedil;a e solta. A tampinha desliza pela pista at&eacute; parar, e a&iacute; voc&ecirc; mira novamente. Complete as voltas mais r&aacute;pido que seu oponente.</p>
+</div>
+
+<h2>CONTROLES</h2>
+<div class="card-box cyan">
+<table>
+<tr><th>A&ccedil;&atilde;o</th><th>Mouse</th><th>Touch</th></tr>
+<tr><td>Iniciar jogo</td><td>Clique em qualquer lugar na tela de espera</td><td>Toque em qualquer lugar</td></tr>
+<tr><td>Mirar</td><td>Clique e segure sobre a tampinha</td><td>Toque e segure na tampinha</td></tr>
+<tr><td>Definir for&ccedil;a</td><td>Arraste para tr&aacute;s (oposto &agrave; dire&ccedil;&atilde;o desejada)</td><td>Arraste para tr&aacute;s</td></tr>
+<tr><td>Lan&ccedil;ar</td><td>Solte o bot&atilde;o do mouse</td><td>Levante o dedo</td></tr>
+</table>
+<p><strong style="color:var(--acc)">Dica de mira:</strong> a linha tracejada azul aponta na dire&ccedil;&atilde;o do lan&ccedil;amento. O c&iacute;rculo dourado ao redor da tampinha indica a for&ccedil;a (quanto maior, mais r&aacute;pido).</p>
+</div>
+
+<h2>F&Iacute;SICA DA PISTA</h2>
+<div class="card-box">
+<table>
+<tr><th>Superf&iacute;cie</th><th>Efeito</th><th>Som</th></tr>
+<tr><td><span class="badge">Terra/Cascalho</span></td><td>Arrasto normal (1.0x)</td><td>Silencioso</td></tr>
+<tr><td><span class="badge" style="background:rgba(0,150,255,.15);color:#5AAEFF;border-color:rgba(0,150,255,.3);">&#128167; &Aacute;gua</span></td><td>Reduz velocidade em 35% gradualmente (1.35x arrasto)</td><td>Som de salpico</td></tr>
+<tr><td><span class="badge" style="background:rgba(0,200,0,.15);color:#5FFF5F;border-color:rgba(0,200,0,.3);">&#127807; Grama</span></td><td>Aumenta deslizamento &mdash; tampinha escorrega mais (0.75x atrito)</td><td>Som de grama</td></tr>
+<tr><td><span class="badge gold">&#129522; Obst&aacute;culo</span></td><td>Ricochete el&aacute;stico (coef. 0.85)</td><td>Som de batida</td></tr>
+<tr><td><span class="badge red">Zona interna</span></td><td>Volta ao &uacute;ltimo checkpoint (ou largada)</td><td>&mdash;</td></tr>
+</table>
+</div>
+
+<h2>CHECKPOINTS E VOLTAS</h2>
+<div class="card-box green">
+<p>A pista possui <strong style="color:#00FF88">3 checkpoints</strong> (manchas brancas). Passe por eles em ordem para completar uma volta.</p>
+<p>&#128276; Um <strong style="color:#00FF88">bip</strong> &eacute; emitido ao cruzar cada checkpoint &mdash; como os postos de combust&iacute;vel do River Raid.</p>
+<p>Se a tampinha sair para a <strong style="color:var(--red)">parte interna da pista</strong> (paddock, arquibancada, grama ou lago), ela volta automaticamente ao &uacute;ltimo checkpoint j&aacute; registrado. Se nenhum checkpoint tiver sido ativado ainda, volta &agrave; <strong style="color:var(--gold)">linha de largada</strong>.</p>
+<p>&#127941; Ao cruzar a linha de chegada (xadrez preto e branco), um <strong style="color:var(--gold)">som de vit&oacute;ria</strong> &eacute; tocado.</p>
+</div>
+
+<h2>ZONAS ESPECIAIS</h2>
+<div class="card-box">
+<h3>&#127970; Paddock (amarelo)</h3>
+<p>Zona de boxes &agrave; esquerda da pista. Tampinha volta ao &uacute;ltimo checkpoint se entrar aqui.</p>
+<h3>&#127881; Arquibancadas (laranja)</h3>
+<p>Torcedores anim&aacute;veis na lateral. Tampinha volta ao &uacute;ltimo checkpoint se entrar aqui.</p>
+<h3>&#127795; Grama interna (verde)</h3>
+<p>Grama e &aacute;rvores no interior da pista. Tampinha volta ao &uacute;ltimo checkpoint se entrar aqui.</p>
+<h3>&#128167; Lago (azul)</h3>
+<p>Lago no interior da pista. Tampinha volta ao &uacute;ltimo checkpoint se entrar aqui.</p>
+<h3>&#127774; Ponte (estreitamento)</h3>
+<p>Pequeno estreitamento antes da chegada com duas guias laterais. A tampinha pode passar normalmente, mas colide com as guias se desviada.</p>
+</div>
+
+<h2>PILOTOS E NFTs</h2>
+<div class="card-box red">
+<table>
+<tr><th>Piloto</th><th>Animal</th><th>Raridade</th><th>Especialidade</th><th>Status</th></tr>
+<tr><td style="color:#A78BFF">KENTA</td><td>Maine Coon Brown Tabby</td><td><span class="badge" style="color:#A78BFF;background:rgba(123,97,255,.15);border-color:rgba(123,97,255,.3);">&Eacute;pica</span></td><td>Velocidade (95)</td><td>&#9989; Dispon&iacute;vel</td></tr>
+<tr><td style="color:#00E5FF">YUKI</td><td>Samoeida</td><td><span class="badge">Lend&aacute;ria</span></td><td>Controle (91)</td><td>&#9989; Dispon&iacute;vel</td></tr>
+<tr><td style="color:#FFD700">BRUNA</td><td>SRD Marrom c/ la&ccedil;o</td><td><span class="badge gold">Rara</span></td><td>Equilibrada</td><td>&#128274; Pr&oacute;xima fase</td></tr>
+<tr><td style="color:#FF6B6B">TAPZ</td><td>Golden Retriever Angelical</td><td><span class="badge red">M&iacute;tica</span></td><td>Aerodin&acirc;mica (99)</td><td>&#128274; Marketplace NFT</td></tr>
+</table>
+</div>
+
+<h2>MULTIPLAYER (1v1)</h2>
+<div class="card-box cyan">
+<p>O modo multiplayer permite duelos locais de 2 jogadores no mesmo dispositivo.</p>
+<p><strong style="color:var(--acc)">Jogador 1 (Yuki):</strong> usa o lado esquerdo da tela &mdash; arraste normalmente.</p>
+<p><strong style="color:var(--gold)">Jogador 2 (Kenta):</strong> usa o lado direito da tela &mdash; mesma mec&acirc;nica, mas com a tampinha dourada.</p>
+<p>A corrida &eacute; por <strong style="color:var(--acc)">turnos alternados</strong>: J1 joga, a tampinha para, depois J2 joga, e assim por diante. Vence quem completar as voltas em menor tempo total.</p>
+</div>
+
+<h2>ECONOMY $CR</h2>
+<div class="card-box gold">
+<p>Ap&oacute;s completar uma corrida, o servidor local registra o tempo e distribui <strong style="color:var(--gold)">tokens $CR</strong> baseados na performance.</p>
+<table>
+<tr><th>A&ccedil;&atilde;o</th><th>Recompensa $CR</th></tr>
+<tr><td>Corrida completada</td><td>0.1 $CR</td></tr>
+<tr><td>Volta abaixo de 60s</td><td>+0.05 $CR b&ocirc;nus</td></tr>
+<tr><td>Staking de tampinha/hora</td><td>3.6 $CR</td></tr>
+</table>
+</div>
+
+<h2>COMO RODAR LOCALMENTE</h2>
+<div class="card-box">
+<p><kbd>Terminal 1</kbd> &rarr; <kbd>cd server &amp;&amp; python server.py</kbd></p>
+<p><kbd>Terminal 2</kbd> &rarr; <kbd>python -m http.server 8080</kbd> (na raiz do projeto)</p>
+<p><kbd>Chrome</kbd> &rarr; <kbd>http://localhost:8080/index.html</kbd></p>
+</div>
+</div>
+</body>
+</html>

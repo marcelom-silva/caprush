@@ -1,4 +1,282 @@
-<!DOCTYPE html>
+"""
+builder_index.py
+================
+CapRush - Fase 1 Final
+Gera:
+  client/index.html         - Lobby com tampinhas-menu
+  personagens.html          - Pilotos NFT atualizados (Kenta/Yuki/Bruna/Tapz)
+  manual.html               - Manual do usuario
+  client/game.html          - game.html atualizado com link de volta ao index
+  caprush-game.html         - frame do jogo com nav atualizada
+Execute: python builder_index.py
+"""
+import os
+ROOT = os.path.dirname(os.path.abspath(__file__))
+def w(rel, txt):
+    p = os.path.join(ROOT, rel)
+    os.makedirs(os.path.dirname(p), exist_ok=True)
+    with open(p, "w", encoding="utf-8") as f: f.write(txt)
+    print("  OK  " + rel)
+
+# ─────────────────────────────────────────────────────────────────
+# INDEX.HTML — tampinhas flutuantes como menu
+# ─────────────────────────────────────────────────────────────────
+INDEX = r"""<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CapRush – Overdrive!</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--red:#FF2A2A;--gold:#FFD700;--dark:#060610;--acc:#00E5FF;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-family:'Rajdhani',sans-serif;color:#E8E8F0;}
+
+/* ── FUNDO INTERATIVO ── */
+#bg-canvas{position:fixed;inset:0;z-index:0;}
+
+/* ── LOGO ── */
+.logo-wrap{
+  position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  z-index:10;text-align:center;
+  pointer-events:none;
+  user-select:none;
+}
+.logo-main{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(3.5rem,10vw,8rem);
+  line-height:.85;
+  letter-spacing:6px;
+  background:linear-gradient(160deg,#FF0000 0%,#FF6B00 30%,#FFD700 60%,#FF2A2A 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 0 30px rgba(255,100,0,.6));
+  animation:logoBreath 3s ease-in-out infinite;
+}
+.logo-sub{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(1rem,3vw,2rem);
+  letter-spacing:14px;
+  color:#00E5FF;
+  text-shadow:0 0 20px rgba(0,229,255,.5);
+  margin-top:.3rem;
+}
+.logo-proto{
+  font-size:.75rem;letter-spacing:4px;color:rgba(255,255,255,.3);
+  text-transform:uppercase;margin-top:.6rem;
+}
+@keyframes logoBreath{
+  0%,100%{filter:drop-shadow(0 0 30px rgba(255,100,0,.6));}
+  50%{filter:drop-shadow(0 0 60px rgba(255,215,0,.9));}
+}
+
+/* ── TAMPINHAS-MENU ── */
+.cap{
+  position:fixed;
+  width:100px;height:100px;
+  border-radius:50%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;
+  z-index:20;
+  text-decoration:none;
+  animation:floatCap var(--dur,4s) ease-in-out var(--delay,0s) infinite;
+  transition:transform .2s,box-shadow .2s;
+  border:3px solid rgba(255,255,255,.25);
+}
+.cap:hover{
+  transform:scale(1.18) !important;
+  z-index:30;
+}
+.cap-inner{
+  width:72px;height:72px;border-radius:50%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.35);
+  border:2px solid rgba(255,255,255,.3);
+}
+.cap-icon{font-size:1.5rem;line-height:1;}
+.cap-lbl{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:.72rem;letter-spacing:2px;
+  margin-top:.2rem;
+  text-shadow:0 1px 4px rgba(0,0,0,.9);
+}
+.cap-name{
+  position:absolute;bottom:-28px;left:50%;transform:translateX(-50%);
+  font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:3px;
+  white-space:nowrap;color:rgba(255,255,255,.8);
+  text-shadow:0 0 10px rgba(0,0,0,1);
+  pointer-events:none;
+  opacity:0;transition:opacity .2s;
+}
+.cap:hover .cap-name{opacity:1;}
+
+/* posições fixas */
+.cap-jogar    {top:22%;left:12%; --dur:3.8s; --delay:0s;}
+.cap-pilotos  {top:20%;right:12%; --dur:4.2s; --delay:.5s;}
+.cap-ranking  {bottom:22%;left:14%; --dur:4.5s; --delay:1s;}
+.cap-arq      {bottom:22%;right:14%; --dur:3.6s; --delay:1.5s;}
+.cap-manual   {bottom:10%;left:50%;transform:translateX(-50%); --dur:4s; --delay:.3s; animation-name:floatCapC;}
+
+/* cores */
+.cap-jogar   {background:radial-gradient(circle at 35% 35%,#FF6B6B,#A00);box-shadow:0 0 30px rgba(255,42,42,.5);}
+.cap-pilotos {background:radial-gradient(circle at 35% 35%,#6BFFC8,#00774A);box-shadow:0 0 30px rgba(0,255,160,.4);}
+.cap-ranking {background:radial-gradient(circle at 35% 35%,#6BC5FF,#0055AA);box-shadow:0 0 30px rgba(0,150,255,.4);}
+.cap-arq     {background:radial-gradient(circle at 35% 35%,#FFD76B,#AA7700);box-shadow:0 0 30px rgba(255,200,0,.4);}
+.cap-manual  {background:radial-gradient(circle at 35% 35%,#D46BFF,#660099);box-shadow:0 0 30px rgba(180,0,255,.4);}
+
+@keyframes floatCap{
+  0%,100%{transform:translateY(0) rotate(-4deg);}
+  50%{transform:translateY(-18px) rotate(4deg);}
+}
+@keyframes floatCapC{
+  0%,100%{transform:translateX(-50%) translateY(0) rotate(-3deg);}
+  50%{transform:translateX(-50%) translateY(-14px) rotate(3deg);}
+}
+
+/* reflexo na tampinha */
+.cap::after{
+  content:'';position:absolute;
+  top:12%;left:18%;
+  width:30%;height:20%;
+  background:rgba(255,255,255,.35);
+  border-radius:50%;
+  transform:rotate(-35deg);
+  pointer-events:none;
+}
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<!-- LOGO -->
+<div class="logo-wrap">
+  <div class="logo-main">CAP<br>RUSH</div>
+  <div class="logo-sub">— OVERDRIVE! —</div>
+  <div class="logo-proto">Prototype v0.2 &middot; Fogo SVM &middot; Devnet</div>
+</div>
+
+<!-- TAMPINHAS-MENU -->
+<a href="caprush-game.html" class="cap cap-jogar">
+  <div class="cap-inner">
+    <div class="cap-icon">&#9654;</div>
+    <div class="cap-lbl">JOGAR</div>
+  </div>
+  <span class="cap-name">JOGAR</span>
+</a>
+
+<a href="personagens.html" class="cap cap-pilotos">
+  <div class="cap-inner">
+    <div class="cap-icon">&#128100;</div>
+    <div class="cap-lbl">PILOTOS</div>
+  </div>
+  <span class="cap-name">PILOTOS</span>
+</a>
+
+<a href="ranking.html" class="cap cap-ranking">
+  <div class="cap-inner">
+    <div class="cap-icon">&#127942;</div>
+    <div class="cap-lbl">RANKING</div>
+  </div>
+  <span class="cap-name">RANKING</span>
+</a>
+
+<a href="arquitetura.html" class="cap cap-arq">
+  <div class="cap-inner">
+    <div class="cap-icon">&#9881;</div>
+    <div class="cap-lbl">ARQT.</div>
+  </div>
+  <span class="cap-name">ARQUITETURA</span>
+</a>
+
+<a href="manual.html" class="cap cap-manual">
+  <div class="cap-inner">
+    <div class="cap-icon">&#128218;</div>
+    <div class="cap-lbl">MANUAL</div>
+  </div>
+  <span class="cap-name">MANUAL</span>
+</a>
+
+<script>
+// Fundo interativo com partículas que reagem ao mouse
+(function(){
+  var cv=document.getElementById('bg-canvas');
+  var cx=cv.getContext('2d');
+  var W,H,mx=0,my=0,pts=[];
+
+  function resize(){ W=cv.width=innerWidth; H=cv.height=innerHeight; }
+  window.addEventListener('resize',resize); resize();
+
+  document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;});
+
+  // Criar partículas/estrelas
+  for(var i=0;i<120;i++){
+    pts.push({
+      x:Math.random()*2000-1000, y:Math.random()*2000-1000,
+      vx:(Math.random()-.5)*.4, vy:(Math.random()-.5)*.4,
+      r:Math.random()*1.8+.4,
+      hue:Math.random()*60+10, // laranja-vermelho-dourado
+      a:Math.random()*.7+.2
+    });
+  }
+
+  var hue=0;
+  function frame(){
+    requestAnimationFrame(frame);
+    // Gradiente radial que segue o mouse
+    cx.fillStyle='rgba(6,6,16,.18)';
+    cx.fillRect(0,0,W,H);
+
+    // Brilho radial seguindo o mouse
+    var grd=cx.createRadialGradient(mx,my,0,mx,my,350);
+    grd.addColorStop(0,'rgba(255,100,0,.06)');
+    grd.addColorStop(.5,'rgba(255,42,42,.02)');
+    grd.addColorStop(1,'rgba(0,0,0,0)');
+    cx.fillStyle=grd;
+    cx.fillRect(0,0,W,H);
+
+    // Grade animada
+    hue=(hue+.3)%360;
+    cx.strokeStyle='rgba('+(80+Math.sin(hue*.02)*40)+','+(20)+','+(10)+',0.06)';
+    cx.lineWidth=.5;
+    var gs=50;
+    for(var x=0;x<W;x+=gs){cx.beginPath();cx.moveTo(x,0);cx.lineTo(x,H);cx.stroke();}
+    for(var y=0;y<H;y+=gs){cx.beginPath();cx.moveTo(0,y);cx.lineTo(W,y);cx.stroke();}
+
+    // Partículas
+    pts.forEach(function(p){
+      // Atração suave ao mouse
+      var dx=mx-W/2-p.x, dy=my-H/2-p.y;
+      var dist=Math.sqrt(dx*dx+dy*dy)+1;
+      p.vx+=dx/dist*.003; p.vy+=dy/dist*.003;
+      p.vx*=.98; p.vy*=.98;
+      p.x+=p.vx; p.y+=p.vy;
+      if(Math.abs(p.x)>1200){p.vx*=-.8;}
+      if(Math.abs(p.y)>1200){p.vy*=-.8;}
+      var sx=W/2+p.x, sy=H/2+p.y;
+      if(sx<-5||sx>W+5||sy<-5||sy>H+5) return;
+      cx.save();
+      cx.globalAlpha=p.a;
+      cx.fillStyle='hsl('+(p.hue+hue*.1)+',90%,70%)';
+      cx.beginPath();cx.arc(sx,sy,p.r,0,Math.PI*2);cx.fill();
+      cx.restore();
+    });
+  }
+  // Limpar com fade inicial
+  cx.fillStyle='#060610';
+  cx.fillRect(0,0,W||1920,H||1080);
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
+"""
+
+# ─────────────────────────────────────────────────────────────────
+# PERSONAGENS.HTML — Kenta / Yuki / Bruna (bloq) / Tapz (bloq)
+# ─────────────────────────────────────────────────────────────────
+PERS = r"""<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8"/>
@@ -361,3 +639,171 @@ nav{position:sticky;top:0;z-index:100;display:flex;justify-content:space-between
 </script>
 </body>
 </html>
+"""
+
+# ─────────────────────────────────────────────────────────────────
+# MANUAL.HTML
+# ─────────────────────────────────────────────────────────────────
+MANUAL = r"""<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CapRush – Manual</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--red:#FF2A2A;--gold:#FFD700;--dark:#0A0A0F;--panel:#0E0E1A;--acc:#00E5FF;--muted:#666680;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--dark);color:#E8E8F0;font-family:'Rajdhani',sans-serif;min-height:100vh;line-height:1.7;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(255,42,42,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,42,42,.03) 1px,transparent 1px);background-size:40px 40px;z-index:0;pointer-events:none;}
+nav{position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:10px 32px;background:rgba(8,8,18,.97);border-bottom:2px solid var(--red);}
+.nlogo{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:4px;background:linear-gradient(135deg,var(--red),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-decoration:none;}
+.nlinks{display:flex;gap:1.6rem;align-items:center;}
+.nlinks a{color:var(--muted);font-size:.8rem;letter-spacing:2px;text-decoration:none;text-transform:uppercase;transition:color .2s;}
+.nlinks a:hover,.nlinks a.active{color:var(--gold);}
+.nbadge{background:var(--red);color:#fff;font-size:.63rem;padding:2px 8px;border-radius:2px;letter-spacing:2px;text-transform:uppercase;}
+.content{max-width:820px;margin:3rem auto 6rem;padding:0 2rem;position:relative;z-index:1;}
+h1{font-family:'Bebas Neue',sans-serif;font-size:3.5rem;letter-spacing:6px;background:linear-gradient(135deg,var(--red),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.5rem;}
+h2{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:4px;color:var(--gold);margin:2.5rem 0 1rem;border-bottom:1px solid rgba(255,215,0,.2);padding-bottom:.5rem;}
+h3{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:3px;color:var(--acc);margin:1.5rem 0 .5rem;}
+p{color:#B0B0C0;margin-bottom:.8rem;font-size:1rem;}
+.card-box{background:var(--panel);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem;}
+.card-box.red{border-left:3px solid var(--red);}
+.card-box.gold{border-left:3px solid var(--gold);}
+.card-box.cyan{border-left:3px solid var(--acc);}
+.card-box.green{border-left:3px solid #00FF88;}
+table{width:100%;border-collapse:collapse;margin-bottom:1.5rem;}
+th{background:rgba(255,42,42,.15);color:var(--red);font-family:'Bebas Neue',sans-serif;letter-spacing:2px;padding:10px 14px;text-align:left;font-size:.9rem;}
+td{padding:8px 14px;border-bottom:1px solid rgba(255,255,255,.05);color:#B0B0C0;font-size:.9rem;}
+tr:hover td{background:rgba(255,255,255,.03);}
+.badge{display:inline-block;background:rgba(0,229,255,.15);color:var(--acc);font-size:.75rem;letter-spacing:2px;padding:2px 8px;border-radius:4px;border:1px solid rgba(0,229,255,.3);}
+.badge.gold{background:rgba(255,215,0,.15);color:var(--gold);border-color:rgba(255,215,0,.3);}
+.badge.red{background:rgba(255,42,42,.15);color:var(--red);border-color:rgba(255,42,42,.3);}
+kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:4px;padding:2px 8px;font-family:monospace;font-size:.85rem;color:#E8E8F0;}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nlogo">CAP RUSH</a>
+  <div class="nlinks">
+    <a href="caprush-game.html">Jogar</a>
+    <a href="personagens.html">Pilotos</a>
+    <a href="ranking.html">Ranking</a>
+    <a href="manual.html" class="active">Manual</a>
+    <span class="nbadge">Prototype v0.2</span>
+  </div>
+</nav>
+
+<div class="content">
+<h1>MANUAL DO PILOTO</h1>
+<p style="color:var(--muted);letter-spacing:3px;font-size:.9rem;text-transform:uppercase;margin-bottom:2rem;">CapRush &ndash; Overdrive! &middot; Prototype v0.2</p>
+
+<h2>O QUE &Eacute; CAPRUSH?</h2>
+<div class="card-box gold">
+<p>CapRush &eacute; um jogo de corrida de tampinhas com f&iacute;sica estilo <strong style="color:var(--gold)">Angry Birds + Sinuca</strong>. Cada tampinha &eacute; um NFT com atributos reais que afetam diretamente como ela se comporta na pista: velocidade m&aacute;xima, precis&atilde;o de mira e resist&ecirc;ncia ao arrasto.</p>
+<p>A corrida &eacute; disputada por <strong style="color:var(--gold)">turnos de peteleco</strong>: voc&ecirc; mira, define a for&ccedil;a e solta. A tampinha desliza pela pista at&eacute; parar, e a&iacute; voc&ecirc; mira novamente. Complete as voltas mais r&aacute;pido que seu oponente.</p>
+</div>
+
+<h2>CONTROLES</h2>
+<div class="card-box cyan">
+<table>
+<tr><th>A&ccedil;&atilde;o</th><th>Mouse</th><th>Touch</th></tr>
+<tr><td>Iniciar jogo</td><td>Clique em qualquer lugar na tela de espera</td><td>Toque em qualquer lugar</td></tr>
+<tr><td>Mirar</td><td>Clique e segure sobre a tampinha</td><td>Toque e segure na tampinha</td></tr>
+<tr><td>Definir for&ccedil;a</td><td>Arraste para tr&aacute;s (oposto &agrave; dire&ccedil;&atilde;o desejada)</td><td>Arraste para tr&aacute;s</td></tr>
+<tr><td>Lan&ccedil;ar</td><td>Solte o bot&atilde;o do mouse</td><td>Levante o dedo</td></tr>
+</table>
+<p><strong style="color:var(--acc)">Dica de mira:</strong> a linha tracejada azul aponta na dire&ccedil;&atilde;o do lan&ccedil;amento. O c&iacute;rculo dourado ao redor da tampinha indica a for&ccedil;a (quanto maior, mais r&aacute;pido).</p>
+</div>
+
+<h2>F&Iacute;SICA DA PISTA</h2>
+<div class="card-box">
+<table>
+<tr><th>Superf&iacute;cie</th><th>Efeito</th><th>Som</th></tr>
+<tr><td><span class="badge">Terra/Cascalho</span></td><td>Arrasto normal (1.0x)</td><td>Silencioso</td></tr>
+<tr><td><span class="badge" style="background:rgba(0,150,255,.15);color:#5AAEFF;border-color:rgba(0,150,255,.3);">&#128167; &Aacute;gua</span></td><td>Reduz velocidade em 35% gradualmente (1.35x arrasto)</td><td>Som de salpico</td></tr>
+<tr><td><span class="badge" style="background:rgba(0,200,0,.15);color:#5FFF5F;border-color:rgba(0,200,0,.3);">&#127807; Grama</span></td><td>Aumenta deslizamento &mdash; tampinha escorrega mais (0.75x atrito)</td><td>Som de grama</td></tr>
+<tr><td><span class="badge gold">&#129522; Obst&aacute;culo</span></td><td>Ricochete el&aacute;stico (coef. 0.85)</td><td>Som de batida</td></tr>
+<tr><td><span class="badge red">Zona interna</span></td><td>Volta ao &uacute;ltimo checkpoint (ou largada)</td><td>&mdash;</td></tr>
+</table>
+</div>
+
+<h2>CHECKPOINTS E VOLTAS</h2>
+<div class="card-box green">
+<p>A pista possui <strong style="color:#00FF88">3 checkpoints</strong> (manchas brancas). Passe por eles em ordem para completar uma volta.</p>
+<p>&#128276; Um <strong style="color:#00FF88">bip</strong> &eacute; emitido ao cruzar cada checkpoint &mdash; como os postos de combust&iacute;vel do River Raid.</p>
+<p>Se a tampinha sair para a <strong style="color:var(--red)">parte interna da pista</strong> (paddock, arquibancada, grama ou lago), ela volta automaticamente ao &uacute;ltimo checkpoint j&aacute; registrado. Se nenhum checkpoint tiver sido ativado ainda, volta &agrave; <strong style="color:var(--gold)">linha de largada</strong>.</p>
+<p>&#127941; Ao cruzar a linha de chegada (xadrez preto e branco), um <strong style="color:var(--gold)">som de vit&oacute;ria</strong> &eacute; tocado.</p>
+</div>
+
+<h2>ZONAS ESPECIAIS</h2>
+<div class="card-box">
+<h3>&#127970; Paddock (amarelo)</h3>
+<p>Zona de boxes &agrave; esquerda da pista. Tampinha volta ao &uacute;ltimo checkpoint se entrar aqui.</p>
+<h3>&#127881; Arquibancadas (laranja)</h3>
+<p>Torcedores anim&aacute;veis na lateral. Tampinha volta ao &uacute;ltimo checkpoint se entrar aqui.</p>
+<h3>&#127795; Grama interna (verde)</h3>
+<p>Grama e &aacute;rvores no interior da pista. Tampinha volta ao &uacute;ltimo checkpoint se entrar aqui.</p>
+<h3>&#128167; Lago (azul)</h3>
+<p>Lago no interior da pista. Tampinha volta ao &uacute;ltimo checkpoint se entrar aqui.</p>
+<h3>&#127774; Ponte (estreitamento)</h3>
+<p>Pequeno estreitamento antes da chegada com duas guias laterais. A tampinha pode passar normalmente, mas colide com as guias se desviada.</p>
+</div>
+
+<h2>PILOTOS E NFTs</h2>
+<div class="card-box red">
+<table>
+<tr><th>Piloto</th><th>Animal</th><th>Raridade</th><th>Especialidade</th><th>Status</th></tr>
+<tr><td style="color:#A78BFF">KENTA</td><td>Maine Coon Brown Tabby</td><td><span class="badge" style="color:#A78BFF;background:rgba(123,97,255,.15);border-color:rgba(123,97,255,.3);">&Eacute;pica</span></td><td>Velocidade (95)</td><td>&#9989; Dispon&iacute;vel</td></tr>
+<tr><td style="color:#00E5FF">YUKI</td><td>Samoeida</td><td><span class="badge">Lend&aacute;ria</span></td><td>Controle (91)</td><td>&#9989; Dispon&iacute;vel</td></tr>
+<tr><td style="color:#FFD700">BRUNA</td><td>SRD Marrom c/ la&ccedil;o</td><td><span class="badge gold">Rara</span></td><td>Equilibrada</td><td>&#128274; Pr&oacute;xima fase</td></tr>
+<tr><td style="color:#FF6B6B">TAPZ</td><td>Golden Retriever Angelical</td><td><span class="badge red">M&iacute;tica</span></td><td>Aerodin&acirc;mica (99)</td><td>&#128274; Marketplace NFT</td></tr>
+</table>
+</div>
+
+<h2>MULTIPLAYER (1v1)</h2>
+<div class="card-box cyan">
+<p>O modo multiplayer permite duelos locais de 2 jogadores no mesmo dispositivo.</p>
+<p><strong style="color:var(--acc)">Jogador 1 (Yuki):</strong> usa o lado esquerdo da tela &mdash; arraste normalmente.</p>
+<p><strong style="color:var(--gold)">Jogador 2 (Kenta):</strong> usa o lado direito da tela &mdash; mesma mec&acirc;nica, mas com a tampinha dourada.</p>
+<p>A corrida &eacute; por <strong style="color:var(--acc)">turnos alternados</strong>: J1 joga, a tampinha para, depois J2 joga, e assim por diante. Vence quem completar as voltas em menor tempo total.</p>
+</div>
+
+<h2>ECONOMY $CR</h2>
+<div class="card-box gold">
+<p>Ap&oacute;s completar uma corrida, o servidor local registra o tempo e distribui <strong style="color:var(--gold)">tokens $CR</strong> baseados na performance.</p>
+<table>
+<tr><th>A&ccedil;&atilde;o</th><th>Recompensa $CR</th></tr>
+<tr><td>Corrida completada</td><td>0.1 $CR</td></tr>
+<tr><td>Volta abaixo de 60s</td><td>+0.05 $CR b&ocirc;nus</td></tr>
+<tr><td>Staking de tampinha/hora</td><td>3.6 $CR</td></tr>
+</table>
+</div>
+
+<h2>COMO RODAR LOCALMENTE</h2>
+<div class="card-box">
+<p><kbd>Terminal 1</kbd> &rarr; <kbd>cd server &amp;&amp; python server.py</kbd></p>
+<p><kbd>Terminal 2</kbd> &rarr; <kbd>python -m http.server 8080</kbd> (na raiz do projeto)</p>
+<p><kbd>Chrome</kbd> &rarr; <kbd>http://localhost:8080/index.html</kbd></p>
+</div>
+</div>
+</body>
+</html>
+"""
+
+def build():
+    print()
+    print("="*55)
+    print("  CapRush – builder_index.py")
+    print("="*55)
+    print("Raiz:", ROOT)
+    print()
+    w("index.html",       INDEX)
+    w("personagens.html", PERS)
+    w("manual.html",      MANUAL)
+    print()
+    print("  GERADO! Abra index.html para ver o lobby.")
+    print()
+
+if __name__=="__main__":
+    build()

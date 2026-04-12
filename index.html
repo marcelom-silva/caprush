@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CapRush – Overdrive!</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--red:#FF2A2A;--gold:#FFD700;--dark:#060610;--acc:#00E5FF;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-family:'Rajdhani',sans-serif;color:#E8E8F0;}
+
+/* ── FUNDO INTERATIVO ── */
+#bg-canvas{position:fixed;inset:0;z-index:0;}
+
+/* ── LOGO ── */
+.logo-wrap{
+  position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  z-index:10;text-align:center;
+  pointer-events:none;
+  user-select:none;
+}
+.logo-main{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(3.5rem,10vw,8rem);
+  line-height:.85;
+  letter-spacing:6px;
+  background:linear-gradient(160deg,#FF0000 0%,#FF6B00 30%,#FFD700 60%,#FF2A2A 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  filter:drop-shadow(0 0 30px rgba(255,100,0,.6));
+  animation:logoBreath 3s ease-in-out infinite;
+}
+.logo-sub{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(1rem,3vw,2rem);
+  letter-spacing:14px;
+  color:#00E5FF;
+  text-shadow:0 0 20px rgba(0,229,255,.5);
+  margin-top:.3rem;
+}
+.logo-proto{
+  font-size:.75rem;letter-spacing:4px;color:rgba(255,255,255,.3);
+  text-transform:uppercase;margin-top:.6rem;
+}
+@keyframes logoBreath{
+  0%,100%{filter:drop-shadow(0 0 30px rgba(255,100,0,.6));}
+  50%{filter:drop-shadow(0 0 60px rgba(255,215,0,.9));}
+}
+
+/* ── TAMPINHAS-MENU ── */
+.cap{
+  position:fixed;
+  width:100px;height:100px;
+  border-radius:50%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;
+  z-index:20;
+  text-decoration:none;
+  animation:floatCap var(--dur,4s) ease-in-out var(--delay,0s) infinite;
+  transition:transform .2s,box-shadow .2s;
+  border:3px solid rgba(255,255,255,.25);
+}
+.cap:hover{
+  transform:scale(1.18) !important;
+  z-index:30;
+}
+.cap-inner{
+  width:72px;height:72px;border-radius:50%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.35);
+  border:2px solid rgba(255,255,255,.3);
+}
+.cap-icon{font-size:1.5rem;line-height:1;}
+.cap-lbl{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:.72rem;letter-spacing:2px;
+  margin-top:.2rem;
+  text-shadow:0 1px 4px rgba(0,0,0,.9);
+}
+.cap-name{
+  position:absolute;bottom:-28px;left:50%;transform:translateX(-50%);
+  font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:3px;
+  white-space:nowrap;color:rgba(255,255,255,.8);
+  text-shadow:0 0 10px rgba(0,0,0,1);
+  pointer-events:none;
+  opacity:0;transition:opacity .2s;
+}
+.cap:hover .cap-name{opacity:1;}
+
+/* posições fixas */
+.cap-jogar    {top:22%;left:12%; --dur:3.8s; --delay:0s;}
+.cap-pilotos  {top:20%;right:12%; --dur:4.2s; --delay:.5s;}
+.cap-ranking  {bottom:22%;left:14%; --dur:4.5s; --delay:1s;}
+.cap-arq      {bottom:22%;right:14%; --dur:3.6s; --delay:1.5s;}
+.cap-manual   {bottom:10%;left:50%;transform:translateX(-50%); --dur:4s; --delay:.3s; animation-name:floatCapC;}
+
+/* cores */
+.cap-jogar   {background:radial-gradient(circle at 35% 35%,#FF6B6B,#A00);box-shadow:0 0 30px rgba(255,42,42,.5);}
+.cap-pilotos {background:radial-gradient(circle at 35% 35%,#6BFFC8,#00774A);box-shadow:0 0 30px rgba(0,255,160,.4);}
+.cap-ranking {background:radial-gradient(circle at 35% 35%,#6BC5FF,#0055AA);box-shadow:0 0 30px rgba(0,150,255,.4);}
+.cap-arq     {background:radial-gradient(circle at 35% 35%,#FFD76B,#AA7700);box-shadow:0 0 30px rgba(255,200,0,.4);}
+.cap-manual  {background:radial-gradient(circle at 35% 35%,#D46BFF,#660099);box-shadow:0 0 30px rgba(180,0,255,.4);}
+
+@keyframes floatCap{
+  0%,100%{transform:translateY(0) rotate(-4deg);}
+  50%{transform:translateY(-18px) rotate(4deg);}
+}
+@keyframes floatCapC{
+  0%,100%{transform:translateX(-50%) translateY(0) rotate(-3deg);}
+  50%{transform:translateX(-50%) translateY(-14px) rotate(3deg);}
+}
+
+/* reflexo na tampinha */
+.cap::after{
+  content:'';position:absolute;
+  top:12%;left:18%;
+  width:30%;height:20%;
+  background:rgba(255,255,255,.35);
+  border-radius:50%;
+  transform:rotate(-35deg);
+  pointer-events:none;
+}
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<!-- LOGO -->
+<div class="logo-wrap">
+  <div class="logo-main">CAP<br>RUSH</div>
+  <div class="logo-sub">— OVERDRIVE! —</div>
+  <div class="logo-proto">Prototype v0.2 &middot; Fogo SVM &middot; Devnet</div>
+</div>
+
+<!-- TAMPINHAS-MENU -->
+<a href="caprush-game.html" class="cap cap-jogar">
+  <div class="cap-inner">
+    <div class="cap-icon">&#9654;</div>
+    <div class="cap-lbl">JOGAR</div>
+  </div>
+  <span class="cap-name">JOGAR</span>
+</a>
+
+<a href="personagens.html" class="cap cap-pilotos">
+  <div class="cap-inner">
+    <div class="cap-icon">&#128100;</div>
+    <div class="cap-lbl">PILOTOS</div>
+  </div>
+  <span class="cap-name">PILOTOS</span>
+</a>
+
+<a href="ranking.html" class="cap cap-ranking">
+  <div class="cap-inner">
+    <div class="cap-icon">&#127942;</div>
+    <div class="cap-lbl">RANKING</div>
+  </div>
+  <span class="cap-name">RANKING</span>
+</a>
+
+<a href="arquitetura.html" class="cap cap-arq">
+  <div class="cap-inner">
+    <div class="cap-icon">&#9881;</div>
+    <div class="cap-lbl">ARQT.</div>
+  </div>
+  <span class="cap-name">ARQUITETURA</span>
+</a>
+
+<a href="manual.html" class="cap cap-manual">
+  <div class="cap-inner">
+    <div class="cap-icon">&#128218;</div>
+    <div class="cap-lbl">MANUAL</div>
+  </div>
+  <span class="cap-name">MANUAL</span>
+</a>
+
+<script>
+// Fundo interativo com partículas que reagem ao mouse
+(function(){
+  var cv=document.getElementById('bg-canvas');
+  var cx=cv.getContext('2d');
+  var W,H,mx=0,my=0,pts=[];
+
+  function resize(){ W=cv.width=innerWidth; H=cv.height=innerHeight; }
+  window.addEventListener('resize',resize); resize();
+
+  document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;});
+
+  // Criar partículas/estrelas
+  for(var i=0;i<120;i++){
+    pts.push({
+      x:Math.random()*2000-1000, y:Math.random()*2000-1000,
+      vx:(Math.random()-.5)*.4, vy:(Math.random()-.5)*.4,
+      r:Math.random()*1.8+.4,
+      hue:Math.random()*60+10, // laranja-vermelho-dourado
+      a:Math.random()*.7+.2
+    });
+  }
+
+  var hue=0;
+  function frame(){
+    requestAnimationFrame(frame);
+    // Gradiente radial que segue o mouse
+    cx.fillStyle='rgba(6,6,16,.18)';
+    cx.fillRect(0,0,W,H);
+
+    // Brilho radial seguindo o mouse
+    var grd=cx.createRadialGradient(mx,my,0,mx,my,350);
+    grd.addColorStop(0,'rgba(255,100,0,.06)');
+    grd.addColorStop(.5,'rgba(255,42,42,.02)');
+    grd.addColorStop(1,'rgba(0,0,0,0)');
+    cx.fillStyle=grd;
+    cx.fillRect(0,0,W,H);
+
+    // Grade animada
+    hue=(hue+.3)%360;
+    cx.strokeStyle='rgba('+(80+Math.sin(hue*.02)*40)+','+(20)+','+(10)+',0.06)';
+    cx.lineWidth=.5;
+    var gs=50;
+    for(var x=0;x<W;x+=gs){cx.beginPath();cx.moveTo(x,0);cx.lineTo(x,H);cx.stroke();}
+    for(var y=0;y<H;y+=gs){cx.beginPath();cx.moveTo(0,y);cx.lineTo(W,y);cx.stroke();}
+
+    // Partículas
+    pts.forEach(function(p){
+      // Atração suave ao mouse
+      var dx=mx-W/2-p.x, dy=my-H/2-p.y;
+      var dist=Math.sqrt(dx*dx+dy*dy)+1;
+      p.vx+=dx/dist*.003; p.vy+=dy/dist*.003;
+      p.vx*=.98; p.vy*=.98;
+      p.x+=p.vx; p.y+=p.vy;
+      if(Math.abs(p.x)>1200){p.vx*=-.8;}
+      if(Math.abs(p.y)>1200){p.vy*=-.8;}
+      var sx=W/2+p.x, sy=H/2+p.y;
+      if(sx<-5||sx>W+5||sy<-5||sy>H+5) return;
+      cx.save();
+      cx.globalAlpha=p.a;
+      cx.fillStyle='hsl('+(p.hue+hue*.1)+',90%,70%)';
+      cx.beginPath();cx.arc(sx,sy,p.r,0,Math.PI*2);cx.fill();
+      cx.restore();
+    });
+  }
+  // Limpar com fade inicial
+  cx.fillStyle='#060610';
+  cx.fillRect(0,0,W||1920,H||1080);
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
