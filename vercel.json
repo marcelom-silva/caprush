@@ -1,4 +1,0 @@
-echo '{"rewrites":[{"source":"/","destination":"/index.html"}]}' > vercel.json
-git add vercel.json
-git commit -m "fix: redirect raiz para index.html no Vercel"
-git push origin main
