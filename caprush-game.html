@@ -3,19 +3,19 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>CapRush – Jogar</title>
+<title>CapRush - Jogar</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
 <style>
 :root{--red:#FF2A2A;--gold:#FFD700;--dark:#0A0A0F;--acc:#00E5FF;}
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{width:100%;height:100%;background:var(--dark);font-family:'Rajdhani',sans-serif;color:#E8E8F0;overflow:hidden;}
-#topbar{display:flex;align-items:center;justify-content:space-between;padding:8px 20px;background:rgba(8,8,18,.97);border-bottom:2px solid var(--red);height:48px;flex-shrink:0;}
-.tlogo{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:4px;background:linear-gradient(135deg,var(--red),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-decoration:none;}
-.tlinks{display:flex;gap:1.4rem;align-items:center;}
-.tlinks a{color:#888;font-size:.78rem;letter-spacing:2px;text-decoration:none;text-transform:uppercase;transition:color .2s;}
+#topbar{display:flex;align-items:center;justify-content:space-between;padding:8px 20px;background:rgba(8,8,18,.97);border-bottom:2px solid var(--red);height:46px;flex-shrink:0;}
+.tlogo{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:4px;background:linear-gradient(135deg,var(--red),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-decoration:none;}
+.tlinks{display:flex;gap:1.2rem;align-items:center;}
+.tlinks a{color:#888;font-size:.75rem;letter-spacing:2px;text-decoration:none;text-transform:uppercase;transition:color .2s;}
 .tlinks a:hover{color:var(--gold);}
-.tbadge{background:var(--red);color:#fff;font-size:.62rem;letter-spacing:2px;padding:2px 8px;border-radius:2px;text-transform:uppercase;}
-#gframe{width:100%;height:calc(100vh - 48px);border:none;display:block;}
+.tbadge{background:var(--red);color:#fff;font-size:.6rem;letter-spacing:2px;padding:2px 7px;border-radius:2px;text-transform:uppercase;}
+#gframe{width:100%;height:calc(100vh - 46px);border:none;display:block;}
 </style>
 </head>
 <body>
@@ -27,7 +27,8 @@ html,body{width:100%;height:100%;background:var(--dark);font-family:'Rajdhani',s
         <a href="personagens.html">Pilotos</a>
         <a href="ranking.html">Ranking</a>
         <a href="manual.html">Manual</a>
-        <span class="tbadge">Prototype v0.2</span>
+        <a href="arquitetura.html">Arquitetura</a>
+        <span class="tbadge">v0.2</span>
       </div>
     </div>
     <iframe id="gframe" src="client/game.html" allow="autoplay" title="CapRush Game"></iframe>

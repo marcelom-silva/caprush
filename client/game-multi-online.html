@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CapRush - Online</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--red:#FF2A2A;--gold:#FFD700;--dark:#0A0A0F;--acc:#00E5FF;--muted:#666680;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;background:var(--dark);font-family:'Rajdhani',sans-serif;color:#E8E8F0;overflow:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(255,42,42,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,42,42,.04) 1px,transparent 1px);background-size:40px 40px;z-index:0;pointer-events:none;}
+.center{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:1.5rem;padding:2rem;text-align:center;}
+h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,7vw,4rem);letter-spacing:6px;background:linear-gradient(135deg,var(--red),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.sub{color:var(--muted);letter-spacing:3px;font-size:.85rem;text-transform:uppercase;}
+.panel{background:rgba(14,14,26,.95);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:2rem;width:100%;max-width:440px;display:flex;flex-direction:column;gap:1rem;}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:3px;color:var(--gold);border-bottom:1px solid rgba(255,215,0,.2);padding-bottom:.4rem;}
+input{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:.7rem 1rem;color:#E8E8F0;font-family:'Rajdhani',sans-serif;font-size:1rem;letter-spacing:2px;width:100%;text-transform:uppercase;outline:none;}
+input:focus{border-color:var(--acc);}
+input::placeholder{color:#444;text-transform:none;}
+.btn{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:3px;padding:.7rem 1.5rem;border:1px solid;border-radius:6px;cursor:pointer;transition:all .2s;background:transparent;width:100%;}
+.btn-create{color:var(--gold);border-color:var(--gold);}
+.btn-create:hover{background:var(--gold);color:var(--dark);}
+.btn-join{color:var(--acc);border-color:var(--acc);}
+.btn-join:hover{background:var(--acc);color:var(--dark);}
+#status{font-size:.82rem;color:var(--muted);letter-spacing:2px;min-height:1.2rem;}
+#status.ok{color:#00FF88;}
+#status.err{color:var(--red);}
+.room-code{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;letter-spacing:10px;color:var(--gold);background:rgba(255,215,0,.08);padding:.5rem 1rem;border-radius:8px;border:1px solid rgba(255,215,0,.25);display:none;}
+.back-link{color:var(--muted);font-size:.8rem;letter-spacing:2px;text-decoration:none;text-transform:uppercase;margin-top:1rem;}
+.back-link:hover{color:var(--gold);}
+.ws-note{font-size:.72rem;color:#444;letter-spacing:1px;line-height:1.6;margin-top:.5rem;}
+</style>
+</head>
+<body>
+<div class="center">
+  <h1>ONLINE 1v1</h1>
+  <p class="sub">Duelo via internet (Beta)</p>
+  <div class="panel">
+    <div class="section-title">CRIAR SALA</div>
+    <input id="nickCreate" placeholder="Seu nickname" maxlength="16"/>
+    <button class="btn btn-create" onclick="createRoom()">CRIAR SALA E AGUARDAR</button>
+    <div class="room-code" id="roomCode">----</div>
+
+    <div class="section-title" style="margin-top:.5rem">ENTRAR EM SALA</div>
+    <input id="nickJoin"   placeholder="Seu nickname" maxlength="16"/>
+    <input id="roomInput"  placeholder="Codigo da sala (4 letras)" maxlength="4"/>
+    <button class="btn btn-join" onclick="joinRoom()">ENTRAR NA SALA</button>
+    <div id="status">Conectando ao servidor...</div>
+    <p class="ws-note">
+      O servidor WebSocket deve estar rodando.<br>
+      Execute: <strong style="color:#888">node server/ws-server.js</strong><br>
+      Porta padrao: 8765
+    </p>
+  </div>
+  <a href="game-multi.html" class="back-link">&larr; Voltar ao menu multiplayer</a>
+</div>
+<script>
+var WS_URL='ws://localhost:8765';
+var ws=null, myRoom=null, myNick='';
+
+function setStatus(msg,cls){
+  var el=document.getElementById('status');
+  el.textContent=msg; el.className=cls||'';
+}
+
+function connect(onOpen){
+  try{
+    ws=new WebSocket(WS_URL);
+    ws.onopen=function(){ setStatus('Conectado ao servidor','ok'); if(onOpen)onOpen(); };
+    ws.onerror=function(){ setStatus('Servidor offline. Inicie ws-server.js','err'); };
+    ws.onclose=function(){ setStatus('Desconectado.','err'); };
+    ws.onmessage=function(e){
+      var d=JSON.parse(e.data);
+      if(d.type==='room_created'){
+        var rc=document.getElementById('roomCode');
+        rc.textContent=d.room; rc.style.display='block';
+        setStatus('Aguardando oponente...','');
+        myRoom=d.room;
+      }
+      if(d.type==='game_start'){
+        setStatus('Oponente encontrado! Iniciando...','ok');
+        setTimeout(function(){
+          window.location.href='game-multi-local.html?online=1&room='+myRoom+'&nick='+myNick;
+        },1200);
+      }
+      if(d.type==='error'){ setStatus(d.msg,'err'); }
+    };
+  }catch(e){ setStatus('WebSocket nao suportado.','err'); }
+}
+
+function createRoom(){
+  myNick=document.getElementById('nickCreate').value.trim()||'Jogador1';
+  connect(function(){
+    ws.send(JSON.stringify({type:'create',nick:myNick}));
+  });
+}
+function joinRoom(){
+  myNick=document.getElementById('nickJoin').value.trim()||'Jogador2';
+  var room=document.getElementById('roomInput').value.toUpperCase().trim();
+  if(!room){setStatus('Digite o codigo da sala','err');return;}
+  connect(function(){
+    ws.send(JSON.stringify({type:'join',nick:myNick,room:room}));
+  });
+}
+
+// tenta conectar ao iniciar para mostrar status
+setTimeout(function(){
+  try{
+    var testWs=new WebSocket(WS_URL);
+    testWs.onopen=function(){setStatus('Servidor disponivel','ok');testWs.close();};
+    testWs.onerror=function(){setStatus('Servidor offline. Execute ws-server.js para jogar online','err');};
+  }catch(e){}
+},500);
+</script>
+</body>
+</html>

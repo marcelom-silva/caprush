@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>CapRush – Solo</title>
+<title>CapRush - Solo</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
 <style>
 :root{--red:#FF2A2A;--gold:#FFD700;--dark:#0A0A0F;--panel:rgba(8,8,18,.95);--acc:#00E5FF;}
@@ -25,7 +25,7 @@ html,body{width:100%;height:100%;background:var(--dark);font-family:'Rajdhani',s
 #flbl{font-size:.65rem;color:#666680;letter-spacing:1px;text-transform:uppercase;text-align:center;}
 #force-value{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--gold);text-align:center;}
 #cc{background:#1A1A28;border:1px solid rgba(255,42,42,.3);border-radius:6px;padding:7px;text-align:center;}
-#cav{width:54px;height:54px;border-radius:50%;margin:0 auto 5px;background:radial-gradient(circle at 30% 30%,#fff4,transparent 60%),linear-gradient(135deg,#1A3A6A,#0A1A3A);border:2px solid var(--acc);display:flex;align-items:center;justify-content:center;font-size:1.6rem;}
+.cn-av{width:52px;height:52px;border-radius:50%;margin:0 auto 5px;border:2px solid var(--acc);display:flex;align-items:center;justify-content:center;}
 #cnm{font-family:'Bebas Neue',sans-serif;font-size:.88rem;color:var(--acc);letter-spacing:2px;}
 .ar{display:flex;justify-content:space-between;font-size:.65rem;color:#666680;margin-top:2px;}
 .av{color:var(--gold);font-weight:700;}
@@ -34,13 +34,17 @@ html,body{width:100%;height:100%;background:var(--dark);font-family:'Rajdhani',s
 #log-box p.ev{color:var(--gold);}
 #overlay{position:absolute;left:0;top:0;right:155px;bottom:0;background:rgba(0,0,0,.82);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:20;cursor:pointer;}
 #overlay h2{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:5px;color:var(--gold);text-shadow:0 0 20px rgba(255,215,0,.5);margin-bottom:.5rem;}
-#overlay p{color:#AAA;letter-spacing:2px;font-size:.88rem;margin:.2rem 0;}
+#overlay p{color:#AAA;letter-spacing:2px;font-size:.85rem;margin:.2rem 0;}
 .pulse{animation:pulse 1.2s ease-in-out infinite;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-#btnBack{position:absolute;top:8px;left:8px;z-index:25;background:rgba(255,42,42,.15);border:1px solid var(--red);color:var(--red);font-family:'Rajdhani',sans-serif;font-size:.78rem;letter-spacing:2px;padding:3px 9px;cursor:pointer;border-radius:3px;text-decoration:none;transition:background .2s;}
+#btnBack{position:absolute;top:8px;left:8px;z-index:25;background:rgba(255,42,42,.15);border:1px solid var(--red);color:var(--red);font-family:'Rajdhani',sans-serif;font-size:.75rem;letter-spacing:2px;padding:3px 8px;cursor:pointer;border-radius:3px;text-decoration:none;}
 #btnBack:hover{background:var(--red);color:#fff;}
-#btnMulti{position:absolute;top:8px;right:168px;z-index:25;background:rgba(0,229,255,.15);border:1px solid var(--acc);color:var(--acc);font-family:'Rajdhani',sans-serif;font-size:.78rem;letter-spacing:2px;padding:3px 9px;cursor:pointer;border-radius:3px;text-decoration:none;transition:background .2s;}
+#btnMulti{position:absolute;top:8px;right:168px;z-index:25;background:rgba(0,229,255,.15);border:1px solid var(--acc);color:var(--acc);font-family:'Rajdhani',sans-serif;font-size:.75rem;letter-spacing:2px;padding:3px 8px;cursor:pointer;border-radius:3px;text-decoration:none;}
 #btnMulti:hover{background:var(--acc);color:#000;}
+/* Legenda superficies */
+#surf-legend{font-size:.6rem;color:#666680;margin-top:4px;}
+.sl-row{display:flex;align-items:center;gap:4px;margin:2px 0;}
+.sl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 </style>
 </head>
 <body>
@@ -63,11 +67,18 @@ html,body{width:100%;height:100%;background:var(--dark);font-family:'Rajdhani',s
       <div id="force-value">0%</div>
       <div class="pt">PILOTO</div>
       <div id="cc">
-        <div id="cav">&#38634;</div>
+        <canvas id="capPreview" width="52" height="52" style="border-radius:50%;margin:0 auto 5px;display:block;"></canvas>
         <div id="cnm">YUKI</div>
         <div class="ar"><span>Velocidade</span><span class="av">82</span></div>
         <div class="ar"><span>Controle</span><span class="av">91</span></div>
         <div class="ar"><span>Aerodin.</span><span class="av">75</span></div>
+      </div>
+      <div class="pt">PISTA</div>
+      <div id="surf-legend">
+        <div class="sl-row"><div class="sl-dot" style="background:#5C4530;"></div><span>Asfalto (normal)</span></div>
+        <div class="sl-row"><div class="sl-dot" style="background:#00A0FF;border:1px solid #00E5FF;"></div><span>Agua (mais aderente)</span></div>
+        <div class="sl-row"><div class="sl-dot" style="background:#38B838;border:1px solid #60E060;"></div><span>Grama (desliza mais)</span></div>
+        <div class="sl-row"><div class="sl-dot" style="background:#5C3A1A;"></div><span>Obstaculos</span></div>
       </div>
       <div class="pt">EVENTOS</div>
       <div id="log-box"></div>
@@ -75,19 +86,34 @@ html,body{width:100%;height:100%;background:var(--dark);font-family:'Rajdhani',s
     <div id="overlay">
       <h2>PRONTO?</h2>
       <p>Clique aqui para comecar</p>
-      <p style="font-size:.8rem;color:#666680;margin-top:.4rem">Clique e arraste a tampinha para mirar</p>
+      <p style="font-size:.78rem;color:#666680;margin-top:.4rem">Clique e arraste a tampinha para mirar</p>
       <br>
       <p class="pulse">&#9654; CLIQUE PARA COMECAR</p>
     </div>
     <a href="../index.html" id="btnBack">&larr; LOBBY</a>
-    <a href="game-multi.html" id="btnMulti">2 JOGADORES &rarr;</a>
+    <a href="game-multi.html" id="btnMulti">2P &rarr;</a>
   </div>
 </div>
 <script src="src/core/Vector2D.js"></script>
 <script src="src/core/Physics.js"></script>
 <script src="src/core/SoundEngine.js"></script>
+<script src="src/core/CapSprite.js"></script>
 <script src="src/entities/Yuki.js"></script>
-<script src="src/scenes/TrackV2.js"></script>
+<script src="src/scenes/TrackV3.js"></script>
 <script src="src/core/GameLoop.js"></script>
+<script>
+// Preview da tampinha no painel
+(function(){
+  var cv=document.getElementById('capPreview');
+  if(!cv) return;
+  var cx=cv.getContext('2d');
+  function drawPreview(){
+    cx.clearRect(0,0,52,52);
+    CapSprite.drawCap(cx,26,26,22,'#00E5FF','#00A5C8','\u96EA',Date.now()*0.001,0,0.5);
+    requestAnimationFrame(drawPreview);
+  }
+  requestAnimationFrame(drawPreview);
+})();
+</script>
 </body>
 </html>

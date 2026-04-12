@@ -3,360 +3,63 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>CapRush – 1v1</title>
+<title>CapRush - Multiplayer</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
 <style>
-:root{--red:#FF2A2A;--gold:#FFD700;--dark:#0A0A0F;--panel:rgba(8,8,18,.95);--acc:#00E5FF;--p2:#FF9900;}
+:root{--red:#FF2A2A;--gold:#FFD700;--dark:#0A0A0F;--acc:#00E5FF;--muted:#666680;}
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{width:100%;height:100%;background:var(--dark);font-family:'Rajdhani',sans-serif;color:#E8E8F0;overflow:hidden;}
-#shell{display:flex;flex-direction:column;width:100%;height:100%;}
-#hud{display:flex;justify-content:space-between;align-items:center;padding:5px 14px;background:var(--panel);border-bottom:2px solid rgba(255,42,42,.3);flex-shrink:0;height:46px;}
-.hlogo{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:3px;background:linear-gradient(135deg,var(--red),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-decoration:none;}
-.p-info{display:flex;align-items:center;gap:.6rem;}
-.p-dot{width:12px;height:12px;border-radius:50%;}
-.p-name{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;}
-.p-stat{font-family:'Bebas Neue',sans-serif;font-size:.8rem;color:#888;min-width:60px;}
-#wrap{position:relative;flex:1;min-height:0;}
-#gameCanvas{display:block;width:100%;height:100%;cursor:crosshair;}
-#overlay{position:absolute;inset:0;background:rgba(0,0,0,.82);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:20;cursor:pointer;}
-#overlay h2{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:5px;color:var(--gold);margin-bottom:.5rem;}
-#overlay p{color:#AAA;letter-spacing:2px;font-size:.85rem;margin:.2rem 0;}
-.pulse{animation:pulse 1.2s ease-in-out infinite;}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-#turn-banner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  font-family:'Bebas Neue',sans-serif;font-size:2.5rem;letter-spacing:6px;
-  pointer-events:none;opacity:0;transition:opacity .3s;z-index:15;
-  text-shadow:0 0 30px currentColor;}
-#btnBack{position:absolute;top:8px;left:8px;z-index:25;background:rgba(255,42,42,.15);border:1px solid var(--red);color:var(--red);font-family:'Rajdhani',sans-serif;font-size:.75rem;letter-spacing:2px;padding:3px 8px;cursor:pointer;border-radius:3px;text-decoration:none;}
-#btnBack:hover{background:var(--red);color:#fff;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(255,42,42,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,42,42,.04) 1px,transparent 1px);background-size:40px 40px;z-index:0;pointer-events:none;animation:gm 8s linear infinite;}
+@keyframes gm{to{background-position:0 40px;}}
+.center{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:2rem;padding:2rem;}
+h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.5rem,8vw,5rem);letter-spacing:6px;background:linear-gradient(135deg,var(--red),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-align:center;}
+.sub{color:var(--muted);letter-spacing:4px;font-size:.9rem;text-transform:uppercase;text-align:center;margin-top:-.5rem;}
+.cards{display:flex;gap:2rem;flex-wrap:wrap;justify-content:center;}
+.mode-card{
+  width:260px;padding:2rem 1.5rem;
+  background:rgba(14,14,26,.95);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  text-align:center;
+  cursor:pointer;
+  transition:transform .2s,box-shadow .2s,border-color .2s;
+  text-decoration:none;
+  display:flex;flex-direction:column;align-items:center;gap:1rem;
+}
+.mode-card:hover{transform:translateY(-8px);box-shadow:0 24px 60px rgba(0,0,0,.6);}
+.mode-card.local:hover{border-color:var(--acc);box-shadow:0 24px 60px rgba(0,229,255,.15);}
+.mode-card.online:hover{border-color:var(--gold);box-shadow:0 24px 60px rgba(255,215,0,.15);}
+.mode-icon{font-size:3rem;line-height:1;}
+.mode-title{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:4px;}
+.mode-desc{font-size:.82rem;color:var(--muted);line-height:1.5;}
+.mode-badge{font-size:.65rem;letter-spacing:3px;padding:3px 10px;border-radius:4px;text-transform:uppercase;}
+.local .mode-title{color:var(--acc);}
+.online .mode-title{color:var(--gold);}
+.local .mode-badge{background:rgba(0,229,255,.15);color:var(--acc);border:1px solid rgba(0,229,255,.3);}
+.online .mode-badge{background:rgba(255,215,0,.15);color:var(--gold);border:1px solid rgba(255,215,0,.3);}
+.back-link{color:var(--muted);font-size:.8rem;letter-spacing:2px;text-decoration:none;text-transform:uppercase;margin-top:1rem;}
+.back-link:hover{color:var(--gold);}
 </style>
 </head>
 <body>
-<div id="shell">
-  <div id="hud">
-    <a href="../index.html" class="hlogo">CAP RUSH &ndash; 1v1</a>
-    <div class="p-info">
-      <div class="p-dot" style="background:var(--acc);box-shadow:0 0 8px var(--acc);"></div>
-      <span class="p-name" style="color:var(--acc);">YUKI</span>
-      <span class="p-stat" id="p1-time">00:00.0</span>
-      <span class="p-stat" id="p1-lap" style="color:var(--acc)">V 1/2</span>
-    </div>
-    <div style="font-family:'Bebas Neue',sans-serif;color:#444;font-size:1.5rem;letter-spacing:4px;">VS</div>
-    <div class="p-info">
-      <span class="p-stat" id="p2-lap" style="color:var(--p2)">V 1/2</span>
-      <span class="p-stat" id="p2-time">00:00.0</span>
-      <span class="p-name" style="color:var(--p2);">KENTA</span>
-      <div class="p-dot" style="background:var(--p2);box-shadow:0 0 8px var(--p2);"></div>
-    </div>
+<div class="center">
+  <h1>MULTIPLAYER</h1>
+  <p class="sub">Escolha o modo de jogo</p>
+  <div class="cards">
+    <a href="game-multi-local.html" class="mode-card local">
+      <div class="mode-icon">&#128101;</div>
+      <div class="mode-title">LOCAL</div>
+      <div class="mode-desc">2 jogadores no mesmo dispositivo. Turnos alternados. Ideal para jogar lado a lado.</div>
+      <div class="mode-badge">Disponivel agora</div>
+    </a>
+    <a href="game-multi-online.html" class="mode-card online">
+      <div class="mode-icon">&#127760;</div>
+      <div class="mode-title">ONLINE</div>
+      <div class="mode-desc">Duelo com jogador remoto via internet. Encontre oponentes ou desafie um amigo pelo codigo da sala.</div>
+      <div class="mode-badge">Beta</div>
+    </a>
   </div>
-  <div id="wrap">
-    <canvas id="gameCanvas"></canvas>
-    <div id="turn-banner">TURNO YUKI</div>
-    <div id="overlay">
-      <h2>1 v 1</h2>
-      <p style="color:var(--acc);">YUKI (Azul) e KENTA (Laranja)</p>
-      <p>Jogadores se alternam em cada lancamento</p>
-      <p style="font-size:.78rem;color:#555;margin-top:.5rem">Clique e arraste a tampinha ativa para mirar</p>
-      <br>
-      <p class="pulse">&#9654; CLIQUE PARA COMECAR</p>
-    </div>
-    <a href="game.html" id="btnBack">&larr; SOLO</a>
-  </div>
+  <a href="game.html" class="back-link">&larr; Voltar ao Solo</a>
 </div>
-<script src="src/core/Vector2D.js"></script>
-<script src="src/core/Physics.js"></script>
-<script src="src/core/SoundEngine.js"></script>
-<script src="src/entities/Yuki.js"></script>
-<script src="src/scenes/TrackV2.js"></script>
-<script>
-// ── MULTIPLAYER ENGINE ──────────────────────────────────────────
-(function(){
-  'use strict';
-  var canvas=document.getElementById('gameCanvas');
-  var ctx=canvas.getContext('2d');
-  var overlay=document.getElementById('overlay');
-  var turnBanner=document.getElementById('turn-banner');
-  SoundEngine.init();
-
-  var LAPS=2, NCPS=3, RADIUS=16;
-
-  // Estado dos 2 jogadores
-  var players=[
-    {id:0,name:'YUKI',color:'#00E5FF',pos:new Vector2D(0,0),vel:new Vector2D(0,0),
-     moving:false,lap:1,cp:0,t0:0,elapsed:0,finished:false,lastRespawn:null,
-     anim:{rot:0,glow:0,gdir:1,trail:[]},kanji:'\u96EA'},
-    {id:1,name:'KENTA',color:'#FF9900',pos:new Vector2D(0,0),vel:new Vector2D(0,0),
-     moving:false,lap:1,cp:0,t0:0,elapsed:0,finished:false,lastRespawn:null,
-     anim:{rot:0,glow:0,gdir:1,trail:[]},kanji:'\u9B54'}
-  ];
-  var trackCps=[null,null]; // checkpoints por jogador (instâncias separadas)
-
-  var phase='WAIT'; // WAIT | AIM | MOVING | DONE
-  var currentP=0;   // turno: 0=Yuki, 1=Kenta
-  var ds=null, dc=null;
-
-  function resize(){
-    canvas.width=canvas.parentElement.offsetWidth;
-    canvas.height=canvas.parentElement.offsetHeight||400;
-    TrackV2.init(canvas.width,canvas.height);
-    var sp=TrackV2.getStartPos();
-    // P1 levemente acima da largada, P2 levemente abaixo
-    var offset=20;
-    players[0].pos=new Vector2D(sp.x, sp.y-offset);
-    players[0].lastRespawn={x:sp.x,y:sp.y-offset};
-    players[1].pos=new Vector2D(sp.x, sp.y+offset);
-    players[1].lastRespawn={x:sp.x,y:sp.y+offset};
-    // resetar CPs por jogador
-    trackCps=[cloneCPs(),cloneCPs()];
-  }
-
-  function cloneCPs(){
-    return [
-      {x:0,y:0,r:0,lbl:'CP 1',ok:false},
-      {x:0,y:0,r:0,lbl:'CP 2',ok:false},
-      {x:0,y:0,r:0,lbl:'CP 3',ok:false},
-    ];
-  }
-
-  function syncCPs(pidx){
-    // Copia posições dos CPs do TrackV2 para os CPs do jogador
-    var master=TrackV2.checkpoints;
-    for(var i=0;i<Math.min(master.length,trackCps[pidx].length);i++){
-      trackCps[pidx][i].x=master[i].x;
-      trackCps[pidx][i].y=master[i].y;
-      trackCps[pidx][i].r=master[i].r;
-      trackCps[pidx][i].lbl=master[i].lbl;
-    }
-  }
-
-  window.addEventListener('resize',resize);
-  setTimeout(function(){resize();syncCPs(0);syncCPs(1);},80);
-
-  // ── Overlay ────────────────────────────────────────────────────
-  function startGame(){
-    SoundEngine.resume();
-    overlay.style.display='none';
-    phase='AIM';
-    if(canvas.width<50){resize();syncCPs(0);syncCPs(1);}
-    showTurn();
-  }
-  overlay.addEventListener('click',startGame);
-  overlay.addEventListener('touchend',function(e){e.preventDefault();startGame();},{passive:false});
-  overlay.style.cursor='pointer';
-
-  function showTurn(){
-    var p=players[currentP];
-    turnBanner.textContent='TURNO '+p.name;
-    turnBanner.style.color=p.color;
-    turnBanner.style.opacity='1';
-    setTimeout(function(){turnBanner.style.opacity='0';},1200);
-  }
-
-  // ── Input ──────────────────────────────────────────────────────
-  function cpos(e){var r=canvas.getBoundingClientRect();return new Vector2D(e.clientX-r.left,e.clientY-r.top);}
-  function bnd(){return{x:0,y:0,w:canvas.width,h:canvas.height};}
-
-  function nearActive(pt){
-    var p=players[currentP];
-    return pt.distanceTo(p.pos)<50;
-  }
-
-  canvas.addEventListener('mousedown',function(e){
-    if(phase!=='AIM') return; SoundEngine.resume();
-    if(nearActive(cpos(e))){ ds=cpos(e); dc=cpos(e); }
-  });
-  canvas.addEventListener('mousemove',function(e){
-    if(!ds) return; dc=cpos(e);
-  });
-  canvas.addEventListener('mouseup',function(e){
-    if(!ds||phase!=='AIM') return;
-    launch(cpos(e));
-  });
-  canvas.addEventListener('touchstart',function(e){
-    if(phase!=='AIM') return; SoundEngine.resume();
-    if(nearActive(cpos(e.touches[0]))){ ds=cpos(e.touches[0]); dc=cpos(e.touches[0]); }
-  },{passive:true});
-  canvas.addEventListener('touchmove',function(e){
-    e.preventDefault();if(!ds) return; dc=cpos(e.touches[0]);
-  },{passive:false});
-  canvas.addEventListener('touchend',function(e){
-    if(!ds||phase!=='AIM') return; launch(cpos(e.changedTouches[0]));
-  },{passive:true});
-
-  function launch(releasePos){
-    var p=players[currentP];
-    var drag=p.pos.sub(releasePos);
-    var len=Math.min(drag.magnitude(),165);
-    var t=len/165;
-    p.vel=drag.normalize().scale(t*700);
-    p.moving=true;
-    if(!p.t0) p.t0=performance.now();
-    ds=null; dc=null;
-    phase='MOVING';
-  }
-
-  // ── Loop ───────────────────────────────────────────────────────
-  var lt=0,animT=0;
-  function loop(now){
-    var dt=Math.min((now-lt)/1000,0.05); lt=now; animT+=dt;
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-
-    // Renderiza pista (sem checkpoints individuais – desenhamos manualmente)
-    TrackV2.render(ctx,canvas.width,canvas.height,animT);
-
-    // Atualiza jogador ativo
-    if(phase==='MOVING'){
-      var p=players[currentP];
-      stepPlayer(p,dt);
-      p.elapsed=(performance.now()-p.t0)/1000;
-      document.getElementById('p'+p.id+'-time').textContent=fmt(p.elapsed);
-
-      if(!p.moving){
-        phase='AIM';
-        // Alterna turno (apenas se o outro jogador não terminou)
-        var other=players[1-currentP];
-        if(!other.finished){
-          currentP=1-currentP;
-          showTurn();
-        }
-      }
-
-      // Checkpoint do jogador atual
-      var myCps=trackCps[currentP];
-      for(var ci=0;ci<myCps.length;ci++){
-        var c=myCps[ci]; if(c.ok) continue;
-        var dx=p.pos.x-c.x, dy=p.pos.y-c.y;
-        if(Math.sqrt(dx*dx+dy*dy)<c.r){
-          c.ok=true; p.cp++;
-          SoundEngine.checkpoint();
-          document.getElementById('p'+p.id+'-lap').textContent='V '+p.lap+'/'+LAPS+' CP'+p.cp+'/'+NCPS;
-        }
-      }
-      // Chegada
-      if(p.cp>=NCPS && TrackV2.checkLap(p.pos)){
-        p.cp=0; trackCps[currentP]=cloneCPs(); syncCPs(currentP);
-        if(p.lap>=LAPS){ p.finished=true; checkWinner(p); }
-        else{ p.lap++; document.getElementById('p'+p.id+'-lap').textContent='V '+p.lap+'/'+LAPS; }
-      }
-    }
-
-    // Renderiza os 2 jogadores
-    players.forEach(function(p){ renderPlayer(ctx,p,dt); });
-
-    // Linha de mira
-    if(ds&&dc){
-      var ap=players[currentP];
-      drawAim(ap.pos,dc,ap.color);
-    }
-
-    requestAnimationFrame(loop);
-  }
-
-  function stepPlayer(p,dt){
-    var b=bnd();
-    var DRAG=0.52,REST=0.72,MIN=4;
-    var spd=p.vel.magnitude();
-    if(spd<MIN){ p.vel=new Vector2D(0,0); p.moving=false; return; }
-    var ns=Math.max(0,spd-DRAG*spd*dt);
-    p.vel=p.vel.normalize().scale(ns);
-    p.pos=p.pos.add(p.vel.scale(dt));
-
-    // bordas
-    var r=RADIUS;
-    if(p.pos.x-r<b.x){p.pos.x=b.x+r;p.vel.x=Math.abs(p.vel.x)*REST;}
-    if(p.pos.x+r>b.x+b.w){p.pos.x=b.x+b.w-r;p.vel.x=-Math.abs(p.vel.x)*REST;}
-    if(p.pos.y-r<b.y){p.pos.y=b.y+r;p.vel.y=Math.abs(p.vel.y)*REST;}
-    if(p.pos.y+r>b.y+b.h){p.pos.y=b.y+b.h-r;p.vel.y=-Math.abs(p.vel.y)*REST;}
-
-    // Obstáculos
-    var obs=TrackV2.checkObstacles(p.pos,RADIUS);
-    if(obs){
-      var dot=p.vel.x*obs.nx+p.vel.y*obs.ny;
-      p.vel.x=(p.vel.x-2*dot*obs.nx)*0.85;
-      p.vel.y=(p.vel.y-2*dot*obs.ny)*0.85;
-      SoundEngine.hit();
-    }
-
-    // Zona especial
-    var zone=TrackV2.detectZone(p.pos);
-    if(zone){
-      var rp=p.lastRespawn||TrackV2.getStartPos();
-      p.pos=new Vector2D(rp.x,rp.y);
-      p.vel=new Vector2D(0,0); p.moving=false;
-    }
-
-    // Superfície
-    var surf=TrackV2.detectSurface(p.pos);
-    var now2=Date.now();
-    if(surf==='water'){ p.vel=p.vel.scale(.65); if(now2-_lastSnd.water>600){SoundEngine.splash();_lastSnd.water=now2;} }
-    if(surf==='grasszone'){ p.vel=p.vel.scale(1.05); if(now2-_lastSnd.grass>800){SoundEngine.grass();_lastSnd.grass=now2;} }
-  }
-
-  var _lastSnd={water:0,grass:0};
-
-  function renderPlayer(ctx,p,dt){
-    var pos=p.pos, spd=p.vel.magnitude();
-    p.anim.rot+=spd*dt*0.005;
-    p.anim.glow+=0.03*p.anim.gdir; if(p.anim.glow>=1||p.anim.glow<=0) p.anim.gdir*=-1;
-    p.anim.trail.push({x:pos.x,y:pos.y}); if(p.anim.trail.length>14) p.anim.trail.shift();
-    for(var i=0;i<p.anim.trail.length;i++){
-      var tr=p.anim.trail[i],a=(i/p.anim.trail.length)*0.3;
-      ctx.save(); ctx.globalAlpha=a;
-      ctx.beginPath(); ctx.arc(tr.x,tr.y,12*(i/p.anim.trail.length),0,Math.PI*2);
-      ctx.fillStyle=p.color; ctx.fill(); ctx.restore();
-    }
-    ctx.save(); ctx.translate(pos.x,pos.y); ctx.rotate(p.anim.rot);
-    if(spd>50){ ctx.shadowColor=p.color; ctx.shadowBlur=16+p.anim.glow*10; }
-    var g=ctx.createRadialGradient(-5,-5,2,0,0,16);
-    g.addColorStop(0,'#FFF'); g.addColorStop(0.3,p.color); g.addColorStop(1,'rgba(0,0,0,.8)');
-    ctx.beginPath(); ctx.arc(0,0,16,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
-    ctx.beginPath(); ctx.arc(0,0,16,0,Math.PI*2); ctx.strokeStyle=p.color; ctx.lineWidth=2.5; ctx.stroke();
-    ctx.rotate(-p.anim.rot); ctx.shadowBlur=0; ctx.fillStyle='#FFF';
-    ctx.font='bold 11px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText(p.kanji,0,0); ctx.restore();
-
-    // indicador de jogador ativo
-    if(players[currentP]===p && phase==='AIM'){
-      ctx.save(); ctx.strokeStyle=p.color; ctx.lineWidth=2;
-      var pulse2=Math.sin(Date.now()*0.005)*4;
-      ctx.beginPath(); ctx.arc(pos.x,pos.y,22+pulse2,0,Math.PI*2); ctx.stroke();
-      ctx.restore();
-    }
-  }
-
-  function drawAim(cap,drag,color){
-    var dir=cap.sub(drag).normalize();
-    var dist=Math.min(cap.distanceTo(drag),165);
-    var end=cap.add(dir.scale(dist*1.8)),pct=dist/165;
-    ctx.save();
-    var g=ctx.createLinearGradient(cap.x,cap.y,end.x,end.y);
-    g.addColorStop(0,color);g.addColorStop(1,'rgba(0,0,0,0)');
-    ctx.strokeStyle=g; ctx.lineWidth=2+pct*2; ctx.setLineDash([8,6]);
-    ctx.beginPath(); ctx.moveTo(cap.x,cap.y); ctx.lineTo(end.x,end.y); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.beginPath(); ctx.arc(cap.x,cap.y,20+pct*10,0,Math.PI*2);
-    ctx.strokeStyle=color; ctx.lineWidth=1.5; ctx.globalAlpha=.4+pct*.4; ctx.stroke();
-    ctx.restore();
-  }
-
-  function checkWinner(p){
-    SoundEngine.victory();
-    setTimeout(function(){
-      overlay.innerHTML='<h2 style="color:'+p.color+'">'+p.name+' VENCEU!</h2>'
-        +'<p style="color:'+p.color+';font-size:2rem;font-family:Bebas Neue,sans-serif">'+fmt(p.elapsed)+'</p>'
-        +'<p style="color:#aaa;margin-top:.5rem">Clique para jogar novamente</p>';
-      overlay.style.display='flex';
-      overlay.onclick=function(){ overlay.onclick=null; location.reload(); };
-    },1500);
-  }
-
-  function fmt(s){
-    var m=Math.floor(s/60),ss=(s%60).toFixed(1);
-    return(m<10?'0':'')+m+':'+(parseFloat(ss)<10?'0':'')+ss;
-  }
-
-  requestAnimationFrame(function(t){lt=t;requestAnimationFrame(loop);});
-})();
-</script>
 </body>
 </html>
