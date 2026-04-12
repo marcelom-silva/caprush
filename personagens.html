@@ -1,458 +1,386 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CapRush – Personagens</title>
-<style>
-:root{
-  --or:#FF5500;--or2:#FF8C00;--cy:#00EEFF;--cy2:#0055FF;
-  --gd:#FFD700;--dk:#020110;--dk2:#080818;--dk3:#0d0d28;
-  --wh:#FFFFFF;--mu:#1e3055;--mu2:#2a3f60;
-  --display:"Impact","Arial Black",Arial,sans-serif;
-  --mono:"Courier New",Courier,monospace;
-}
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%;background:var(--dk);color:var(--wh);font-family:var(--mono);overflow:hidden}
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>CapRush - Pilotos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --red:#FF2A2A; --gold:#FFD700; --dark:#0A0A0F;
+      --panel:#0E0E1A; --acc:#00E5FF; --muted:#666680;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--dark);color:#E8E8F0;font-family:'Rajdhani',sans-serif;min-height:100vh;}
 
-/* ── BG GRID ── */
-body::before{
-  content:'';position:fixed;inset:0;pointer-events:none;
-  background-image:
-    repeating-linear-gradient(-22deg,transparent,transparent 43px,rgba(255,85,0,.015) 43px,rgba(255,85,0,.015) 44px);
-}
+    /* grade de fundo */
+    body::before{content:'';position:fixed;inset:0;
+      background-image:linear-gradient(rgba(255,42,42,.03) 1px,transparent 1px),
+                       linear-gradient(90deg,rgba(255,42,42,.03) 1px,transparent 1px);
+      background-size:40px 40px;z-index:0;pointer-events:none;}
 
-/* ── ANIMATIONS ── */
-@keyframes slideL{from{transform:translateX(-60px);opacity:0}to{transform:translateX(0);opacity:1}}
-@keyframes slideR{from{transform:translateX(60px);opacity:0}to{transform:translateX(0);opacity:1}}
-@keyframes fadeU{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
-@keyframes statFill{from{width:0}to{width:var(--w)}}
-@keyframes scanV{from{transform:translateY(-100%)}to{transform:translateY(100vh)}}
-@keyframes capSpin{from{transform:rotate(0)}to{transform:rotate(-360deg)}}
-@keyframes glitch{
-  0%,95%,100%{transform:translate(0)}
-  96%{transform:translate(-3px,1px)}
-  97%{transform:translate(3px,-1px)}
-  98%{transform:translate(-2px,0)}
-}
+    /* NAV */
+    nav{position:sticky;top:0;z-index:100;
+        display:flex;justify-content:space-between;align-items:center;
+        padding:10px 32px;background:rgba(8,8,18,.97);
+        border-bottom:2px solid var(--red);}
+    .nlogo{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:4px;
+           background:linear-gradient(135deg,var(--red),var(--gold));
+           -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+           text-decoration:none;}
+    .nlinks{display:flex;gap:1.6rem;align-items:center;}
+    .nlinks a{color:var(--muted);font-size:.8rem;letter-spacing:2px;text-decoration:none;
+              text-transform:uppercase;transition:color .2s;}
+    .nlinks a:hover,.nlinks a.active{color:var(--gold);}
+    .nbadge{background:var(--red);color:#fff;font-size:.63rem;padding:2px 8px;
+            border-radius:2px;letter-spacing:2px;text-transform:uppercase;}
 
-/* ── NAV ── */
-nav{
-  position:fixed;top:0;left:0;right:0;z-index:100;
-  height:52px;display:flex;align-items:center;justify-content:space-between;
-  padding:0 40px;background:rgba(2,1,16,.95);
-  border-bottom:1px solid rgba(255,85,0,.15);backdrop-filter:blur(8px);
-}
-.nav-logo{font-family:var(--display);font-size:20px;letter-spacing:-1px;text-decoration:none;display:flex;align-items:center;gap:8px}
-.nav-logo .cap{color:#fff}.nav-logo .rush{color:var(--or)}
-.nav-back{font-size:10px;letter-spacing:2px;color:var(--mu2);text-decoration:none;transition:color .2s;display:flex;align-items:center;gap:6px}
-.nav-back:hover{color:var(--or)}
-.nav-status{font-size:9px;letter-spacing:3px;color:var(--mu);display:flex;align-items:center;gap:16px}
-.status-dot{width:6px;height:6px;border-radius:50%;background:rgba(68,255,136,.7);animation:pulse 2s infinite}
+    /* HERO */
+    .hero{position:relative;z-index:1;text-align:center;padding:4rem 2rem 2rem;}
+    .hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.5rem,8vw,5rem);
+             letter-spacing:6px;line-height:1;
+             background:linear-gradient(135deg,var(--red),var(--gold));
+             -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+    .hero p{color:var(--muted);letter-spacing:3px;font-size:.9rem;margin-top:.8rem;text-transform:uppercase;}
 
-/* ── LAYOUT SPLIT ── */
-.stage{
-  position:fixed;inset:52px 0 0 0;
-  display:grid;grid-template-columns:320px 1fr 360px;
-}
+    /* GRID */
+    .grid{position:relative;z-index:1;
+          display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+          gap:2rem;max-width:1200px;margin:3rem auto 6rem;padding:0 2rem;}
 
-/* ── LEFT: ROSTER ── */
-.roster{
-  background:var(--dk2);
-  border-right:1px solid rgba(255,85,0,.1);
-  display:flex;flex-direction:column;
-  overflow:hidden;
-}
-.roster-header{
-  padding:24px 28px 16px;
-  border-bottom:1px solid rgba(255,255,255,.04);
-}
-.roster-label{font-size:9px;letter-spacing:4px;color:var(--mu);margin-bottom:8px}
-.roster-title{font-family:var(--display);font-size:22px;letter-spacing:-1px;color:var(--wh)}
+    /* CARD NFT */
+    .card{
+      background:var(--panel);
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.07);
+      overflow:hidden;
+      transition:transform .3s,box-shadow .3s;
+      cursor:pointer;
+      position:relative;
+    }
+    .card:hover{transform:translateY(-8px);box-shadow:0 24px 60px rgba(0,0,0,.6);}
+    .card.locked{opacity:.55;cursor:not-allowed;}
+    .card.locked:hover{transform:none;box-shadow:none;}
 
-.char-list{flex:1;overflow-y:auto;padding:8px 0}
-.char-list::-webkit-scrollbar{width:2px}
-.char-list::-webkit-scrollbar-thumb{background:rgba(255,85,0,.3)}
+    /* brilho animado no hover */
+    .card::after{content:'';position:absolute;inset:0;border-radius:16px;
+                 background:linear-gradient(135deg,transparent 40%,rgba(255,255,255,.04) 100%);
+                 opacity:0;transition:opacity .3s;pointer-events:none;}
+    .card:hover::after{opacity:1;}
 
-.char-item{
-  display:flex;align-items:center;gap:16px;
-  padding:16px 28px;cursor:pointer;
-  border-left:3px solid transparent;
-  transition:background .2s,border-color .2s;
-  position:relative;
-}
-.char-item:hover,.char-item.active{background:rgba(255,85,0,.06)}
-.char-item.active{border-left-color:var(--or)}
-.char-item.locked{opacity:.35;cursor:not-allowed}
-.char-item.locked:hover{background:transparent;border-left-color:transparent}
+    /* badge de raridade - cor por card */
+    .rarity{
+      position:absolute;top:16px;right:16px;
+      font-family:'Bebas Neue',sans-serif;font-size:.7rem;letter-spacing:3px;
+      padding:3px 10px;border-radius:4px;z-index:2;
+    }
+    .r-epica   {background:rgba(123,97,255,.3);color:#A78BFF;border:1px solid #A78BFF;}
+    .r-lendaria{background:rgba(0,229,255,.2); color:#00E5FF;border:1px solid #00E5FF;}
+    .r-rara    {background:rgba(255,215,0,.2); color:#FFD700;border:1px solid #FFD700;}
+    .r-mitica  {background:rgba(255,42,42,.2); color:#FF6B6B;border:1px solid #FF6B6B;}
 
-.char-thumb{
-  width:52px;height:52px;border-radius:2px;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;
-  font-size:24px;position:relative;overflow:hidden;
-}
-.char-thumb::after{
-  content:'';position:absolute;inset:0;
-  border:1px solid rgba(255,255,255,.08);
-}
-.char-info{flex:1;min-width:0}
-.char-name{font-family:var(--display);font-size:18px;letter-spacing:-1px;display:block;margin-bottom:3px}
-.char-role{font-size:9px;letter-spacing:2.5px;color:var(--mu2)}
-.char-lock{position:absolute;right:20px;font-size:11px;color:var(--mu)}
+    /* avatar */
+    .avatar-wrap{
+      width:100%;aspect-ratio:1;
+      display:flex;align-items:center;justify-content:center;
+      font-size:7rem;
+      position:relative;overflow:hidden;
+    }
+    .avatar-wrap .kanji{
+      font-size:7rem;line-height:1;
+      position:relative;z-index:1;
+      filter:drop-shadow(0 0 20px currentColor);
+      animation:breathe 3s ease-in-out infinite;
+    }
+    @keyframes breathe{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
+    .avatar-wrap .ring{
+      position:absolute;
+      border-radius:50%;
+      border:2px solid;
+      animation:spin 8s linear infinite;
+    }
+    .avatar-wrap .ring1{width:70%;height:70%;animation-duration:8s;}
+    .avatar-wrap .ring2{width:55%;height:55%;animation-duration:5s;animation-direction:reverse;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    .cap-icon{
+      position:absolute;bottom:-10px;
+      width:90px;height:90px;border-radius:50%;
+      border:3px solid;
+      display:flex;align-items:center;justify-content:center;
+      font-size:2.5rem;
+      box-shadow:0 0 30px currentColor;
+    }
 
-.roster-footer{
-  padding:16px 28px;
-  border-top:1px solid rgba(255,255,255,.04);
-}
-.roster-footer-label{font-size:9px;letter-spacing:2px;color:var(--mu);margin-bottom:6px}
-.cr-balance{font-family:var(--display);font-size:22px;letter-spacing:-1px;color:var(--gd)}
+    /* info */
+    .info{padding:20px;}
+    .info .name{
+      font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:4px;
+      line-height:1;margin-bottom:2px;
+    }
+    .info .title{font-size:.78rem;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:16px;}
 
-/* ── CENTER: ARENA ── */
-.arena{
-  background:var(--dk);position:relative;overflow:hidden;
-  display:flex;align-items:center;justify-content:center;
-}
+    /* atributos */
+    .attrs{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
+    .attr-row{display:flex;align-items:center;gap:10px;}
+    .attr-lbl{font-size:.7rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase;width:90px;flex-shrink:0;}
+    .attr-bar{flex:1;height:6px;background:#1A1A2E;border-radius:3px;overflow:hidden;}
+    .attr-fill{height:100%;border-radius:3px;transition:width .8s ease;}
+    .attr-val{font-family:'Bebas Neue',sans-serif;font-size:.9rem;width:28px;text-align:right;flex-shrink:0;}
 
-.arena-scan{
-  position:absolute;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,transparent,rgba(255,85,0,.2),transparent);
-  animation:scanV 4s linear infinite;pointer-events:none;
-}
-.arena-corner{position:absolute;width:24px;height:24px}
-.arena-corner.tl{top:20px;left:20px;border-top:2px solid rgba(255,85,0,.4);border-left:2px solid rgba(255,85,0,.4)}
-.arena-corner.tr{top:20px;right:20px;border-top:2px solid rgba(255,85,0,.4);border-right:2px solid rgba(255,85,0,.4)}
-.arena-corner.bl{bottom:80px;left:20px;border-bottom:2px solid rgba(0,238,255,.3);border-left:2px solid rgba(0,238,255,.3)}
-.arena-corner.br{bottom:80px;right:20px;border-bottom:2px solid rgba(0,238,255,.3);border-right:2px solid rgba(0,238,255,.3)}
+    /* habilidade especial */
+    .ability{
+      background:rgba(255,255,255,.04);border-radius:8px;
+      padding:10px 12px;margin-bottom:16px;
+      border-left:3px solid;
+    }
+    .ability .abl-name{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;margin-bottom:2px;}
+    .ability .abl-desc{font-size:.75rem;color:var(--muted);line-height:1.5;}
 
-.char-display{
-  position:relative;z-index:2;text-align:center;
-  transition:opacity .3s,transform .3s;
-}
-.char-avatar{
-  width:280px;height:340px;margin:0 auto;
-  display:flex;align-items:center;justify-content:center;
-  position:relative;
-}
-.char-avatar-canvas{width:100%;height:100%}
-.char-avatar-emoji{
-  font-size:160px;line-height:1;
-  filter:drop-shadow(0 0 40px var(--char-color,rgba(255,85,0,.5)));
-  animation:glitch 8s ease infinite;
-}
-.char-glow{
-  position:absolute;inset:-40px;border-radius:50%;
-  background:radial-gradient(ellipse at center,var(--char-color,rgba(255,85,0,.15)) 0%,transparent 70%);
-  pointer-events:none;
-}
-.arena-name{
-  font-family:var(--display);font-size:52px;letter-spacing:-3px;
-  line-height:1;margin-top:16px;
-  color:var(--char-color,var(--or));
-  animation:glitch 12s ease infinite 3s;
-}
-.arena-epithet{
-  font-size:10px;letter-spacing:4px;color:rgba(255,255,255,.3);
-  margin-top:6px;text-transform:uppercase;
-}
+    /* nft info */
+    .nft-row{display:flex;justify-content:space-between;align-items:center;
+             border-top:1px solid rgba(255,255,255,.07);padding-top:14px;}
+    .nft-id{font-size:.68rem;color:var(--muted);letter-spacing:1px;}
+    .nft-id span{display:block;font-family:'Bebas Neue',sans-serif;font-size:.9rem;color:#E8E8F0;}
+    .btn-select{
+      font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:3px;
+      padding:6px 18px;border-radius:4px;border:1px solid;
+      cursor:pointer;text-decoration:none;transition:all .2s;
+    }
 
-.arena-select-btn{
-  display:inline-flex;align-items:center;gap:10px;
-  background:var(--char-color,var(--or));color:#fff;border:none;
-  padding:14px 36px;font-family:var(--mono);font-size:13px;
-  letter-spacing:2px;text-transform:uppercase;
-  margin-top:28px;cursor:pointer;border-radius:1px;
-  text-decoration:none;transition:opacity .2s,transform .15s;
-}
-.arena-select-btn:hover{opacity:.85;transform:translateY(-2px)}
-.arena-select-btn.locked-btn{
-  background:rgba(255,255,255,.05);color:var(--mu2);
-  border:1px solid rgba(255,255,255,.08);cursor:not-allowed;
-}
-.arena-select-btn.locked-btn:hover{transform:none;opacity:1}
+    /* tag LOCK */
+    .lock-badge{
+      position:absolute;inset:0;background:rgba(0,0,0,.5);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      z-index:10;border-radius:16px;
+    }
+    .lock-badge .lock-icon{font-size:3rem;margin-bottom:.5rem;}
+    .lock-badge p{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:3px;color:#888;}
 
-/* ── RIGHT: STATS ── */
-.stats-panel{
-  background:var(--dk2);
-  border-left:1px solid rgba(255,85,0,.1);
-  overflow-y:auto;padding:28px;
-  display:flex;flex-direction:column;gap:28px;
-}
-.stats-panel::-webkit-scrollbar{width:2px}
-.stats-panel::-webkit-scrollbar-thumb{background:rgba(255,85,0,.3)}
-
-.stat-block{display:flex;flex-direction:column;gap:12px}
-.stat-block-title{font-size:9px;letter-spacing:4px;color:var(--mu);border-bottom:1px solid rgba(255,255,255,.04);padding-bottom:10px}
-
-.stat-row{display:flex;flex-direction:column;gap:6px}
-.stat-label-row{display:flex;justify-content:space-between;align-items:baseline}
-.stat-name{font-size:11px;letter-spacing:1.5px;color:rgba(255,255,255,.6)}
-.stat-value{font-family:var(--display);font-size:18px;letter-spacing:-1px;color:var(--or)}
-.stat-bar-bg{height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
-.stat-bar-fill{
-  height:100%;border-radius:2px;
-  background:linear-gradient(90deg,var(--bar-col,var(--or)),var(--bar-col2,var(--or2)));
-  width:var(--w,0%);transition:width .8s cubic-bezier(.4,0,.2,1);
-}
-
-.cap-stat-block{display:flex;flex-direction:column;gap:10px}
-.cap-info-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04)}
-.cap-info-key{font-size:10px;letter-spacing:1.5px;color:var(--mu2)}
-.cap-info-val{font-size:12px;color:var(--wh);font-family:var(--mono)}
-.cap-info-val.highlight{color:var(--gd);font-family:var(--display);font-size:16px;letter-spacing:-1px}
-
-.lore-block{background:rgba(255,255,255,.02);border-left:2px solid rgba(255,85,0,.3);padding:14px 16px}
-.lore-text{font-size:12px;color:rgba(255,255,255,.35);line-height:1.75}
-
-.ability-list{display:flex;flex-direction:column;gap:8px}
-.ability-card{
-  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);
-  padding:12px 14px;transition:border-color .2s;
-}
-.ability-card:hover{border-color:rgba(255,85,0,.3)}
-.ability-name{font-size:11px;letter-spacing:1px;color:var(--wh);margin-bottom:4px}
-.ability-desc{font-size:10px;color:var(--mu2);line-height:1.5}
-.ability-tag{
-  display:inline-block;margin-top:6px;padding:2px 8px;
-  font-size:9px;letter-spacing:1.5px;
-  background:rgba(255,85,0,.1);border:1px solid rgba(255,85,0,.2);color:var(--or);
-}
-
-/* ── MOBILE FALLBACK ── */
-@media(max-width:900px){
-  .stage{grid-template-columns:1fr;grid-template-rows:auto 1fr auto;overflow:auto}
-  body,html{overflow:auto}
-  .roster{border-right:none;border-bottom:1px solid rgba(255,85,0,.1);overflow:visible}
-  .char-list{max-height:200px;overflow-y:auto}
-  .arena{min-height:360px}
-  .stats-panel{border-left:none;border-top:1px solid rgba(255,85,0,.1)}
-}
-</style>
+    /* responsivo */
+    @media(max-width:600px){
+      .grid{grid-template-columns:1fr;padding:0 1rem;}
+      .nlinks{gap:1rem;}
+    }
+  </style>
 </head>
 <body>
 
+<!-- NAV -->
 <nav>
-  <a href="index.html" class="nav-logo"><span class="cap">CAP</span><span class="rush">RUSH</span></a>
-  <div class="nav-status">
-    <div class="status-dot"></div>
-    <span>DEVNET · FOGO SVM</span>
+  <a href="index.html" class="nlogo">CAP RUSH</a>
+  <div class="nlinks">
+    <a href="caprush-game.html">Jogar</a>
+    <a href="personagens.html" class="active">Pilotos</a>
+    <a href="ranking.html">Ranking</a>
+    <span class="nbadge">Prototype v0.2</span>
   </div>
-  <a href="index.html" class="nav-back">← VOLTAR AO INÍCIO</a>
 </nav>
 
-<div class="stage">
-  <!-- ── ROSTER ── -->
-  <div class="roster">
-    <div class="roster-header">
-      <div class="roster-label">SELEÇÃO DE PILOTO</div>
-      <div class="roster-title">Escolha seu<br>personagem</div>
-    </div>
-    <div class="char-list" id="charList"></div>
-    <div class="roster-footer">
-      <div class="roster-footer-label">SALDO DISPONÍVEL</div>
-      <div class="cr-balance">🪙 $CR 840</div>
-    </div>
-  </div>
-
-  <!-- ── ARENA ── -->
-  <div class="arena">
-    <div class="arena-scan"></div>
-    <div class="arena-corner tl"></div>
-    <div class="arena-corner tr"></div>
-    <div class="arena-corner bl"></div>
-    <div class="arena-corner br"></div>
-    <div class="char-display" id="charDisplay"></div>
-  </div>
-
-  <!-- ── STATS ── -->
-  <div class="stats-panel" id="statsPanel"></div>
+<!-- HERO -->
+<div class="hero">
+  <h1>ESCOLHA SEU PILOTO</h1>
+  <p>Cada tampinha &eacute; um NFT com atributos reais &mdash; velocidade, controle e aerodin&acirc;mica</p>
 </div>
 
-<script>
-const CHARS=[
-  {
-    id:'kaito',name:'KAITO',epithet:'O Relâmpago de Osaka',
-    emoji:'⚡',color:'#FF5500',color2:'#FF8C00',
-    locked:false,
-    role:'ESPECIALISTA EM VELOCIDADE',
-    bg:'rgba(255,85,0,.12)',
-    stats:{velocidade:94,controle:61,aerodinamica:82,forca:73,resistencia:55},
-    cap:{
-      material:'Alumínio Polido',raridade:'ÉPICA',atributo:'+18% Velocidade Máx',
-      preco:'—',token:'NFT #0001'
-    },
-    lore:'Ex-mecânico de Fórmula-E que descobriu o underground das tampinhas após perder sua licença numa corrida ilegal. Kaito não freia — ele só redireciona.',
-    habilidades:[
-      {nome:'TURBO BOOST',desc:'Dobra a potência do próximo lançamento. Cooldown: 2 voltas.',tag:'ATIVO'},
-      {nome:'SLINGERS EYE',desc:'Mira sempre revela trajetória completa, mesmo sem arrastar.',tag:'PASSIVO'},
-      {nome:'OVERDRIVE FINAL',desc:'Na última volta, velocidade base +30%. Sem custo.',tag:'ESPECIAL'},
-    ]
-  },
-  {
-    id:'yuki',name:'YUKI',epithet:'A Calculadora do Norte',
-    emoji:'❄️',color:'#00CCFF',color2:'#0044FF',
-    locked:false,
-    role:'MESTRA DO CONTROLE',
-    bg:'rgba(0,150,255,.1)',
-    stats:{velocidade:65,controle:97,aerodinamica:79,forca:60,resistencia:88},
-    cap:{
-      material:'Titânio Azul',raridade:'LENDÁRIA',atributo:'+22% Controle de Curva',
-      preco:'—',token:'NFT #0002'
-    },
-    lore:'Mestre em shogi antes de descobrir tampinhas. Para Yuki, cada pista é um tabuleiro e cada lançamento é três movimentos à frente. Nunca perde a calma.',
-    habilidades:[
-      {nome:'ÂNGULO PERFEITO',desc:'Uma vez por corrida, corrige automaticamente o ângulo de lançamento.',tag:'ATIVO'},
-      {nome:'TRILHO DE GELO',desc:'Tampinha desliza com 40% menos atrito em curvas fechadas.',tag:'PASSIVO'},
-      {nome:'ANÁLISE DE PISTA',desc:'Revela pontos de boost ocultos no início de cada volta.',tag:'ESPECIAL'},
-    ]
-  },
-  {
-    id:'ryu',name:'RYU',epithet:'O Filho da Estrada',
-    emoji:'🔥',color:'#44FF88',color2:'#00BB55',
-    locked:false,
-    role:'PILOTO EQUILIBRADO',
-    bg:'rgba(68,255,136,.08)',
-    stats:{velocidade:78,controle:76,aerodinamica:75,forca:80,resistencia:82},
-    cap:{
-      material:'Aço Inoxidável',raridade:'RARA',atributo:'Stats Balanceados +10%',
-      preco:'—',token:'NFT #0003'
-    },
-    lore:'Cresceu em Belém-PA assistindo tampinhas na rua. Sem escola técnica, sem academia — aprendeu tudo sozinho. Ryu é o wild card que ninguém vê vindo.',
-    habilidades:[
-      {nome:'TOQUE INSTINTIVO',desc:'Quando a força é máxima, ricochetes preservam 80% da velocidade.',tag:'ATIVO'},
-      {nome:'ADAPTAÇÃO',desc:'A cada volta completada, todos os stats aumentam 3%.',tag:'PASSIVO'},
-      {nome:'CORAÇÃO DE RUA',desc:'Nunca recebe penalidade de reset acima de +3 lançamentos.',tag:'ESPECIAL'},
-    ]
-  },
-  {
-    id:'neko',name:'NEKO',epithet:'A Caçadora Caótica',
-    emoji:'🐈',color:'#CC44FF',color2:'#7700CC',
-    locked:true,
-    role:'ESPECIALISTA EM CAOS',
-    bg:'rgba(150,50,255,.1)',
-    stats:{velocidade:88,controle:44,aerodinamica:90,forca:95,resistencia:66},
-    cap:{
-      material:'Carbono Violeta',raridade:'MÍTICA',atributo:'+25% Força de Lançamento',
-      preco:'2.400 $CR',token:'NFT #0004'
-    },
-    lore:'Identidade desconhecida. Apareceu no circuito há 60 dias com tampinha customizada e recorde em todas as pistas de alta dificuldade. Ninguém sabe de onde veio.',
-    habilidades:[
-      {nome:'CAOS TOTAL',desc:'Aleatoriza o atrito de toda a pista por 30 segundos. Afeta todos.',tag:'ATIVO'},
-      {nome:'PRECISÃO FELINA',desc:'Mira em alta força é 2× mais precisa do que qualquer outro personagem.',tag:'PASSIVO'},
-      {nome:'SHADOW RUN',desc:'Na primeira volta, tampinha é invisível para outros jogadores.',tag:'ESPECIAL'},
-    ]
-  },
-];
+<!-- GRID DE PILOTOS -->
+<div class="grid">
 
-let activeIdx=0;
-
-function renderRoster(){
-  const list=document.getElementById('charList');
-  list.innerHTML='';
-  CHARS.forEach((c,i)=>{
-    const el=document.createElement('div');
-    el.className='char-item'+(c.locked?' locked':'')+(i===activeIdx?' active':'');
-    el.innerHTML=`
-      <div class="char-thumb" style="background:${c.bg};font-size:26px">${c.emoji}</div>
-      <div class="char-info">
-        <span class="char-name" style="color:${c.color}">${c.name}</span>
-        <span class="char-role">${c.role}</span>
-      </div>
-      ${c.locked?'<span class="char-lock">🔒</span>':''}
-    `;
-    if(!c.locked) el.addEventListener('click',()=>{activeIdx=i;renderAll()});
-    list.appendChild(el);
-  });
-}
-
-function renderArena(){
-  const c=CHARS[activeIdx];
-  const d=document.getElementById('charDisplay');
-  d.style.opacity='0';d.style.transform='translateY(10px)';
-  setTimeout(()=>{
-    d.innerHTML=`
-      <div class="char-avatar">
-        <div class="char-glow" style="--char-color:${c.color}22"></div>
-        <div class="char-avatar-emoji" style="--char-color:${c.color}44">${c.emoji}</div>
-      </div>
-      <div class="arena-name" style="--char-color:${c.color}">${c.name}</div>
-      <div class="arena-epithet">${c.epithet}</div>
-      ${c.locked
-        ?`<button class="arena-select-btn locked-btn">🔒 DESBLOQUEIE POR ${c.cap.preco}</button>`
-        :`<a href="caprush-game.html" class="arena-select-btn" style="background:${c.color}">▶ JOGAR COM ${c.name}</a>`
-      }
-    `;
-    d.style.transition='opacity .35s ease,transform .35s ease';
-    d.style.opacity='1';d.style.transform='translateY(0)';
-  },120);
-}
-
-function renderStats(){
-  const c=CHARS[activeIdx];
-  const panel=document.getElementById('statsPanel');
-  const statMeta=[
-    {key:'velocidade',label:'VELOCIDADE',col:'#FF5500',col2:'#FF8C00'},
-    {key:'controle',label:'CONTROLE',col:'#00CCFF',col2:'#0044FF'},
-    {key:'aerodinamica',label:'AERODINÂMICA',col:'#44FF88',col2:'#00BB55'},
-    {key:'forca',label:'FORÇA',col:'#FFD700',col2:'#FF8800'},
-    {key:'resistencia',label:'RESISTÊNCIA',col:'#CC44FF',col2:'#7700CC'},
-  ];
-  panel.innerHTML=`
-    <div class="stat-block">
-      <div class="stat-block-title">ATRIBUTOS DO PILOTO</div>
-      ${statMeta.map(s=>`
-        <div class="stat-row">
-          <div class="stat-label-row">
-            <span class="stat-name">${s.label}</span>
-            <span class="stat-value" style="color:${s.col}">${c.stats[s.key]}</span>
-          </div>
-          <div class="stat-bar-bg">
-            <div class="stat-bar-fill" style="--w:${c.stats[s.key]}%;--bar-col:${s.col};--bar-col2:${s.col2};width:0%"></div>
-          </div>
+  <!-- ─── KAITO ─── -->
+  <div class="card" style="--c:#7B61FF">
+    <div class="rarity r-epica">&#9670; &Eacute;PICA</div>
+    <div class="avatar-wrap" style="background:radial-gradient(circle at 50% 40%,rgba(123,97,255,.25),transparent 70%);">
+      <div class="ring ring1" style="border-color:rgba(123,97,255,.4);"></div>
+      <div class="ring ring2" style="border-color:rgba(123,97,255,.25);"></div>
+      <span class="kanji" style="color:#A78BFF;">&#39764;</span>
+      <div class="cap-icon" style="background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.15),transparent),linear-gradient(135deg,#3B1F7A,#1A0A40);border-color:#7B61FF;color:#7B61FF;">&#127942;</div>
+    </div>
+    <div class="info">
+      <div class="name" style="color:#A78BFF;">KAITO</div>
+      <div class="title">O Relâmpago / Especialidade: Velocidade</div>
+      <div class="attrs">
+        <div class="attr-row">
+          <span class="attr-lbl">Velocidade</span>
+          <div class="attr-bar"><div class="attr-fill" style="width:95%;background:linear-gradient(90deg,#7B61FF,#A78BFF);"></div></div>
+          <span class="attr-val" style="color:#A78BFF;">95</span>
         </div>
-      `).join('')}
-    </div>
-
-    <div class="cap-stat-block">
-      <div class="stat-block-title">TAMPINHA NFT</div>
-      <div class="cap-info-row"><span class="cap-info-key">MATERIAL</span><span class="cap-info-val">${c.cap.material}</span></div>
-      <div class="cap-info-row"><span class="cap-info-key">RARIDADE</span><span class="cap-info-val" style="color:${c.color}">${c.cap.raridade}</span></div>
-      <div class="cap-info-row"><span class="cap-info-key">ATRIBUTO</span><span class="cap-info-val" style="color:#44FF88">${c.cap.atributo}</span></div>
-      <div class="cap-info-row"><span class="cap-info-key">TOKEN ID</span><span class="cap-info-val highlight">${c.cap.token}</span></div>
-      ${c.locked?`<div class="cap-info-row"><span class="cap-info-key">PREÇO</span><span class="cap-info-val" style="color:var(--gd)">${c.cap.preco}</span></div>`:''}
-    </div>
-
-    <div class="stat-block">
-      <div class="stat-block-title">BACKSTORY</div>
-      <div class="lore-block"><p class="lore-text">${c.lore}</p></div>
-    </div>
-
-    <div class="stat-block">
-      <div class="stat-block-title">HABILIDADES</div>
-      <div class="ability-list">
-        ${c.habilidades.map(h=>`
-          <div class="ability-card">
-            <div class="ability-name">${h.nome}</div>
-            <div class="ability-desc">${h.desc}</div>
-            <span class="ability-tag">${h.tag}</span>
-          </div>
-        `).join('')}
+        <div class="attr-row">
+          <span class="attr-lbl">Controle</span>
+          <div class="attr-bar"><div class="attr-fill" style="width:68%;background:linear-gradient(90deg,#7B61FF,#A78BFF);"></div></div>
+          <span class="attr-val" style="color:#A78BFF;">68</span>
+        </div>
+        <div class="attr-row">
+          <span class="attr-lbl">Aerodin.</span>
+          <div class="attr-bar"><div class="attr-fill" style="width:80%;background:linear-gradient(90deg,#7B61FF,#A78BFF);"></div></div>
+          <span class="attr-val" style="color:#A78BFF;">80</span>
+        </div>
+      </div>
+      <div class="ability" style="border-color:#7B61FF;">
+        <div class="abl-name" style="color:#A78BFF;">TURBO BURST</div>
+        <div class="abl-desc">Bônus de +18% de velocidade no primeiro lançamento de cada volta. Ideal para abrir vantagem na largada.</div>
+      </div>
+      <div class="nft-row">
+        <div class="nft-id">
+          Token ID<span>#CR-0001</span>
+        </div>
+        <a href="caprush-game.html" class="btn-select" style="color:#A78BFF;border-color:#7B61FF;">SELECIONAR</a>
       </div>
     </div>
-  `;
-  // Animate bars
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    panel.querySelectorAll('.stat-bar-fill').forEach(bar=>{
-      bar.style.width=bar.style.getPropertyValue('--w')||bar.getAttribute('style').match(/--w:([^;]+)/)?.[1]||'0%';
-      const m=bar.getAttribute('style').match(/--w:(\d+)%/);
-      if(m) bar.style.width=m[1]+'%';
-    });
-  }));
-}
+  </div>
 
-function renderAll(){renderRoster();renderArena();renderStats()}
-renderAll();
+  <!-- ─── YUKI ─── -->
+  <div class="card" style="--c:#00E5FF">
+    <div class="rarity r-lendaria">&#9670; LEND&Aacute;RIA</div>
+    <div class="avatar-wrap" style="background:radial-gradient(circle at 50% 40%,rgba(0,229,255,.2),transparent 70%);">
+      <div class="ring ring1" style="border-color:rgba(0,229,255,.35);"></div>
+      <div class="ring ring2" style="border-color:rgba(0,229,255,.2);"></div>
+      <span class="kanji" style="color:#00E5FF;">&#38634;</span>
+      <div class="cap-icon" style="background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.15),transparent),linear-gradient(135deg,#1A3A6A,#0A1A3A);border-color:#00E5FF;color:#00E5FF;">&#10052;</div>
+    </div>
+    <div class="info">
+      <div class="name" style="color:#00E5FF;">YUKI</div>
+      <div class="title">A Rainha do Gelo / Especialidade: Controle</div>
+      <div class="attrs">
+        <div class="attr-row">
+          <span class="attr-lbl">Velocidade</span>
+          <div class="attr-bar"><div class="attr-fill" style="width:82%;background:linear-gradient(90deg,#0088AA,#00E5FF);"></div></div>
+          <span class="attr-val" style="color:#00E5FF;">82</span>
+        </div>
+        <div class="attr-row">
+          <span class="attr-lbl">Controle</span>
+          <div class="attr-bar"><div class="attr-fill" style="width:91%;background:linear-gradient(90deg,#0088AA,#00E5FF);"></div></div>
+          <span class="attr-val" style="color:#00E5FF;">91</span>
+        </div>
+        <div class="attr-row">
+          <span class="attr-lbl">Aerodin.</span>
+          <div class="attr-bar"><div class="attr-fill" style="width:75%;background:linear-gradient(90deg,#0088AA,#00E5FF);"></div></div>
+          <span class="attr-val" style="color:#00E5FF;">75</span>
+        </div>
+      </div>
+      <div class="ability" style="border-color:#00E5FF;">
+        <div class="abl-name" style="color:#00E5FF;">TRAJET&Oacute;RIA GELADA</div>
+        <div class="abl-desc">Reduz o erro angular em 9% — a mira fica mais precisa. Perfeita para chicanes e curvas fechadas.</div>
+      </div>
+      <div class="nft-row">
+        <div class="nft-id">
+          Token ID<span>#CR-0002</span>
+        </div>
+        <a href="caprush-game.html" class="btn-select" style="color:#00E5FF;border-color:#00E5FF;">JOGAR AGORA</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── RYU ─── -->
+  <div class="card" style="--c:#FFD700">
+    <div class="rarity r-rara">&#9670; RARA</div>
+    <div class="avatar-wrap" style="background:radial-gradient(circle at 50% 40%,rgba(255,215,0,.15),transparent 70%);">
+      <div class="ring ring1" style="border-color:rgba(255,215,0,.3);"></div>
+      <div class="ring ring2" style="border-color:rgba(255,215,0,.18);"></div>
+      <span class="kanji" style="color:#FFD700;">&#31452;</span>
+      <div class="cap-icon" style="background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.15),transparent),linear-gradient(135deg,#3A2800,#1A1000);border-color:#FFD700;color:#FFD700;">&#9651;</div>
+    </div>
+    <div class="info">
+      <div class="name" style="color:#FFD700;">RYU</div>
+      <div class="title">O Equilibrado / Especialidade: Vers&atilde;o</div>
+      <div class="attrs">
+        <div class="attr-row">
+          <span class="attr-lbl">Velocidade</span>
+          <div class="attr-bar"><div class="attr-fill" style="width:78%;background:linear-gradient(90deg,#AA8800,#FFD700);"></div></div>
+          <span class="attr-val" style="color:#FFD700;">78</span>
+        </div>
+        <div class="attr-row">
+          <span class="attr-lbl">Controle</span>
+          <div class="attr-bar"><div class="attr-fill" style="width:79%;background:linear-gradient(90deg,#AA8800,#FFD700);"></div></div>
+          <span class="attr-val" style="color:#FFD700;">79</span>
+        </div>
+        <div class="attr-row">
+          <span class="attr-lbl">Aerodin.</span>
+          <div class="attr-bar"><div class="attr-fill" style="width:78%;background:linear-gradient(90deg,#AA8800,#FFD700);"></div></div>
+          <span class="attr-val" style="color:#FFD700;">78</span>
+        </div>
+      </div>
+      <div class="ability" style="border-color:#FFD700;">
+        <div class="abl-name" style="color:#FFD700;">INSTINTO DO DRAG&Atilde;O</div>
+        <div class="abl-desc">Bônus +5% em todos os atributos ao completar uma volta sem errar nenhum checkpoint. Consistência recompensada.</div>
+      </div>
+      <div class="nft-row">
+        <div class="nft-id">
+          Token ID<span>#CR-0003</span>
+        </div>
+        <a href="caprush-game.html" class="btn-select" style="color:#FFD700;border-color:#FFD700;">SELECIONAR</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── NEKO ─── -->
+  <div class="card locked" style="--c:#FF6B6B">
+    <div class="rarity r-mitica">&#9670; M&Iacute;TICA</div>
+    <div class="avatar-wrap" style="background:radial-gradient(circle at 50% 40%,rgba(255,42,42,.18),transparent 70%);">
+      <div class="ring ring1" style="border-color:rgba(255,107,107,.3);"></div>
+      <div class="ring ring2" style="border-color:rgba(255,107,107,.18);"></div>
+      <span class="kanji" style="color:#FF6B6B;">&#29483;</span>
+      <div class="cap-icon" style="background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.12),transparent),linear-gradient(135deg,#3A0A0A,#1A0000);border-color:#FF6B6B;color:#FF6B6B;">&#128568;</div>
+    </div>
+    <div class="info">
+      <div class="name" style="color:#FF6B6B;">NEKO</div>
+      <div class="title">O Caos / Especialidade: For&ccedil;a M&aacute;xima</div>
+      <div class="attrs">
+        <div class="attr-row">
+          <span class="attr-lbl">Velocidade</span>
+          <div class="attr-bar"><div class="attr-fill" style="width:70%;background:linear-gradient(90deg,#880000,#FF6B6B);"></div></div>
+          <span class="attr-val" style="color:#FF6B6B;">70</span>
+        </div>
+        <div class="attr-row">
+          <span class="attr-lbl">Controle</span>
+          <div class="attr-bar"><div class="attr-fill" style="width:55%;background:linear-gradient(90deg,#880000,#FF6B6B);"></div></div>
+          <span class="attr-val" style="color:#FF6B6B;">55</span>
+        </div>
+        <div class="attr-row">
+          <span class="attr-lbl">Aerodin.</span>
+          <div class="attr-bar"><div class="attr-fill" style="width:99%;background:linear-gradient(90deg,#880000,#FF6B6B);"></div></div>
+          <span class="attr-val" style="color:#FF6B6B;">99</span>
+        </div>
+      </div>
+      <div class="ability" style="border-color:#FF6B6B;">
+        <div class="abl-name" style="color:#FF6B6B;">F&Uacute;RIA DO CAOS</div>
+        <div class="abl-desc">Ignora 40% do arrasto de qualquer superfície. O mais rápido em linha reta — mas quase impossível de controlar.</div>
+      </div>
+      <div class="nft-row">
+        <div class="nft-id">Token ID<span>#CR-0004</span></div>
+        <span class="btn-select" style="color:#FF6B6B;border-color:#FF6B6B;opacity:.5;cursor:not-allowed;">BLOQUEADO</span>
+      </div>
+    </div>
+    <div class="lock-badge">
+      <div class="lock-icon">&#128274;</div>
+      <p>DESBLOQUEAVEL</p>
+      <p style="font-size:.7rem;color:#666;margin-top:.3rem;letter-spacing:1px;">Via Marketplace NFT</p>
+    </div>
+  </div>
+
+</div><!-- /grid -->
+
+<!-- animacao das barras ao entrar na viewport -->
+<script>
+(function(){
+  var fills = document.querySelectorAll('.attr-fill');
+  // Salva as larguras-alvo e zera para animar
+  fills.forEach(function(f){
+    f._target = f.style.width;
+    f.style.width = '0%';
+  });
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        e.target.querySelectorAll('.attr-fill').forEach(function(f){
+          setTimeout(function(){ f.style.width = f._target; }, 200);
+        });
+        obs.unobserve(e.target);
+      }
+    });
+  },{threshold:0.3});
+  document.querySelectorAll('.card').forEach(function(c){ obs.observe(c); });
+})();
 </script>
+
 </body>
 </html>
