@@ -1,4 +1,28 @@
-<!DOCTYPE html>
+"""
+builder_phase1_complete.py  —  CapRush Overdrive!
+==================================================
+COLOQUE NA RAIZ:  C:\\Users\\User\\Cryptos\\projects\\caprush\\
+EXECUTE:          python builder_phase1_complete.py
+
+Gera automaticamente nos lugares certos:
+  client/caprush-game-v2.html   (jogo completo)
+  server/ws-server.js            (servidor online)
+  docs/ONLINE_GUIDE.md
+  git_commands.ps1
+"""
+
+import os
+
+ROOT = os.path.dirname(os.path.abspath(__file__))
+
+def W(rel, txt):
+    p = os.path.join(ROOT, rel)
+    os.makedirs(os.path.dirname(p), exist_ok=True)
+    with open(p, 'w', encoding='utf-8') as f:
+        f.write(txt)
+    print(f'  OK  {rel}')
+
+GAME = r"""<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -639,3 +663,109 @@ window.PG=new Phaser.Game({type:Phaser.AUTO,width:GW,height:GH,parent:'cv-area',
 </script>
 </body>
 </html>
+"""
+
+WS = r"""/**
+ * CapRush ws-server.js
+ * Porta 3001 - WebSocket + HTTP
+ * Executar: node ws-server.js (dentro de server/)
+ */
+const WebSocket=require('ws');
+const http=require('http');
+const os=require('os');
+const PORT=3001;
+function getIPs(){const r=[];for(const[,ifaces]of Object.entries(os.networkInterfaces()))for(const i of ifaces)if(i.family==='IPv4'&&!i.internal)r.push({address:i.address});return r;}
+const srv=http.createServer((req,res)=>{res.setHeader('Access-Control-Allow-Origin','*');res.setHeader('Content-Type','application/json');if(req.url==='/info'){res.writeHead(200);res.end(JSON.stringify({ips:getIPs(),port:PORT}));}else{res.writeHead(200);res.end(JSON.stringify({status:'ok'}));}});
+const wss=new WebSocket.Server({server:srv});
+const rooms={};
+function gen(){return Math.random().toString(36).substr(2,5).toUpperCase();}
+function send(ws,obj){if(ws&&ws.readyState===1)ws.send(JSON.stringify(obj));}
+wss.on('connection',ws=>{
+  ws._room=null;ws._role=null;
+  ws.on('message',raw=>{
+    let m;try{m=JSON.parse(raw);}catch{return;}
+    if(m.type==='create_room'){const code=gen();rooms[code]={host:ws,guest:null,state:'waiting'};ws._room=code;ws._role='host';send(ws,{type:'room_created',code});console.log('[SALA] '+code);}
+    else if(m.type==='join_room'){const code=(m.code||'').toUpperCase();const rm=rooms[code];if(!rm||rm.state!=='waiting'){send(ws,{type:'error',msg:'Sala nao encontrada.'});return;}rm.guest=ws;rm.state='playing';ws._room=code;ws._role='guest';send(ws,{type:'room_joined',code});send(rm.host,{type:'start',first:'host'});send(rm.guest,{type:'start',first:'host'});console.log('[SALA] '+code+' iniciado!');}
+    else if(m.type==='launch'){const rm=rooms[ws._room];if(!rm)return;const opp=ws._role==='host'?rm.guest:rm.host;send(opp,{type:'launch',from:m.from,to:m.to});send(opp,{type:'pass_turn'});}
+    else if(m.type==='pos'){const rm=rooms[ws._room];if(!rm)return;const opp=ws._role==='host'?rm.guest:rm.host;send(opp,{type:'pos',x:m.x,y:m.y,vx:m.vx,vy:m.vy});}
+  });
+  ws.on('close',()=>{const code=ws._room;if(!code||!rooms[code])return;const opp=ws._role==='host'?rooms[code].guest:rooms[code].host;send(opp,{type:'opponent_disconnected'});delete rooms[code];console.log('[SALA] '+code+' encerrada.');});
+});
+srv.listen(PORT,()=>{
+  const ips=getIPs();
+  console.log('\n+-------------------------------------------+');
+  console.log('| CapRush WebSocket Server  porta: '+PORT+'    |');
+  console.log('+-------------------------------------------+');
+  ips.forEach(ip=>console.log('| Link: http://'+ip.address+':8080/client/caprush-game-v2.html'));
+  console.log('+-------------------------------------------+\n');
+});
+"""
+
+GUIDE = """\
+# CapRush - Guia Modo Online 1v1
+
+## Requisitos
+- Node.js instalado (nodejs.org, versao 18+)
+- Dois computadores na mesma rede Wi-Fi
+
+## Como executar no PowerShell (Windows)
+Use comandos separados (nao use &&):
+
+Terminal 1 - Servidor do jogo:
+  cd C:\\Users\\User\\Cryptos\\projects\\caprush
+  python -m http.server 8080
+
+Terminal 2 - Servidor multiplayer:
+  cd C:\\Users\\User\\Cryptos\\projects\\caprush\\server
+  node ws-server.js
+
+## Como jogar
+1. HOST: abre http://localhost:8080/client/caprush-game-v2.html
+2. HOST: clica 1x1 ONLINE, escolhe personagem
+3. HOST: o jogo detecta o IP e exibe um banner com o link e botao Copiar
+4. HOST: envia o link ao amigo via WhatsApp/Discord
+5. GUEST: abre o link recebido, clica 1x1 ONLINE, escolhe personagem, joga
+"""
+
+GIT = """\
+# CapRush - Git Push
+# Execute no PowerShell na raiz do projeto:
+
+git add client/caprush-game-v2.html
+git add server/ws-server.js
+git add docs/ONLINE_GUIDE.md
+git add builder_phase1_complete.py
+git commit -m "feat(phase1): jogo completo com menu, lobby, fisica, i18n, online"
+git push origin main
+
+Write-Host "Push concluido!"
+"""
+
+def main():
+    print()
+    print('='*58)
+    print('  CapRush - builder_phase1_complete.py')
+    print(f'  Repo: {ROOT}')
+    print('='*58)
+    print()
+    print('--- Gerando arquivos ---')
+    W('client/caprush-game-v2.html', GAME)
+    W('server/ws-server.js', WS)
+    W('docs/ONLINE_GUIDE.md', GUIDE)
+    W('git_commands.ps1', GIT)
+    print()
+    print('='*58)
+    print('  CONCLUIDO!')
+    print('='*58)
+    print()
+    print('  PARA JOGAR:')
+    print('    Terminal 1: python -m http.server 8080')
+    print('    Navegador:  http://localhost:8080/client/caprush-game-v2.html')
+    print()
+    print('  PARA MODO ONLINE:')
+    print('    Terminal 2 (pasta server):')
+    print('      node ws-server.js')
+    print()
+
+if __name__ == '__main__':
+    main()
