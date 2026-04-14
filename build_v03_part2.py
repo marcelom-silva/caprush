@@ -1,4 +1,132 @@
-// TrackV3.js v3 — CapRush
+#!/usr/bin/env python3
+import sys
+sys.stdout.reconfigure(encoding="utf-8", errors="replace") if hasattr(sys.stdout, "reconfigure") else None
+# -*- coding: utf-8 -*-
+"""CapRush v0.3 — Builder Parte 2: Physics.js e TrackV3.js"""
+import os
+ROOT = os.path.dirname(os.path.abspath(__file__))
+def w(rel, txt):
+    path = os.path.join(ROOT, *rel.split('/'))
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, 'w', encoding='utf-8', newline='\n') as f:
+        f.write(txt)
+    print(f'  [OK]  {rel}')
+
+# ═══════════════════════════════════════════════════════════════
+# Physics.js v3 — Correcao drags + bounce() + setVel()
+# ═══════════════════════════════════════════════════════════════
+w('client/src/core/Physics.js', r"""// Physics.js v3 — CapRush
+// CORRECAO: agua aumenta atrito (freia), grama diminui (desliza/acelera)
+// NOVO: setVel(), bounce() para ricochete correto
+var Physics = (function(){
+  var BASE_DRAG = 1.8;
+  var MAX_PX    = 165;
+  var MAX_SPD   = 620;
+  var REST      = 0.65;
+  var MIN_SPD   = 6;
+
+  // FIX v3: valores corrigidos (estavam invertidos!)
+  // agua:  MAIS atrito  = dragCoeff MAIOR = tampinha FREIA na agua
+  // grama: MENOS atrito = dragCoeff MENOR = tampinha DESLIZA e ACELERA na grama
+  var DRAG_MULT = {
+    asfalto: 1.0,
+    agua:    1.95,  // +95% de arrasto — freia significativamente
+    grama:   0.42,  // -58% de arrasto — desliza e ganha velocidade
+  };
+
+  var s = {
+    pos: new Vector2D(0,0),
+    vel: new Vector2D(0,0),
+    moving: false,
+    surf: 'asfalto'
+  };
+
+  function reset(x, y, surf){
+    s.pos    = new Vector2D(x, y);
+    s.vel    = new Vector2D(0, 0);
+    s.moving = false;
+    s.surf   = surf || 'asfalto';
+  }
+
+  function setSurface(surf){ s.surf = surf || 'asfalto'; }
+
+  // NOVO v3: define velocidade diretamente (para ricochete)
+  function setVel(vx, vy){
+    s.vel    = new Vector2D(vx, vy);
+    s.moving = s.vel.magnitude() > MIN_SPD;
+  }
+
+  // NOVO v3: reflexao vetorial correta — n deve ser vetor unitario
+  // Uso: bounce(nx, ny, restitution)
+  // Aplica: v = v - 2*(v.n)*n  depois multiplica por restituicao
+  function bounce(nx, ny, restitution){
+    var r   = (restitution !== undefined) ? restitution : REST;
+    var dot = s.vel.x * nx + s.vel.y * ny;
+    if(dot >= 0) return;  // ja se afastando, nao ricocheta
+    s.vel.x = (s.vel.x - 2 * dot * nx) * r;
+    s.vel.y = (s.vel.y - 2 * dot * ny) * r;
+    s.moving = s.vel.magnitude() > MIN_SPD;
+  }
+
+  function flick(from, to, charMult){
+    var drag = from.sub(to);
+    var len  = Math.min(drag.magnitude(), MAX_PX);
+    var t    = len / MAX_PX;
+    s.vel    = drag.normalize().scale(t * MAX_SPD * (charMult || 1));
+    s.moving = true;
+    return { forcePct: Math.round(t*100),
+             angle: Math.atan2(drag.y, drag.x) * 180 / Math.PI };
+  }
+
+  function step(dt, bounds){
+    if(!s.moving) return snap();
+
+    var dragCoeff = BASE_DRAG * (DRAG_MULT[s.surf] || 1.0);
+    var spd       = s.vel.magnitude();
+    var newSpd    = Math.max(0, spd - dragCoeff * spd * dt);
+
+    if(newSpd < MIN_SPD){
+      s.vel    = new Vector2D(0, 0);
+      s.moving = false;
+      return snap();
+    }
+
+    s.vel = s.vel.normalize().scale(newSpd);
+    s.pos = s.pos.add(s.vel.scale(dt));
+
+    // bordas do canvas
+    var r = 14;
+    if(s.pos.x - r < bounds.x)         { s.pos.x = bounds.x + r;           s.vel.x =  Math.abs(s.vel.x) * REST; }
+    if(s.pos.x + r > bounds.x+bounds.w){ s.pos.x = bounds.x+bounds.w - r;  s.vel.x = -Math.abs(s.vel.x) * REST; }
+    if(s.pos.y - r < bounds.y)         { s.pos.y = bounds.y + r;           s.vel.y =  Math.abs(s.vel.y) * REST; }
+    if(s.pos.y + r > bounds.y+bounds.h){ s.pos.y = bounds.y+bounds.h - r;  s.vel.y = -Math.abs(s.vel.y) * REST; }
+
+    return snap();
+  }
+
+  function snap(){
+    return {
+      pos:    s.pos.clone(),
+      vel:    s.vel.clone(),
+      speed:  s.vel.magnitude(),
+      moving: s.moving,
+      surf:   s.surf
+    };
+  }
+
+  return {
+    reset:reset, flick:flick, step:step,
+    setSurface:setSurface, setVel:setVel, bounce:bounce,
+    MAX_PX:MAX_PX, MAX_SPD:MAX_SPD, REST:REST,
+    get pos(){ return s.pos.clone(); }
+  };
+})();
+""")
+
+# ═══════════════════════════════════════════════════════════════
+# TrackV3.js v3 — Stands, Paddock, Agua organica, Grama texturizada
+# ═══════════════════════════════════════════════════════════════
+w('client/src/scenes/TrackV3.js', r"""// TrackV3.js v3 — CapRush
 // NOVO: stands (amarelo) com torcida animada, paddock (laranja),
 //       poças de agua organicas, grama texturizada
 // API nova: checkStands(pos,r), checkPaddock(pos,r)
@@ -648,3 +776,6 @@ var TrackV3 = (function(){
     get TW(){ return TW; },
   };
 })();
+""")
+
+print('\n[v]  Parte 2 concluida: Physics.js, TrackV3.js\n')

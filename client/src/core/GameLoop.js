@@ -1,4 +1,6 @@
-// GameLoop.js v3 - fisica corrigida, TrackV3, sons
+// GameLoop.js v3 — CapRush Solo
+// CORRECAO: ricochete em obstaculos usa reflexao vetorial correta (Physics.bounce)
+// NOVO: colisao com stands (ricochet REST=0.72) e paddock (ricochet REST=0.60)
 (function(){
   'use strict';
   var canvas  = document.getElementById('gameCanvas');
@@ -21,32 +23,29 @@
 
   function resize(){
     var wrap=canvas.parentElement;
-    canvas.width  = Math.max(wrap.offsetWidth  - 155, 320);
+    canvas.width  = Math.max(wrap.offsetWidth - 155, 320);
     canvas.height = Math.max(wrap.offsetHeight, 280);
     TrackV3.init(canvas.width, canvas.height);
     var sp=TrackV3.getStartPos();
     Physics.reset(sp.x, sp.y, 'asfalto');
     Yuki.resetAnim();
-    gs.respawn={x:sp.x,y:sp.y};
+    gs.respawn={x:sp.x, y:sp.y};
   }
   window.addEventListener('resize', resize);
   setTimeout(resize, 80);
 
-  // Overlay → inicia
   function startGame(){
     SoundEngine.resume();
     overlay.style.display='none';
     gs.phase='AIM';
     if(canvas.width<50) resize();
     var sp=TrackV3.getStartPos();
-    Physics.reset(sp.x,sp.y,'asfalto');
-    gs.respawn={x:sp.x,y:sp.y};
+    Physics.reset(sp.x, sp.y, 'asfalto');
+    gs.respawn={x:sp.x, y:sp.y};
   }
   overlay.addEventListener('click',   startGame);
   overlay.addEventListener('touchend',function(e){e.preventDefault();startGame();},{passive:false});
-  overlay.style.cursor='pointer';
 
-  // Input
   function cpos(e){ var r=canvas.getBoundingClientRect(); return new Vector2D(e.clientX-r.left, e.clientY-r.top); }
   function bnd(){ return{x:0,y:0,w:canvas.width,h:canvas.height}; }
 
@@ -63,7 +62,7 @@
   canvas.addEventListener('mouseup', function(e){
     if(!gs.ds||gs.phase!=='AIM') return;
     var info=Physics.flick(gs.ds,cpos(e),Yuki.M.spd);
-    log('Lance: '+info.forcePct+'% / '+info.angle.toFixed(0)+' graus','ev');
+    log('Lance: '+info.forcePct+'% / '+info.angle.toFixed(0)+'\u00b0','ev');
     gs.ds=null; gs.dc=null; gs.phase='MOVING';
     if(!gs.t0) gs.t0=performance.now();
     elFBar.style.height='0%'; elFVal.textContent='0%';
@@ -86,7 +85,6 @@
     elFBar.style.height='0%'; elFVal.textContent='0%';
   },{passive:true});
 
-  // Loop
   function loop(now){
     var dt=Math.min((now-lt)/1000, 0.05); lt=now; animT+=dt;
     ctx.clearRect(0,0,canvas.width,canvas.height);
@@ -95,20 +93,32 @@
     var ph=Physics.step(dt, bnd());
 
     if(ph.moving){
-      // Obstaculos
+      // ── Obstaculos: ricochete correto via reflexao vetorial ──
       var obs=TrackV3.checkObstacles(ph.pos, CAP_R);
       if(obs){
-        var dot=ph.vel.x*obs.nx+ph.vel.y*obs.ny;
-        var nvx=(ph.vel.x-2*dot*obs.nx)*.78;
-        var nvy=(ph.vel.y-2*dot*obs.ny)*.78;
-        Physics.reset(ph.pos.x,ph.pos.y,'asfalto');
-        // aplica nova velocidade simulando flick
-        var tmpFrom=new Vector2D(ph.pos.x-nvx*0.05, ph.pos.y-nvy*0.05);
-        var tmpTo  =new Vector2D(ph.pos.x+nvx*0.05, ph.pos.y+nvy*0.05);
-        Physics.flick(tmpFrom, tmpTo, 1);
+        // FIX v3: usa Physics.bounce com normal do obstaculo (REST=0.72)
+        Physics.bounce(obs.nx, obs.ny, 0.72);
         SoundEngine.hit();
         log('Bateu em obstaculo!');
-        ph=Physics.step(0,bnd());
+        ph=Physics.step(0, bnd());
+      }
+
+      // ── NOVO v3: Arquibancadas — ricochete REST=0.72 ──
+      var stand=TrackV3.checkStands(ph.pos, CAP_R);
+      if(stand){
+        Physics.bounce(stand.nx, stand.ny, 0.72);
+        SoundEngine.hit();
+        log('Arquibancada! Ricochete!', 'ev');
+        ph=Physics.step(0, bnd());
+      }
+
+      // ── NOVO v3: Paddock — ricochete REST=0.60 (solo) ──
+      var pdk=TrackV3.checkPaddock(ph.pos, CAP_R);
+      if(pdk){
+        Physics.bounce(pdk.nx, pdk.ny, 0.60);
+        SoundEngine.hit();
+        log('Paddock! Ricochete!', 'ev');
+        ph=Physics.step(0, bnd());
       }
 
       // Superficie especial (apenas se na pista)
@@ -124,12 +134,11 @@
           Physics.setSurface('asfalto');
         }
       } else {
-        // Fora da pista
         var inner=TrackV3.detectInner(ph.pos);
         if(inner){
           var rp=gs.respawn||TrackV3.getStartPos();
-          Physics.reset(rp.x,rp.y,'asfalto');
-          log('Zona '+inner+' - voltando ao CP');
+          Physics.reset(rp.x, rp.y, 'asfalto');
+          log('Zona '+inner+' \u2014 voltando ao CP');
         }
       }
     }
@@ -139,12 +148,11 @@
 
     if(gs.phase==='MOVING'){
       gs.elapsed=(performance.now()-gs.t0)/1000; updHUD();
-      if(!ph.moving){ gs.phase='AIM'; log('Parou - mire novamente'); }
-
+      if(!ph.moving){ gs.phase='AIM'; log('Parou \u2014 mire novamente'); }
       TrackV3.checkCP(ph.pos, function(c){
         SoundEngine.checkpoint();
         gs.cp++; elCp.textContent=gs.cp+'/'+NCPS;
-        gs.respawn={x:c.x,y:c.y};
+        gs.respawn={x:c.x, y:c.y};
         log(c.lbl+' ativado!','ev');
       });
       if(gs.cp>=NCPS&&TrackV3.checkLap(ph.pos)) onLap();

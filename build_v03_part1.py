@@ -1,4 +1,423 @@
-<!DOCTYPE html>
+#!/usr/bin/env python3
+import sys
+sys.stdout.reconfigure(encoding="utf-8", errors="replace") if hasattr(sys.stdout, "reconfigure") else None
+# -*- coding: utf-8 -*-
+"""
+CapRush v0.3 — Builder Parte 1
+Gera: i18n.js, index.html (logo+bandeiras), personagens.html (SVGs manga)
+"""
+import os
+ROOT = os.path.dirname(os.path.abspath(__file__))
+
+def w(rel, txt):
+    path = os.path.join(ROOT, *rel.split('/'))
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, 'w', encoding='utf-8', newline='\n') as f:
+        f.write(txt)
+    print(f'  [OK]  {rel}')
+
+# ═══════════════════════════════════════════════════════════════
+# i18n.js — Sistema de tradução PT-BR / EN-US / ES
+# ═══════════════════════════════════════════════════════════════
+w('i18n.js', r"""
+/* CapRush i18n — PT-BR / EN-US / ES — v1.0 */
+(function(w){
+'use strict';
+
+var LANGS = {
+  pt: {
+    /* NAV */
+    'nav.jogar':'JOGAR','nav.pilotos':'PILOTOS','nav.ranking':'RANKING',
+    'nav.manual':'MANUAL','nav.arquitetura':'ARQUITETURA','nav.lobby':'LOBBY',
+    /* INDEX hero */
+    'hero.proto':'Prototype v0.2 · Fogo SVM · Devnet',
+    'cap.jogar.lbl':'JOGAR','cap.pilotos.lbl':'PILOTOS',
+    'cap.ranking.lbl':'RANKING','cap.arq.lbl':'ARQT.',
+    'cap.manual.lbl':'MANUAL',
+    'cap.jogar.name':'JOGAR','cap.pilotos.name':'PILOTOS',
+    'cap.ranking.name':'RANKING','cap.arq.name':'ARQUITETURA',
+    'cap.manual.name':'MANUAL',
+    /* PERSONAGENS */
+    'pg.hero.title':'ESCOLHA SEU PILOTO',
+    'pg.hero.sub':'Cada tampinha é um NFT com atributos reais — velocidade, controle e aerodinâmica',
+    'pg.kenta.title':'Maine Coon Brown Tabby / Especialidade: Velocidade',
+    'pg.yuki.title':'Samoeida / Especialidade: Controle',
+    'pg.bruna.title':'SRD Marrom / Especialidade: Versatilidade',
+    'pg.tapz.title':'Golden Retriever Angelical / Especialidade: Força Máxima',
+    'pg.abl.kenta':'Bônus de +18% de velocidade no primeiro lançamento de cada volta. Ideal para abrir vantagem na largada.',
+    'pg.abl.yuki':'Reduz o erro angular em 9% — a mira fica mais precisa. Perfeita para chicanes e curvas fechadas.',
+    'pg.abl.bruna':'Bônus +5% em todos os atributos ao completar uma volta sem errar nenhum checkpoint.',
+    'pg.abl.tapz':'Ignora 40% do arrasto de qualquer superfície. A mais veloz em linha reta — quase impossível de controlar.',
+    'pg.sel':'SELECIONAR','pg.play':'JOGAR AGORA',
+    'pg.locked':'BLOQUEADA','pg.next':'Próxima Fase','pg.nft':'Via Marketplace NFT',
+    'attr.vel':'Velocidade','attr.ctrl':'Controle','attr.aero':'Aerodin.',
+    /* GAME UI */
+    'hud.volta':'Volta','hud.cp':'Checkpoint','hud.tempo':'Tempo','hud.melhor':'Melhor',
+    'ui.forca':'FORCA','ui.potencia':'Potencia','ui.piloto':'PILOTO',
+    'ui.pista':'PISTA','ui.eventos':'EVENTOS',
+    'surf.asfalto':'Asfalto (normal)','surf.agua':'Água (mais aderente)',
+    'surf.grama':'Grama (desliza mais)','surf.obs':'Obstáculos',
+    'overlay.ready':'PRONTO?','overlay.click':'Clique aqui para começar',
+    'overlay.hint':'Clique e arraste a tampinha para mirar',
+    'overlay.start':'▶ CLIQUE PARA COMEÇAR',
+    'lobby':'← LOBBY','multi.btn':'2P →',
+    /* RANKING */
+    'rk.title':'RANKING GLOBAL','rk.sub':'Top pilotos de todas as pistas',
+    'rk.pos':'POS','rk.piloto':'PILOTO','rk.pista':'PISTA',
+    'rk.tempo':'TEMPO','rk.data':'DATA',
+    /* ONLINE */
+    'online.title':'ONLINE 1v1','online.sub':'Duelo via internet (Beta)',
+    'online.criar':'CRIAR SALA','online.criar.btn':'CRIAR SALA E AGUARDAR',
+    'online.entrar':'ENTRAR EM SALA','online.entrar.btn':'ENTRAR NA SALA',
+    'online.nick.c':'Seu nickname','online.nick.j':'Seu nickname',
+    'online.code.ph':'Código da sala (5 letras)',
+    'online.connecting':'Conectando ao servidor...',
+    'online.offline':'Servidor offline. Veja o Manual → Online 1v1.',
+    'online.guide.title':'Como jogar Online',
+    /* MANUAL */
+    'man.title':'MANUAL DO JOGADOR',
+  },
+  en: {
+    'nav.jogar':'PLAY','nav.pilotos':'PILOTS','nav.ranking':'RANKING',
+    'nav.manual':'MANUAL','nav.arquitetura':'ARCHITECTURE','nav.lobby':'LOBBY',
+    'hero.proto':'Prototype v0.2 · Fogo SVM · Devnet',
+    'cap.jogar.lbl':'PLAY','cap.pilotos.lbl':'PILOTS',
+    'cap.ranking.lbl':'RANKING','cap.arq.lbl':'ARCH.',
+    'cap.manual.lbl':'MANUAL',
+    'cap.jogar.name':'PLAY','cap.pilotos.name':'PILOTS',
+    'cap.ranking.name':'RANKING','cap.arq.name':'ARCHITECTURE',
+    'cap.manual.name':'MANUAL',
+    'pg.hero.title':'CHOOSE YOUR PILOT',
+    'pg.hero.sub':'Each bottle cap is an NFT with real attributes — speed, control and aerodynamics',
+    'pg.kenta.title':'Maine Coon Brown Tabby / Specialty: Speed',
+    'pg.yuki.title':'Samoyed / Specialty: Control',
+    'pg.bruna.title':'Mixed Breed Brown / Specialty: Versatility',
+    'pg.tapz.title':'Angelic Golden Retriever / Specialty: Max Power',
+    'pg.abl.kenta':'+18% speed bonus on first launch of each lap. Great for gaining early advantage.',
+    'pg.abl.yuki':'Reduces angular error by 9% — aiming is more precise. Perfect for chicanes and tight curves.',
+    'pg.abl.bruna':'+5% to all attributes when completing a lap without missing any checkpoint.',
+    'pg.abl.tapz':'Ignores 40% of drag from any surface. Fastest in a straight line — almost impossible to control.',
+    'pg.sel':'SELECT','pg.play':'PLAY NOW',
+    'pg.locked':'LOCKED','pg.next':'Next Phase','pg.nft':'Via NFT Marketplace',
+    'attr.vel':'Speed','attr.ctrl':'Control','attr.aero':'Aerodyn.',
+    'hud.volta':'Lap','hud.cp':'Checkpoint','hud.tempo':'Time','hud.melhor':'Best',
+    'ui.forca':'POWER','ui.potencia':'Power','ui.piloto':'PILOT',
+    'ui.pista':'TRACK','ui.eventos':'EVENTS',
+    'surf.asfalto':'Asphalt (normal)','surf.agua':'Water (more grip)',
+    'surf.grama':'Grass (slides more)','surf.obs':'Obstacles',
+    'overlay.ready':'READY?','overlay.click':'Click here to start',
+    'overlay.hint':'Click and drag the cap to aim',
+    'overlay.start':'▶ CLICK TO START',
+    'lobby':'← LOBBY','multi.btn':'2P →',
+    'rk.title':'GLOBAL RANKING','rk.sub':'Top pilots across all tracks',
+    'rk.pos':'POS','rk.piloto':'PILOT','rk.pista':'TRACK',
+    'rk.tempo':'TIME','rk.data':'DATE',
+    'online.title':'ONLINE 1v1','online.sub':'Internet duel (Beta)',
+    'online.criar':'CREATE ROOM','online.criar.btn':'CREATE ROOM & WAIT',
+    'online.entrar':'JOIN ROOM','online.entrar.btn':'JOIN ROOM',
+    'online.nick.c':'Your nickname','online.nick.j':'Your nickname',
+    'online.code.ph':'Room code (5 letters)',
+    'online.connecting':'Connecting to server...',
+    'online.offline':'Server offline. See Manual → Online 1v1.',
+    'online.guide.title':'How to play Online',
+    'man.title':'PLAYER MANUAL',
+  },
+  es: {
+    'nav.jogar':'JUGAR','nav.pilotos':'PILOTOS','nav.ranking':'RANKING',
+    'nav.manual':'MANUAL','nav.arquitetura':'ARQUITECTURA','nav.lobby':'LOBBY',
+    'hero.proto':'Prototipo v0.2 · Fogo SVM · Devnet',
+    'cap.jogar.lbl':'JUGAR','cap.pilotos.lbl':'PILOTOS',
+    'cap.ranking.lbl':'RANKING','cap.arq.lbl':'ARQ.',
+    'cap.manual.lbl':'MANUAL',
+    'cap.jogar.name':'JUGAR','cap.pilotos.name':'PILOTOS',
+    'cap.ranking.name':'RANKING','cap.arq.name':'ARQUITECTURA',
+    'cap.manual.name':'MANUAL',
+    'pg.hero.title':'ELIGE TU PILOTO',
+    'pg.hero.sub':'Cada tapita es un NFT con atributos reales — velocidad, control y aerodinámica',
+    'pg.kenta.title':'Maine Coon Tabby Marrón / Especialidad: Velocidad',
+    'pg.yuki.title':'Samoyedo / Especialidad: Control',
+    'pg.bruna.title':'Mezcla Marrón / Especialidad: Versatilidad',
+    'pg.tapz.title':'Golden Retriever Angelical / Especialidad: Fuerza Máxima',
+    'pg.abl.kenta':'+18% de velocidad en el primer lanzamiento de cada vuelta. Ideal para ganar ventaja al inicio.',
+    'pg.abl.yuki':'Reduce el error angular en 9% — la puntería es más precisa. Perfecta para curvas cerradas.',
+    'pg.abl.bruna':'+5% en todos los atributos al completar una vuelta sin fallar ningún checkpoint.',
+    'pg.abl.tapz':'Ignora el 40% del arrastre de cualquier superficie. La más rápida en línea recta — casi imposible de controlar.',
+    'pg.sel':'SELECCIONAR','pg.play':'JUGAR AHORA',
+    'pg.locked':'BLOQUEADO','pg.next':'Próxima Fase','pg.nft':'Vía Marketplace NFT',
+    'attr.vel':'Velocidad','attr.ctrl':'Control','attr.aero':'Aerodín.',
+    'hud.volta':'Vuelta','hud.cp':'Checkpoint','hud.tempo':'Tiempo','hud.melhor':'Mejor',
+    'ui.forca':'FUERZA','ui.potencia':'Potencia','ui.piloto':'PILOTO',
+    'ui.pista':'PISTA','ui.eventos':'EVENTOS',
+    'surf.asfalto':'Asfalto (normal)','surf.agua':'Agua (más adherencia)',
+    'surf.grama':'Hierba (desliza más)','surf.obs':'Obstáculos',
+    'overlay.ready':'¿LISTO?','overlay.click':'Haz clic aquí para empezar',
+    'overlay.hint':'Haz clic y arrastra la tapita para apuntar',
+    'overlay.start':'▶ CLIC PARA EMPEZAR',
+    'lobby':'← LOBBY','multi.btn':'2J →',
+    'rk.title':'RANKING GLOBAL','rk.sub':'Top pilotos de todas las pistas',
+    'rk.pos':'POS','rk.piloto':'PILOTO','rk.pista':'PISTA',
+    'rk.tempo':'TIEMPO','rk.data':'FECHA',
+    'online.title':'ONLINE 1v1','online.sub':'Duelo por internet (Beta)',
+    'online.criar':'CREAR SALA','online.criar.btn':'CREAR SALA Y ESPERAR',
+    'online.entrar':'ENTRAR EN SALA','online.entrar.btn':'ENTRAR EN SALA',
+    'online.nick.c':'Tu apodo','online.nick.j':'Tu apodo',
+    'online.code.ph':'Código de sala (5 letras)',
+    'online.connecting':'Conectando al servidor...',
+    'online.offline':'Servidor offline. Ver Manual → Online 1v1.',
+    'online.guide.title':'Cómo jugar Online',
+    'man.title':'MANUAL DEL JUGADOR',
+  }
+};
+
+var cur = localStorage.getItem('caprush_lang') || 'pt';
+
+function t(k){ return (LANGS[cur] && LANGS[cur][k]) || (LANGS.pt[k]) || k; }
+
+function apply(){
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var k = el.getAttribute('data-i18n');
+    el.textContent = t(k);
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(function(el){
+    el.placeholder = t(el.getAttribute('data-i18n-ph'));
+  });
+  document.querySelectorAll('[data-i18n-title]').forEach(function(el){
+    el.title = t(el.getAttribute('data-i18n-title'));
+  });
+  /* propagate to iframes */
+  document.querySelectorAll('iframe').forEach(function(fr){
+    try{ fr.contentWindow.i18n && fr.contentWindow.i18n.apply(); }catch(e){}
+  });
+}
+
+function setLang(lang){
+  if(!LANGS[lang]) return;
+  cur = lang;
+  localStorage.setItem('caprush_lang', lang);
+  apply();
+  document.querySelectorAll('.lang-btn').forEach(function(b){
+    b.classList.toggle('active', b.dataset.lang === lang);
+  });
+  /* propagate to parent */
+  try{ window.parent !== window && window.parent.i18n && window.parent.i18n.setLang(lang); }catch(e){}
+}
+
+/* Render flag buttons */
+function renderFlags(container){
+  if(!container) return;
+  var flags = [
+    { lang:'pt', flag:'🇧🇷', label:'PT' },
+    { lang:'en', flag:'🇺🇸', label:'EN' },
+    { lang:'es', flag:'🇪🇸', label:'ES' },
+  ];
+  container.innerHTML = '';
+  flags.forEach(function(f){
+    var btn = document.createElement('button');
+    btn.className = 'lang-btn' + (cur===f.lang?' active':'');
+    btn.dataset.lang = f.lang;
+    btn.innerHTML = '<span style="font-size:1.1em;line-height:1">' + f.flag + '</span>';
+    btn.title = f.label;
+    btn.style.cssText = [
+      'background:none','border:1px solid rgba(255,255,255,.18)','border-radius:4px',
+      'padding:2px 5px','cursor:pointer','font-size:.75rem','letter-spacing:1px',
+      'color:#CCC','display:flex','align-items:center','gap:2px','transition:all .15s'
+    ].join(';');
+    btn.onmouseenter = function(){ this.style.borderColor='rgba(255,215,0,.6)'; this.style.background='rgba(255,215,0,.08)'; };
+    btn.onmouseleave = function(){ this.style.borderColor='rgba(255,255,255,.18)'; this.style.background='none'; };
+    btn.onclick = function(){ setLang(f.lang); };
+    container.appendChild(btn);
+  });
+}
+
+/* Auto-init on DOMContentLoaded */
+document.addEventListener('DOMContentLoaded', function(){
+  /* inject flag container into nav if found */
+  var nav = document.querySelector('nav, #topbar, #hud, .nlinks, .tlinks');
+  if(nav){
+    var fc = document.createElement('div');
+    fc.id = 'flag-container';
+    fc.style.cssText = 'display:flex;gap:4px;align-items:center;margin-left:auto;';
+    nav.appendChild(fc);
+    renderFlags(fc);
+  }
+  apply();
+  /* listen for lang change from iframe parent */
+  window.addEventListener('message', function(e){
+    if(e.data && e.data.type === 'caprush_lang') setLang(e.data.lang);
+  });
+});
+
+w.i18n = { t:t, apply:apply, setLang:setLang, renderFlags:renderFlags,
+            get lang(){ return cur; } };
+})(window);
+""")
+
+# ═══════════════════════════════════════════════════════════════
+# index.html — Logo imagem + efeito metálico + bandeiras
+# ═══════════════════════════════════════════════════════════════
+w('index.html', r"""<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CapRush - Overdrive!</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--red:#FF2A2A;--gold:#FFD700;--dark:#060610;--acc:#00E5FF;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-family:'Rajdhani',sans-serif;color:#E8E8F0;}
+#bg-canvas{position:fixed;inset:0;z-index:0;}
+/* ── Logo imagem ── */
+.logo-wrap{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10;text-align:center;pointer-events:none;user-select:none;}
+.logo-img-box{position:relative;display:inline-block;cursor:default;}
+.logo-img{max-height:clamp(140px,22vh,260px);max-width:90vw;object-fit:contain;filter:drop-shadow(0 0 28px rgba(255,80,0,.55));animation:logoBreath 3s ease-in-out infinite;}
+/* Brilho metálico APENAS no arco vermelho (parte sup. central da tampinha) */
+.logo-shine{
+  position:absolute;
+  /* Arco vermelho fica ~40-55% do topo, ~25-75% da largura */
+  top:38%;left:24%;width:52%;height:18%;
+  border-radius:50%;
+  pointer-events:none;
+  opacity:0;
+  background:radial-gradient(ellipse at 50% 40%,
+    rgba(255,255,255,0.95) 0%,
+    rgba(255,160,120,0.75) 25%,
+    rgba(255,60,30,0.35) 55%,
+    transparent 75%);
+  mix-blend-mode:screen;
+}
+.logo-img-box:hover .logo-shine{
+  animation:metalShine .55s ease-out forwards;
+}
+@keyframes metalShine{
+  0%  {opacity:0;transform:translateX(-60%) scaleX(.4);}
+  30% {opacity:1;}
+  80% {opacity:.6;}
+  100%{opacity:0;transform:translateX(120%) scaleX(1.3);}
+}
+.logo-sub{font-family:'Bebas Neue',sans-serif;font-size:clamp(.9rem,2.5vw,1.8rem);letter-spacing:14px;color:#00E5FF;text-shadow:0 0 20px rgba(0,229,255,.5);margin-top:.4rem;}
+.logo-proto{font-size:.7rem;letter-spacing:4px;color:rgba(255,255,255,.3);text-transform:uppercase;margin-top:.5rem;}
+@keyframes logoBreath{0%,100%{filter:drop-shadow(0 0 28px rgba(255,80,0,.55));}50%{filter:drop-shadow(0 0 52px rgba(255,200,0,.85));}}
+/* ── Tampinhas flutuantes ── */
+.cap{position:fixed;width:100px;height:100px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;z-index:20;text-decoration:none;animation:floatCap var(--dur,4s) ease-in-out var(--delay,0s) infinite;transition:transform .2s;border:3px solid rgba(255,255,255,.25);}
+.cap:hover{transform:scale(1.18)!important;z-index:30;}
+.cap-inner{width:72px;height:72px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.3);border:2px solid rgba(255,255,255,.25);}
+.cap-icon{font-size:1.5rem;line-height:1;color:#FFF;}
+.cap-lbl{font-family:'Bebas Neue',sans-serif;font-size:.72rem;letter-spacing:2px;margin-top:.2rem;color:#FFF;text-shadow:0 1px 4px rgba(0,0,0,.9);}
+.cap-name{position:absolute;bottom:-28px;left:50%;transform:translateX(-50%);font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:3px;white-space:nowrap;color:rgba(255,255,255,.85);text-shadow:0 0 10px #000;pointer-events:none;opacity:0;transition:opacity .2s;}
+.cap:hover .cap-name{opacity:1;}
+.cap-jogar {top:22%;left:12%;--dur:3.8s;--delay:0s;}
+.cap-pilotos{top:20%;right:12%;--dur:4.2s;--delay:.5s;}
+.cap-ranking{bottom:22%;left:14%;--dur:4.5s;--delay:1s;}
+.cap-arq    {bottom:22%;right:14%;--dur:3.6s;--delay:1.5s;}
+.cap-manual {bottom:10%;left:50%;transform:translateX(-50%);--dur:4s;--delay:.3s;animation-name:floatCapC;}
+.cap-jogar  {background:radial-gradient(circle at 35% 35%,#FF6B6B,#A00);box-shadow:0 0 30px rgba(255,42,42,.5);}
+.cap-pilotos{background:radial-gradient(circle at 35% 35%,#6BFFC8,#00774A);box-shadow:0 0 30px rgba(0,255,160,.4);}
+.cap-ranking{background:radial-gradient(circle at 35% 35%,#6BC5FF,#0055AA);box-shadow:0 0 30px rgba(0,150,255,.4);}
+.cap-arq    {background:radial-gradient(circle at 35% 35%,#FFD76B,#AA7700);box-shadow:0 0 30px rgba(255,200,0,.4);}
+.cap-manual {background:radial-gradient(circle at 35% 35%,#D46BFF,#660099);box-shadow:0 0 30px rgba(180,0,255,.4);}
+@keyframes floatCap{0%,100%{transform:translateY(0) rotate(-4deg);}50%{transform:translateY(-18px) rotate(4deg);}}
+@keyframes floatCapC{0%,100%{transform:translateX(-50%) translateY(0) rotate(-3deg);}50%{transform:translateX(-50%) translateY(-14px) rotate(3deg);}}
+.cap::after{content:'';position:absolute;top:12%;left:18%;width:30%;height:20%;background:rgba(255,255,255,.3);border-radius:50%;transform:rotate(-35deg);pointer-events:none;}
+/* ── Bandeiras (injetadas pelo i18n.js) ── */
+#flag-container{position:fixed;top:14px;right:18px;z-index:100;display:flex;gap:5px;}
+.lang-btn.active{border-color:rgba(255,215,0,.8)!important;background:rgba(255,215,0,.15)!important;}
+</style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+
+<!-- Bandeiras fixas no canto -->
+<div id="flag-container"></div>
+
+<!-- Logo -->
+<div class="logo-wrap">
+  <div class="logo-img-box">
+    <img src="Whisk_2.png" class="logo-img" alt="CapRush Overdrive!" onerror="this.style.display='none';document.getElementById('logo-fallback').style.display='block'"/>
+    <div class="logo-shine"></div>
+  </div>
+  <!-- Fallback caso imagem não carregue -->
+  <div id="logo-fallback" style="display:none">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(3.5rem,10vw,8rem);line-height:.85;letter-spacing:6px;background:linear-gradient(160deg,#FF0000 0%,#FF6B00 30%,#FFD700 60%,#FF2A2A 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 30px rgba(255,100,0,.6));animation:logoBreath 3s ease-in-out infinite">CAP<br>RUSH</div>
+  </div>
+  <div class="logo-sub">&#8212; OVERDRIVE! &#8212;</div>
+  <div class="logo-proto" data-i18n="hero.proto">Prototype v0.2 · Fogo SVM · Devnet</div>
+</div>
+
+<!-- Tampinhas menu -->
+<a href="caprush-game.html" class="cap cap-jogar">
+  <div class="cap-inner"><div class="cap-icon">&#9654;</div><div class="cap-lbl" data-i18n="cap.jogar.lbl">JOGAR</div></div>
+  <span class="cap-name" data-i18n="cap.jogar.name">JOGAR</span>
+</a>
+<a href="personagens.html" class="cap cap-pilotos">
+  <div class="cap-inner"><div class="cap-icon">&#128100;</div><div class="cap-lbl" data-i18n="cap.pilotos.lbl">PILOTOS</div></div>
+  <span class="cap-name" data-i18n="cap.pilotos.name">PILOTOS</span>
+</a>
+<a href="ranking.html" class="cap cap-ranking">
+  <div class="cap-inner"><div class="cap-icon">&#127942;</div><div class="cap-lbl" data-i18n="cap.ranking.lbl">RANKING</div></div>
+  <span class="cap-name" data-i18n="cap.ranking.name">RANKING</span>
+</a>
+<a href="arquitetura.html" class="cap cap-arq">
+  <div class="cap-inner"><div class="cap-icon">&#9881;</div><div class="cap-lbl" data-i18n="cap.arq.lbl">ARQT.</div></div>
+  <span class="cap-name" data-i18n="cap.arq.name">ARQUITETURA</span>
+</a>
+<a href="manual.html" class="cap cap-manual">
+  <div class="cap-inner"><div class="cap-icon">&#128218;</div><div class="cap-lbl" data-i18n="cap.manual.lbl">MANUAL</div></div>
+  <span class="cap-name" data-i18n="cap.manual.name">MANUAL</span>
+</a>
+
+<script>
+(function(){
+var cv=document.getElementById('bg-canvas');
+var cx=cv.getContext('2d');
+var W,H,mx=0,my=0,pts=[];
+function resize(){W=cv.width=innerWidth;H=cv.height=innerHeight;}
+window.addEventListener('resize',resize);resize();
+document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;});
+for(var i=0;i<120;i++) pts.push({x:Math.random()*2000-1000,y:Math.random()*2000-1000,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4,r:Math.random()*1.8+.4,hue:Math.random()*60+10,a:Math.random()*.7+.2});
+var hue=0;
+function frame(){
+  requestAnimationFrame(frame);
+  cx.fillStyle='rgba(6,6,16,.18)';cx.fillRect(0,0,W,H);
+  var grd=cx.createRadialGradient(mx,my,0,mx,my,350);
+  grd.addColorStop(0,'rgba(255,100,0,.06)');grd.addColorStop(.5,'rgba(255,42,42,.02)');grd.addColorStop(1,'rgba(0,0,0,0)');
+  cx.fillStyle=grd;cx.fillRect(0,0,W,H);
+  hue=(hue+.3)%360;
+  cx.strokeStyle='rgba('+(80+Math.sin(hue*.02)*40)+',20,10,0.05)';cx.lineWidth=.5;
+  var gs=50;
+  for(var x=0;x<W;x+=gs){cx.beginPath();cx.moveTo(x,0);cx.lineTo(x,H);cx.stroke();}
+  for(var y=0;y<H;y+=gs){cx.beginPath();cx.moveTo(0,y);cx.lineTo(W,y);cx.stroke();}
+  pts.forEach(function(p){
+    var dx=mx-W/2-p.x,dy=my-H/2-p.y,dist=Math.sqrt(dx*dx+dy*dy)+1;
+    p.vx+=dx/dist*.003;p.vy+=dy/dist*.003;p.vx*=.98;p.vy*=.98;
+    p.x+=p.vx;p.y+=p.vy;
+    if(Math.abs(p.x)>1200)p.vx*=-.8;if(Math.abs(p.y)>1200)p.vy*=-.8;
+    var sx=W/2+p.x,sy=H/2+p.y;
+    if(sx<-5||sx>W+5||sy<-5||sy>H+5)return;
+    cx.save();cx.globalAlpha=p.a;cx.fillStyle='hsl('+(p.hue+hue*.1)+',90%,70%)';
+    cx.beginPath();cx.arc(sx,sy,p.r,0,Math.PI*2);cx.fill();cx.restore();
+  });
+}
+cx.fillStyle='#060610';cx.fillRect(0,0,W||1920,H||1080);
+requestAnimationFrame(frame);
+})();
+</script>
+<!-- Init flags from fixed div -->
+<script src="i18n.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+  var fc=document.getElementById('flag-container');
+  if(fc && window.i18n) window.i18n.renderFlags(fc);
+});
+</script>
+</body>
+</html>
+""")
+
+# ═══════════════════════════════════════════════════════════════
+# personagens.html — SVGs manga/anime melhorados
+# ═══════════════════════════════════════════════════════════════
+w('personagens.html', r"""<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8"/>
@@ -443,3 +862,6 @@ nav{position:sticky;top:0;z-index:100;display:flex;justify-content:space-between
 </script>
 </body>
 </html>
+""")
+
+print('\n[v]  Parte 1 concluida: i18n.js, index.html, personagens.html\n')

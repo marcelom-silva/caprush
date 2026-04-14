@@ -1,20 +1,20 @@
-// Physics.js v2 - Fisica realista de asfalto
-// Atrito alto (asfalto real): tampinha para em ~1.5s
-// Superficie: asfalto=base, agua=desliza menos (mais atrito),
-//             grama=desliza mais (menos atrito)
+// Physics.js v3 — CapRush
+// CORRECAO: agua aumenta atrito (freia), grama diminui (desliza/acelera)
+// NOVO: setVel(), bounce() para ricochete correto
 var Physics = (function(){
-  // Coeficientes ajustados para asfalto
-  var BASE_DRAG = 1.8;   // arrasto base (asfalto) - para rapido
-  var MAX_PX    = 165;   // distancia maxima de arraste
-  var MAX_SPD   = 620;   // velocidade maxima px/s
-  var REST      = 0.65;  // ricochete (perde 35% da velocidade)
-  var MIN_SPD   = 6;     // velocidade minima antes de parar
+  var BASE_DRAG = 1.8;
+  var MAX_PX    = 165;
+  var MAX_SPD   = 620;
+  var REST      = 0.65;
+  var MIN_SPD   = 6;
 
-  // Multiplicadores de arrasto por superficie
+  // FIX v3: valores corrigidos (estavam invertidos!)
+  // agua:  MAIS atrito  = dragCoeff MAIOR = tampinha FREIA na agua
+  // grama: MENOS atrito = dragCoeff MENOR = tampinha DESLIZA e ACELERA na grama
   var DRAG_MULT = {
-    asfalto: 1.0,  // base
-    agua:    0.55, // MENOS arrasto = desliza menos (mais atrito com agua)
-    grama:   1.35, // MAIS arrasto = desliza mais (menos atrito com grama)
+    asfalto: 1.0,
+    agua:    1.95,  // +95% de arrasto — freia significativamente
+    grama:   0.42,  // -58% de arrasto — desliza e ganha velocidade
   };
 
   var s = {
@@ -33,24 +33,42 @@ var Physics = (function(){
 
   function setSurface(surf){ s.surf = surf || 'asfalto'; }
 
+  // NOVO v3: define velocidade diretamente (para ricochete)
+  function setVel(vx, vy){
+    s.vel    = new Vector2D(vx, vy);
+    s.moving = s.vel.magnitude() > MIN_SPD;
+  }
+
+  // NOVO v3: reflexao vetorial correta — n deve ser vetor unitario
+  // Uso: bounce(nx, ny, restitution)
+  // Aplica: v = v - 2*(v.n)*n  depois multiplica por restituicao
+  function bounce(nx, ny, restitution){
+    var r   = (restitution !== undefined) ? restitution : REST;
+    var dot = s.vel.x * nx + s.vel.y * ny;
+    if(dot >= 0) return;  // ja se afastando, nao ricocheta
+    s.vel.x = (s.vel.x - 2 * dot * nx) * r;
+    s.vel.y = (s.vel.y - 2 * dot * ny) * r;
+    s.moving = s.vel.magnitude() > MIN_SPD;
+  }
+
   function flick(from, to, charMult){
-    var drag    = from.sub(to);
-    var len     = Math.min(drag.magnitude(), MAX_PX);
-    var t       = len / MAX_PX;
-    s.vel       = drag.normalize().scale(t * MAX_SPD * (charMult || 1));
-    s.moving    = true;
-    return { forcePct: Math.round(t * 100),
+    var drag = from.sub(to);
+    var len  = Math.min(drag.magnitude(), MAX_PX);
+    var t    = len / MAX_PX;
+    s.vel    = drag.normalize().scale(t * MAX_SPD * (charMult || 1));
+    s.moving = true;
+    return { forcePct: Math.round(t*100),
              angle: Math.atan2(drag.y, drag.x) * 180 / Math.PI };
   }
 
   function step(dt, bounds){
-    if (!s.moving) return snap();
+    if(!s.moving) return snap();
 
     var dragCoeff = BASE_DRAG * (DRAG_MULT[s.surf] || 1.0);
     var spd       = s.vel.magnitude();
     var newSpd    = Math.max(0, spd - dragCoeff * spd * dt);
 
-    if (newSpd < MIN_SPD){
+    if(newSpd < MIN_SPD){
       s.vel    = new Vector2D(0, 0);
       s.moving = false;
       return snap();
@@ -59,12 +77,12 @@ var Physics = (function(){
     s.vel = s.vel.normalize().scale(newSpd);
     s.pos = s.pos.add(s.vel.scale(dt));
 
-    // bordas
+    // bordas do canvas
     var r = 14;
-    if (s.pos.x - r < bounds.x){ s.pos.x = bounds.x + r; s.vel.x =  Math.abs(s.vel.x) * REST; }
-    if (s.pos.x + r > bounds.x + bounds.w){ s.pos.x = bounds.x + bounds.w - r; s.vel.x = -Math.abs(s.vel.x) * REST; }
-    if (s.pos.y - r < bounds.y){ s.pos.y = bounds.y + r; s.vel.y =  Math.abs(s.vel.y) * REST; }
-    if (s.pos.y + r > bounds.y + bounds.h){ s.pos.y = bounds.y + bounds.h - r; s.vel.y = -Math.abs(s.vel.y) * REST; }
+    if(s.pos.x - r < bounds.x)         { s.pos.x = bounds.x + r;           s.vel.x =  Math.abs(s.vel.x) * REST; }
+    if(s.pos.x + r > bounds.x+bounds.w){ s.pos.x = bounds.x+bounds.w - r;  s.vel.x = -Math.abs(s.vel.x) * REST; }
+    if(s.pos.y - r < bounds.y)         { s.pos.y = bounds.y + r;           s.vel.y =  Math.abs(s.vel.y) * REST; }
+    if(s.pos.y + r > bounds.y+bounds.h){ s.pos.y = bounds.y+bounds.h - r;  s.vel.y = -Math.abs(s.vel.y) * REST; }
 
     return snap();
   }
@@ -79,7 +97,10 @@ var Physics = (function(){
     };
   }
 
-  return { reset:reset, flick:flick, step:step, setSurface:setSurface,
-           MAX_PX:MAX_PX, MAX_SPD:MAX_SPD,
-           get pos(){ return s.pos.clone(); } };
+  return {
+    reset:reset, flick:flick, step:step,
+    setSurface:setSurface, setVel:setVel, bounce:bounce,
+    MAX_PX:MAX_PX, MAX_SPD:MAX_SPD, REST:REST,
+    get pos(){ return s.pos.clone(); }
+  };
 })();

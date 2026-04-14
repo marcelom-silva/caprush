@@ -70,7 +70,7 @@ h2{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:5px;color:v
     <a href="ranking.html">Ranking</a>
     <a href="manual.html">Manual</a>
     <a href="arquitetura.html" class="active">Arquitetura</a>
-    <span class="nbadge">Prototype v0.2</span>
+    <span class="nbadge">Prototype v0.3</span>
   </div>
 </nav>
 
@@ -327,5 +327,19 @@ h2{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:5px;color:v
 </div>
 
 </div>
+
+<section id="v03-delta" style="max-width:900px;margin:3rem auto;padding:0 2rem 4rem;font-family:'Rajdhani',sans-serif;color:#C8C8D8;">
+  <h2 style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:3px;color:#00E5FF;border-bottom:1px solid rgba(0,229,255,.2);padding-bottom:.4rem;margin-bottom:1rem;">&#9651; Alterações v0.3</h2>
+  <h3 style="font-family:'Bebas Neue',sans-serif;color:#FFD700;margin:.8rem 0 .4rem;">Camada i18n</h3>
+  <p style="line-height:1.7">Novo arquivo <code>i18n.js</code> implementa tradução PT-BR / EN-US / ES com dicionários estáticos, <code>data-i18n</code> attributes, bandeiras interativas e propagação para iframes via <code>postMessage</code>. Idioma persistido em <code>localStorage</code>.</p>
+  <h3 style="font-family:'Bebas Neue',sans-serif;color:#FFD700;margin:.8rem 0 .4rem;">Correções de Física (Physics.js v3)</h3>
+  <p style="line-height:1.7"><strong>Bug corrigido:</strong> <code>DRAG_MULT</code> de água e grama estavam invertidos. <code>agua: 1.95</code> (mais atrito, freia) e <code>grama: 0.42</code> (menos atrito, desliza). Adicionados métodos <code>setVel()</code> e <code>bounce(nx,ny,rest)</code> para ricochete via reflexão vetorial correta.</p>
+  <h3 style="font-family:'Bebas Neue',sans-serif;color:#FFD700;margin:.8rem 0 .4rem;">TrackV3.js v3 — Novos Elementos Visuais</h3>
+  <p style="line-height:1.7">Arquibancadas (standZones) com torcida animada por <code>sin(t)</code>. Paddock com boxes e barris. Poças de água com blob bezier orgânico (<code>drawOrganicPuddle()</code>). Hastes de grama animadas (<code>grassBladesG[]</code>). APIs: <code>checkStands(pos,r)</code>, <code>checkPaddock(pos,r)</code>.</p>
+  <h3 style="font-family:'Bebas Neue',sans-serif;color:#FFD700;margin:.8rem 0 .4rem;">GameLoop.js v3</h3>
+  <p style="line-height:1.7">Ricochete em obstáculos usa <code>Physics.bounce()</code> (reflexão vetorial) em vez do hack com <code>flick()</code>. Stands: ricochete REST=0.72. Paddock: ricochete REST=0.60.</p>
+  <h3 style="font-family:'Bebas Neue',sans-serif;color:#FFD700;margin:.8rem 0 .4rem;">1v1 Local — game-multi-local.html v3</h3>
+  <p style="line-height:1.7">Mesmo <code>makePhysics()</code> agora com valores corrigidos. Colisão cap×cap com troca de momento (impulso bilateral simétrico). Painel lateral com força, pilotos, pista e eventos. Stands e paddock ativos com regra de perde-rodada no paddock.</p>
+</section>
 </body>
 </html>
