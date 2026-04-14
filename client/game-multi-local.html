@@ -45,6 +45,11 @@ html,body{width:100%;height:100%;background:var(--dark);font-family:'Rajdhani',s
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 #btnBack{position:absolute;top:8px;left:8px;z-index:25;background:rgba(255,42,42,.15);border:1px solid var(--red);color:var(--red);font-family:'Rajdhani',sans-serif;font-size:.73rem;letter-spacing:2px;padding:3px 8px;cursor:pointer;border-radius:3px;text-decoration:none;}
 #btnBack:hover{background:var(--red);color:#fff;}
+
+.audio-btns{display:flex;gap:4px;align-items:center;margin-left:auto;}
+.audio-btn{font-size:1rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);border-radius:4px;color:#CCC;cursor:pointer;padding:2px 7px;transition:all .18s;line-height:1.5;min-width:32px;text-align:center;}
+.audio-btn:hover{background:rgba(255,215,0,.15);border-color:#FFD700;color:#FFD700;}
+.audio-btn.off{opacity:.4;background:rgba(255,50,50,.1);border-color:rgba(255,50,50,.4);}
 </style>
 </head>
 <body>
@@ -65,7 +70,11 @@ html,body{width:100%;height:100%;background:var(--dark);font-family:'Rajdhani',s
       <div class="pd" style="background:var(--p2);box-shadow:0 0 7px var(--p2)"></div>
     </div>
   </div>
-  <div id="wrap">
+      <div class="audio-btns">
+      <button class="audio-btn" id="btn-bgm" title="Musica" onclick="SoundEngine.toggleBGM()">&#9836;</button>
+      <button class="audio-btn" id="btn-sfx" title="Sons" onclick="SoundEngine.toggleSFX()">&#9654;&#9654;</button>
+    </div>
+<div id="wrap">
     <canvas id="gameCanvas"></canvas>
     <!-- Painel lateral -->
     <div id="side-panel">
@@ -200,7 +209,7 @@ window.addEventListener('resize',resize);
 setTimeout(resize,80);
 
 function startGame(){
-  SoundEngine.resume();
+  SoundEngine.resume(); SoundEngine.startBGM();
   overlay.style.display='none';
   phase='AIM';
   if(canvas.width<50) resize();

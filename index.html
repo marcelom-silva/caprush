@@ -10,84 +10,191 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-family:'Rajdhani',sans-serif;color:#E8E8F0;}
 #bg-canvas{position:fixed;inset:0;z-index:0;}
-/* ── Logo imagem ── */
+
+/* ── Logo centralizado ── */
 .logo-wrap{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10;text-align:center;pointer-events:none;user-select:none;}
-.logo-img-box{position:relative;display:inline-block;cursor:default;}
-.logo-img{max-height:clamp(140px,22vh,260px);max-width:90vw;object-fit:contain;filter:drop-shadow(0 0 28px rgba(255,80,0,.55));animation:logoBreath 3s ease-in-out infinite;}
-/* Brilho metálico APENAS no arco vermelho (parte sup. central da tampinha) */
-.logo-shine{
+.logo-img-box{position:relative;display:inline-block;}
+.logo-img{
+  max-height:clamp(160px,28vh,320px);
+  max-width:min(92vw,700px);
+  object-fit:contain;
+  filter:drop-shadow(0 0 32px rgba(255,90,0,.65)) drop-shadow(0 0 64px rgba(255,40,0,.35));
+  animation:logoBreath 3.5s ease-in-out infinite;
+  display:block;
+}
+@keyframes logoBreath{
+  0%,100%{filter:drop-shadow(0 0 32px rgba(255,90,0,.65)) drop-shadow(0 0 64px rgba(255,40,0,.35));}
+  50%{filter:drop-shadow(0 0 55px rgba(255,200,0,.95)) drop-shadow(0 0 100px rgba(255,100,0,.55));}
+}
+/* Fallback texto */
+.logo-fallback{display:none;font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,9vw,7rem);line-height:.9;letter-spacing:5px;background:linear-gradient(160deg,#FF0000,#FF6B00,#FFD700);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+
+/* ── Efeito metalico no aro vermelho ──
+   O aro vermelho esta em ~36-64% vertical, ~16-90% horizontal da imagem.
+   Usamos um overlay com border-radius que simula o aro circular,
+   e um sweep diagonal animado por cima.
+*/
+.logo-metallic{
   position:absolute;
-  /* Arco vermelho fica ~40-55% do topo, ~25-75% da largura */
-  top:38%;left:24%;width:52%;height:18%;
-  border-radius:50%;
+  /* Cobre a faixa do aro vermelho centralizado */
+  top:33%;
+  left:14%;
+  width:72%;
+  height:33%;
+  border-radius:50%;           /* forma oval/circular como o aro */
+  overflow:hidden;
   pointer-events:none;
-  opacity:0;
-  background:radial-gradient(ellipse at 50% 40%,
-    rgba(255,255,255,0.95) 0%,
-    rgba(255,160,120,0.75) 25%,
-    rgba(255,60,30,0.35) 55%,
-    transparent 75%);
   mix-blend-mode:screen;
+  opacity:.85;
 }
-.logo-img-box:hover .logo-shine{
-  animation:metalShine .55s ease-out forwards;
+.logo-metallic::before{
+  /* Brilho base dourado permanente no aro */
+  content:'';
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 45%,
+    rgba(255,200,100,.18) 0%,
+    rgba(255,100,50,.10) 40%,
+    transparent 70%);
 }
-@keyframes metalShine{
-  0%  {opacity:0;transform:translateX(-60%) scaleX(.4);}
-  30% {opacity:1;}
-  80% {opacity:.6;}
-  100%{opacity:0;transform:translateX(120%) scaleX(1.3);}
+.logo-metallic::after{
+  /* Sweep metalico diagonal que percorre o aro */
+  content:'';
+  position:absolute;
+  top:-80%;left:-150%;
+  width:70%;height:260%;
+  background:linear-gradient(
+    108deg,
+    transparent 25%,
+    rgba(255,180,80,.05) 38%,
+    rgba(255,230,140,.55) 48%,
+    rgba(255,255,230,.90) 51%,
+    rgba(255,210,120,.50) 56%,
+    rgba(255,160,60,.08) 65%,
+    transparent 75%
+  );
+  animation:metalRingSweep 4.5s ease-in-out infinite;
 }
-.logo-sub{font-family:'Bebas Neue',sans-serif;font-size:clamp(.9rem,2.5vw,1.8rem);letter-spacing:14px;color:#00E5FF;text-shadow:0 0 20px rgba(0,229,255,.5);margin-top:.4rem;}
-.logo-proto{font-size:.7rem;letter-spacing:4px;color:rgba(255,255,255,.3);text-transform:uppercase;margin-top:.5rem;}
-@keyframes logoBreath{0%,100%{filter:drop-shadow(0 0 28px rgba(255,80,0,.55));}50%{filter:drop-shadow(0 0 52px rgba(255,200,0,.85));}}
+@keyframes metalRingSweep{
+  0%,38%{left:-150%;}
+  68%   {left: 200%;}
+  100%  {left: 200%;}
+}
+
 /* ── Tampinhas flutuantes ── */
-.cap{position:fixed;width:100px;height:100px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;z-index:20;text-decoration:none;animation:floatCap var(--dur,4s) ease-in-out var(--delay,0s) infinite;transition:transform .2s;border:3px solid rgba(255,255,255,.25);}
+.cap{position:fixed;width:100px;height:100px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;z-index:20;text-decoration:none;border:3px solid rgba(255,255,255,.25);transition:transform .2s,box-shadow .2s;}
 .cap:hover{transform:scale(1.18)!important;z-index:30;}
 .cap-inner{width:72px;height:72px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.3);border:2px solid rgba(255,255,255,.25);}
 .cap-icon{font-size:1.5rem;line-height:1;color:#FFF;}
 .cap-lbl{font-family:'Bebas Neue',sans-serif;font-size:.72rem;letter-spacing:2px;margin-top:.2rem;color:#FFF;text-shadow:0 1px 4px rgba(0,0,0,.9);}
-.cap-name{position:absolute;bottom:-28px;left:50%;transform:translateX(-50%);font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:3px;white-space:nowrap;color:rgba(255,255,255,.85);text-shadow:0 0 10px #000;pointer-events:none;opacity:0;transition:opacity .2s;}
+.cap-name{position:absolute;bottom:-26px;left:50%;transform:translateX(-50%);font-family:'Bebas Neue',sans-serif;font-size:.82rem;letter-spacing:3px;white-space:nowrap;color:rgba(255,255,255,.85);text-shadow:0 0 10px #000;pointer-events:none;opacity:0;transition:opacity .2s;}
 .cap:hover .cap-name{opacity:1;}
-.cap-jogar {top:22%;left:12%;--dur:3.8s;--delay:0s;}
-.cap-pilotos{top:20%;right:12%;--dur:4.2s;--delay:.5s;}
-.cap-ranking{bottom:22%;left:14%;--dur:4.5s;--delay:1s;}
-.cap-arq    {bottom:22%;right:14%;--dur:3.6s;--delay:1.5s;}
-.cap-manual {bottom:10%;left:50%;transform:translateX(-50%);--dur:4s;--delay:.3s;animation-name:floatCapC;}
-.cap-jogar  {background:radial-gradient(circle at 35% 35%,#FF6B6B,#A00);box-shadow:0 0 30px rgba(255,42,42,.5);}
-.cap-pilotos{background:radial-gradient(circle at 35% 35%,#6BFFC8,#00774A);box-shadow:0 0 30px rgba(0,255,160,.4);}
-.cap-ranking{background:radial-gradient(circle at 35% 35%,#6BC5FF,#0055AA);box-shadow:0 0 30px rgba(0,150,255,.4);}
-.cap-arq    {background:radial-gradient(circle at 35% 35%,#FFD76B,#AA7700);box-shadow:0 0 30px rgba(255,200,0,.4);}
-.cap-manual {background:radial-gradient(circle at 35% 35%,#D46BFF,#660099);box-shadow:0 0 30px rgba(180,0,255,.4);}
-@keyframes floatCap{0%,100%{transform:translateY(0) rotate(-4deg);}50%{transform:translateY(-18px) rotate(4deg);}}
-@keyframes floatCapC{0%,100%{transform:translateX(-50%) translateY(0) rotate(-3deg);}50%{transform:translateX(-50%) translateY(-14px) rotate(3deg);}}
+.cap-jogar  {top:22%;left:12%;background:radial-gradient(circle at 35% 35%,#FF6B6B,#A00);box-shadow:0 0 30px rgba(255,42,42,.5);animation:floatA 3.8s ease-in-out 0s infinite;}
+.cap-pilotos{top:20%;right:12%;background:radial-gradient(circle at 35% 35%,#6BFFC8,#00774A);box-shadow:0 0 30px rgba(0,255,160,.4);animation:floatA 4.2s ease-in-out .5s infinite;}
+.cap-ranking{bottom:22%;left:14%;background:radial-gradient(circle at 35% 35%,#6BC5FF,#0055AA);box-shadow:0 0 30px rgba(0,150,255,.4);animation:floatA 4.5s ease-in-out 1s infinite;}
+.cap-arq    {bottom:22%;right:14%;background:radial-gradient(circle at 35% 35%,#FFD76B,#AA7700);box-shadow:0 0 30px rgba(255,200,0,.4);animation:floatA 3.6s ease-in-out 1.5s infinite;}
+.cap-manual {bottom:10%;left:50%;margin-left:-50px;background:radial-gradient(circle at 35% 35%,#D46BFF,#660099);box-shadow:0 0 30px rgba(180,0,255,.4);animation:floatB 4s ease-in-out .3s infinite;}
+@keyframes floatA{0%,100%{transform:translateY(0) rotate(-4deg);}50%{transform:translateY(-18px) rotate(4deg);}}
+@keyframes floatB{0%,100%{transform:translateY(0) rotate(-3deg);}50%{transform:translateY(-14px) rotate(3deg);}}
 .cap::after{content:'';position:absolute;top:12%;left:18%;width:30%;height:20%;background:rgba(255,255,255,.3);border-radius:50%;transform:rotate(-35deg);pointer-events:none;}
-/* ── Bandeiras (injetadas pelo i18n.js) ── */
-#flag-container{position:fixed;top:14px;right:18px;z-index:100;display:flex;gap:5px;}
-.lang-btn.active{border-color:rgba(255,215,0,.8)!important;background:rgba(255,215,0,.15)!important;}
+
+/* ── Bandeiras ── */
+#flag-container{position:fixed;top:16px;right:20px;z-index:100;display:flex;gap:6px;align-items:center;}
+.flag-btn{
+  background:rgba(0,0,0,.3);
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:5px;
+  cursor:pointer;
+  padding:2px;
+  transition:all .18s;
+  display:flex;align-items:center;justify-content:center;
+  width:38px;height:26px;
+  overflow:hidden;
+}
+.flag-btn:hover{border-color:rgba(255,215,0,.7);box-shadow:0 0 10px rgba(255,215,0,.35);transform:scale(1.08);}
+.flag-btn.active{border-color:rgba(255,215,0,.9);box-shadow:0 0 12px rgba(255,215,0,.5);}
+.flag-btn svg{width:100%;height:100%;display:block;}
 </style>
 </head>
 <body>
 <canvas id="bg-canvas"></canvas>
 
-<!-- Bandeiras fixas no canto -->
-<div id="flag-container"></div>
-
-<!-- Logo -->
-<div class="logo-wrap">
-  <div class="logo-img-box">
-    <img src="Whisk_2.png" class="logo-img" alt="CapRush Overdrive!" onerror="this.style.display='none';document.getElementById('logo-fallback').style.display='block'"/>
-    <div class="logo-shine"></div>
-  </div>
-  <!-- Fallback caso imagem não carregue -->
-  <div id="logo-fallback" style="display:none">
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(3.5rem,10vw,8rem);line-height:.85;letter-spacing:6px;background:linear-gradient(160deg,#FF0000 0%,#FF6B00 30%,#FFD700 60%,#FF2A2A 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 30px rgba(255,100,0,.6));animation:logoBreath 3s ease-in-out infinite">CAP<br>RUSH</div>
-  </div>
-  <div class="logo-sub">&#8212; OVERDRIVE! &#8212;</div>
-  <div class="logo-proto" data-i18n="hero.proto">Prototype v0.2 · Fogo SVM · Devnet</div>
+<!-- Bandeiras dos países -->
+<div id="flag-container">
+  <!-- Brasil -->
+  <button class="flag-btn" id="flag-pt" title="Portugues (Brasil)" onclick="setFlag('pt')">
+    <svg viewBox="0 0 36 24" xmlns="http://www.w3.org/2000/svg">
+      <rect width="36" height="24" fill="#009B3A"/>
+      <polygon points="18,2.5 33.5,12 18,21.5 2.5,12" fill="#FEDF00"/>
+      <circle cx="18" cy="12" r="6.8" fill="#002776"/>
+      <!-- Faixa branca diagonal -->
+      <path d="M11.5,10.2 Q18,13.5 24.5,10.2" stroke="white" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+      <!-- Estrelas simplificadas -->
+      <circle cx="15" cy="12.5" r="0.9" fill="white"/>
+      <circle cx="18" cy="13.2" r="0.9" fill="white"/>
+      <circle cx="21" cy="12.5" r="0.9" fill="white"/>
+      <circle cx="15" cy="9.5"  r="0.7" fill="white"/>
+      <circle cx="21" cy="9.5"  r="0.7" fill="white"/>
+    </svg>
+  </button>
+  <!-- EUA -->
+  <button class="flag-btn" id="flag-en" title="English (USA)" onclick="setFlag('en')">
+    <svg viewBox="0 0 36 24" xmlns="http://www.w3.org/2000/svg">
+      <rect width="36" height="24" fill="#fff"/>
+      <rect y="0"    width="36" height="1.85" fill="#B22234"/>
+      <rect y="3.69" width="36" height="1.85" fill="#B22234"/>
+      <rect y="7.38" width="36" height="1.85" fill="#B22234"/>
+      <rect y="11.08" width="36" height="1.85" fill="#B22234"/>
+      <rect y="14.77" width="36" height="1.85" fill="#B22234"/>
+      <rect y="18.46" width="36" height="1.85" fill="#B22234"/>
+      <rect y="22.15" width="36" height="1.85" fill="#B22234"/>
+      <!-- Canton azul -->
+      <rect width="14.5" height="12.92" fill="#3C3B6E"/>
+      <!-- Estrelas (4 linhas simplificadas) -->
+      <circle cx="2"    cy="2.2"  r="1.1" fill="white"/>
+      <circle cx="5.2"  cy="2.2"  r="1.1" fill="white"/>
+      <circle cx="8.4"  cy="2.2"  r="1.1" fill="white"/>
+      <circle cx="11.6" cy="2.2"  r="1.1" fill="white"/>
+      <circle cx="3.6"  cy="5"    r="1.1" fill="white"/>
+      <circle cx="6.8"  cy="5"    r="1.1" fill="white"/>
+      <circle cx="10"   cy="5"    r="1.1" fill="white"/>
+      <circle cx="2"    cy="7.8"  r="1.1" fill="white"/>
+      <circle cx="5.2"  cy="7.8"  r="1.1" fill="white"/>
+      <circle cx="8.4"  cy="7.8"  r="1.1" fill="white"/>
+      <circle cx="11.6" cy="7.8"  r="1.1" fill="white"/>
+      <circle cx="3.6"  cy="10.6" r="1.1" fill="white"/>
+      <circle cx="6.8"  cy="10.6" r="1.1" fill="white"/>
+      <circle cx="10"   cy="10.6" r="1.1" fill="white"/>
+    </svg>
+  </button>
+  <!-- Espanha -->
+  <button class="flag-btn" id="flag-es" title="Espanol (Espana)" onclick="setFlag('es')">
+    <svg viewBox="0 0 36 24" xmlns="http://www.w3.org/2000/svg">
+      <!-- Faixas: vermelho / amarelo / vermelho -->
+      <rect width="36" height="24" fill="#c60b1e"/>
+      <rect y="6" width="36" height="12" fill="#ffc400"/>
+      <!-- Escudo simplificado -->
+      <rect x="13" y="7.5" width="4.5" height="9" fill="#c60b1e" rx="0.8"/>
+      <rect x="13" y="7.5" width="4.5" height="3.2" fill="#002395"/>
+      <circle cx="15.25" cy="7" r="1.8" fill="none" stroke="#c60b1e" stroke-width="1"/>
+      <text x="15.25" y="14.5" font-size="4.5" fill="#ffc400" text-anchor="middle" font-family="serif" font-weight="bold">E</text>
+    </svg>
+  </button>
 </div>
 
-<!-- Tampinhas menu -->
+<!-- Logo principal -->
+<div class="logo-wrap">
+  <div class="logo-img-box">
+    <img src="Whisk_2.png" class="logo-img" alt="CapRush Overdrive!"
+      id="logo-img"
+      onerror="document.getElementById('logo-img').style.display='none';document.getElementById('logo-fallback').style.display='block'"/>
+    <!-- Overlay metalico sobre o aro vermelho -->
+    <div class="logo-metallic"></div>
+  </div>
+  <div class="logo-fallback" id="logo-fallback">CAP<br>RUSH<br><span style="font-size:.45em;letter-spacing:8px;color:#FFD700;">OVERDRIVE!</span></div>
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:.78rem;letter-spacing:5px;color:rgba(255,255,255,.28);margin-top:.5rem;" data-i18n="hero.proto">Prototype v0.2 &middot; Fogo SVM &middot; Devnet</div>
+</div>
+
+<!-- Tampinhas de menu -->
 <a href="caprush-game.html" class="cap cap-jogar">
   <div class="cap-inner"><div class="cap-icon">&#9654;</div><div class="cap-lbl" data-i18n="cap.jogar.lbl">JOGAR</div></div>
   <span class="cap-name" data-i18n="cap.jogar.name">JOGAR</span>
@@ -110,48 +217,56 @@ html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-fam
 </a>
 
 <script>
+/* Background particles */
 (function(){
-var cv=document.getElementById('bg-canvas');
-var cx=cv.getContext('2d');
-var W,H,mx=0,my=0,pts=[];
-function resize(){W=cv.width=innerWidth;H=cv.height=innerHeight;}
-window.addEventListener('resize',resize);resize();
-document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;});
-for(var i=0;i<120;i++) pts.push({x:Math.random()*2000-1000,y:Math.random()*2000-1000,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4,r:Math.random()*1.8+.4,hue:Math.random()*60+10,a:Math.random()*.7+.2});
-var hue=0;
-function frame(){
+  var cv=document.getElementById('bg-canvas');
+  var cx=cv.getContext('2d');
+  var W,H,mx=innerWidth/2,my=innerHeight/2,pts=[];
+  function resize(){W=cv.width=innerWidth;H=cv.height=innerHeight;}
+  window.addEventListener('resize',resize);resize();
+  document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;});
+  for(var i=0;i<120;i++) pts.push({x:(Math.random()-.5)*1800,y:(Math.random()-.5)*1200,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,r:Math.random()*1.8+.4,hue:Math.random()*60+5,a:Math.random()*.65+.2});
+  var hue=0;
+  function frame(){
+    requestAnimationFrame(frame);
+    cx.fillStyle='rgba(6,6,16,.17)';cx.fillRect(0,0,W,H);
+    var grd=cx.createRadialGradient(mx,my,0,mx,my,380);
+    grd.addColorStop(0,'rgba(255,90,0,.07)');grd.addColorStop(.5,'rgba(255,42,42,.025)');grd.addColorStop(1,'rgba(0,0,0,0)');
+    cx.fillStyle=grd;cx.fillRect(0,0,W,H);
+    hue=(hue+.28)%360;
+    cx.strokeStyle='rgba('+(75+Math.sin(hue*.02)*35)+',18,8,0.04)';cx.lineWidth=.5;
+    for(var x=0;x<W;x+=50){cx.beginPath();cx.moveTo(x,0);cx.lineTo(x,H);cx.stroke();}
+    for(var y=0;y<H;y+=50){cx.beginPath();cx.moveTo(0,y);cx.lineTo(W,y);cx.stroke();}
+    pts.forEach(function(p){
+      var dx=mx-W/2-p.x,dy=my-H/2-p.y,d=Math.sqrt(dx*dx+dy*dy)+1;
+      p.vx+=dx/d*.0025;p.vy+=dy/d*.0025;p.vx*=.982;p.vy*=.982;
+      p.x+=p.vx;p.y+=p.vy;
+      if(Math.abs(p.x)>1100)p.vx*=-.8;if(Math.abs(p.y)>750)p.vy*=-.8;
+      var sx=W/2+p.x,sy=H/2+p.y;
+      if(sx<-5||sx>W+5||sy<-5||sy>H+5)return;
+      cx.save();cx.globalAlpha=p.a;cx.fillStyle='hsl('+(p.hue+hue*.1)+',88%,68%)';
+      cx.beginPath();cx.arc(sx,sy,p.r,0,Math.PI*2);cx.fill();cx.restore();
+    });
+  }
+  cx.fillStyle='#060610';cx.fillRect(0,0,W||1920,H||1080);
   requestAnimationFrame(frame);
-  cx.fillStyle='rgba(6,6,16,.18)';cx.fillRect(0,0,W,H);
-  var grd=cx.createRadialGradient(mx,my,0,mx,my,350);
-  grd.addColorStop(0,'rgba(255,100,0,.06)');grd.addColorStop(.5,'rgba(255,42,42,.02)');grd.addColorStop(1,'rgba(0,0,0,0)');
-  cx.fillStyle=grd;cx.fillRect(0,0,W,H);
-  hue=(hue+.3)%360;
-  cx.strokeStyle='rgba('+(80+Math.sin(hue*.02)*40)+',20,10,0.05)';cx.lineWidth=.5;
-  var gs=50;
-  for(var x=0;x<W;x+=gs){cx.beginPath();cx.moveTo(x,0);cx.lineTo(x,H);cx.stroke();}
-  for(var y=0;y<H;y+=gs){cx.beginPath();cx.moveTo(0,y);cx.lineTo(W,y);cx.stroke();}
-  pts.forEach(function(p){
-    var dx=mx-W/2-p.x,dy=my-H/2-p.y,dist=Math.sqrt(dx*dx+dy*dy)+1;
-    p.vx+=dx/dist*.003;p.vy+=dy/dist*.003;p.vx*=.98;p.vy*=.98;
-    p.x+=p.vx;p.y+=p.vy;
-    if(Math.abs(p.x)>1200)p.vx*=-.8;if(Math.abs(p.y)>1200)p.vy*=-.8;
-    var sx=W/2+p.x,sy=H/2+p.y;
-    if(sx<-5||sx>W+5||sy<-5||sy>H+5)return;
-    cx.save();cx.globalAlpha=p.a;cx.fillStyle='hsl('+(p.hue+hue*.1)+',90%,70%)';
-    cx.beginPath();cx.arc(sx,sy,p.r,0,Math.PI*2);cx.fill();cx.restore();
+})();
+
+/* Flag active state + i18n bridge */
+function setFlag(lang){
+  document.querySelectorAll('.flag-btn').forEach(function(b){
+    b.classList.toggle('active', b.id==='flag-'+lang);
   });
+  if(window.i18n) window.i18n.setLang(lang);
+  else localStorage.setItem('caprush_lang', lang);
 }
-cx.fillStyle='#060610';cx.fillRect(0,0,W||1920,H||1080);
-requestAnimationFrame(frame);
+(function(){
+  var lang=localStorage.getItem('caprush_lang')||'pt';
+  document.querySelectorAll('.flag-btn').forEach(function(b){
+    b.classList.toggle('active', b.id==='flag-'+lang);
+  });
 })();
 </script>
-<!-- Init flags from fixed div -->
 <script src="i18n.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded',function(){
-  var fc=document.getElementById('flag-container');
-  if(fc && window.i18n) window.i18n.renderFlags(fc);
-});
-</script>
 </body>
 </html>

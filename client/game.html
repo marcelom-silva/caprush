@@ -45,6 +45,18 @@ html,body{width:100%;height:100%;background:var(--dark);font-family:'Rajdhani',s
 #surf-legend{font-size:.6rem;color:#666680;margin-top:4px;}
 .sl-row{display:flex;align-items:center;gap:4px;margin:2px 0;}
 .sl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+/* ── Botoes de audio ── */
+.audio-btns{display:flex;gap:4px;align-items:center;margin-left:auto;}
+.audio-btn{
+  font-size:1rem;font-family:Bebas Neue,sans-serif;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);
+  border-radius:4px;color:#CCC;cursor:pointer;
+  padding:2px 7px;transition:all .18s;line-height:1.5;letter-spacing:1px;
+  min-width:32px;text-align:center;
+}
+.audio-btn:hover{background:rgba(255,215,0,.15);border-color:#FFD700;color:#FFD700;}
+.audio-btn.off{opacity:.4;background:rgba(255,50,50,.1);border-color:rgba(255,50,50,.4);}
 </style>
 </head>
 <body>
@@ -58,7 +70,11 @@ html,body{width:100%;height:100%;background:var(--dark);font-family:'Rajdhani',s
       <div class="hs"><label>Melhor</label><span id="hud-best">--:--.--</span></div>
     </div>
   </div>
-  <div id="wrap">
+      <div class="audio-btns">
+      <button class="audio-btn" id="btn-bgm" title="Musica ligada/desligada" onclick="SoundEngine.toggleBGM()">&#9836;</button>
+      <button class="audio-btn" id="btn-sfx" title="Sons ligados/desligados" onclick="SoundEngine.toggleSFX()">&#9654;&#9654;</button>
+    </div>
+<div id="wrap">
     <canvas id="gameCanvas"></canvas>
     <div id="panel">
       <div class="pt">FORCA</div>

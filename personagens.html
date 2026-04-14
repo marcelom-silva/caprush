@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>CapRush – Pilotos</title>
+<title>CapRush &ndash; Pilotos</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
 <style>
 :root{--red:#FF2A2A;--gold:#FFD700;--dark:#0A0A0F;--panel:#0E0E1A;--acc:#00E5FF;--muted:#666680;}
@@ -15,26 +15,27 @@ nav{position:sticky;top:0;z-index:100;display:flex;justify-content:space-between
 .nlinks{display:flex;gap:1.4rem;align-items:center;}
 .nlinks a{color:var(--muted);font-size:.78rem;letter-spacing:2px;text-decoration:none;text-transform:uppercase;transition:color .2s;}
 .nlinks a:hover,.nlinks a.active{color:var(--gold);}
-.nbadge{background:var(--red);color:#fff;font-size:.63rem;padding:2px 8px;border-radius:2px;letter-spacing:2px;text-transform:uppercase;}
+/* Bandeiras nav */
+.flag-btn{background:none;border:1px solid rgba(255,255,255,.18);border-radius:4px;padding:2px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;width:36px;height:25px;overflow:hidden;}
+.flag-btn:hover,.flag-btn.active{border-color:rgba(255,215,0,.7);box-shadow:0 0 8px rgba(255,215,0,.35);}
+.flag-btn svg{width:100%;height:100%;}
 #flag-container{display:flex;gap:4px;margin-left:8px;}
-.lang-btn{background:none;border:1px solid rgba(255,255,255,.18);border-radius:4px;padding:2px 5px;cursor:pointer;font-size:1.05rem;transition:all .15s;}
-.lang-btn:hover,.lang-btn.active{border-color:rgba(255,215,0,.7);background:rgba(255,215,0,.1);}
 .hero{position:relative;z-index:1;text-align:center;padding:4rem 2rem 2rem;}
 .hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.5rem,8vw,5rem);letter-spacing:6px;line-height:1;background:linear-gradient(135deg,var(--red),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 .hero p{color:var(--muted);letter-spacing:3px;font-size:.9rem;margin-top:.8rem;text-transform:uppercase;}
 .grid{position:relative;z-index:1;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:2rem;max-width:1200px;margin:3rem auto 6rem;padding:0 2rem;}
-.card{background:var(--panel);border-radius:16px;border:1px solid rgba(255,255,255,.07);overflow:hidden;transition:transform .3s,box-shadow .3s;cursor:pointer;position:relative;}
-.card:hover{transform:translateY(-8px);box-shadow:0 24px 60px rgba(0,0,0,.6);}
-.card.locked{opacity:.55;cursor:not-allowed;}.card.locked:hover{transform:none;box-shadow:none;}
+.card{background:var(--panel);border-radius:16px;border:1px solid rgba(255,255,255,.07);overflow:hidden;transition:transform .3s,box-shadow .3s;position:relative;}
+.card:not(.locked):hover{transform:translateY(-8px);box-shadow:0 24px 60px rgba(0,0,0,.6);}
+.card.locked{opacity:.55;}
 .rarity{position:absolute;top:16px;right:16px;font-family:'Bebas Neue',sans-serif;font-size:.7rem;letter-spacing:3px;padding:3px 10px;border-radius:4px;z-index:2;}
 .r-epica{background:rgba(123,97,255,.3);color:#A78BFF;border:1px solid #A78BFF;}
 .r-lendaria{background:rgba(0,229,255,.2);color:#00E5FF;border:1px solid #00E5FF;}
 .r-rara{background:rgba(255,215,0,.2);color:#FFD700;border:1px solid #FFD700;}
 .r-mitica{background:rgba(255,42,42,.2);color:#FF6B6B;border:1px solid #FF6B6B;}
 .avatar-wrap{width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
-.avatar-svg{width:150px;height:150px;z-index:1;}
+.avatar-svg{width:168px;height:168px;z-index:1;animation:breathe 3s ease-in-out infinite;}
 .ring{position:absolute;border-radius:50%;border:2px solid;animation:spin 8s linear infinite;}
-.ring1{width:70%;height:70%;animation-duration:8s;}
+.ring1{width:70%;height:70%;}
 .ring2{width:55%;height:55%;animation-duration:5s;animation-direction:reverse;}
 @keyframes spin{to{transform:rotate(360deg);}}
 @keyframes breathe{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
@@ -45,7 +46,7 @@ nav{position:sticky;top:0;z-index:100;display:flex;justify-content:space-between
 .attr-row{display:flex;align-items:center;gap:10px;}
 .attr-lbl{font-size:.7rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase;width:90px;flex-shrink:0;}
 .attr-bar{flex:1;height:6px;background:#1A1A2E;border-radius:3px;overflow:hidden;}
-.attr-fill{height:100%;border-radius:3px;transition:width .8s ease;}
+.attr-fill{height:100%;border-radius:3px;transition:width .9s ease;}
 .attr-val{font-family:'Bebas Neue',sans-serif;font-size:.9rem;width:28px;text-align:right;flex-shrink:0;}
 .ability{background:rgba(255,255,255,.04);border-radius:8px;padding:10px 12px;margin-bottom:16px;border-left:3px solid;}
 .ability .abl-name{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;margin-bottom:2px;}
@@ -67,366 +68,419 @@ nav{position:sticky;top:0;z-index:100;display:flex;justify-content:space-between
     <a href="personagens.html" class="active" data-i18n="nav.pilotos">Pilotos</a>
     <a href="ranking.html" data-i18n="nav.ranking">Ranking</a>
     <a href="manual.html" data-i18n="nav.manual">Manual</a>
-    <span class="nbadge">Prototype v0.2</span>
-    <div id="flag-container"></div>
+    <div id="flag-container">
+      <button class="flag-btn" id="flag-pt" title="Portugues" onclick="setFlag('pt')"><svg viewBox="0 0 36 24"><rect width="36" height="24" fill="#009B3A"/><polygon points="18,2.5 33.5,12 18,21.5 2.5,12" fill="#FEDF00"/><circle cx="18" cy="12" r="6.8" fill="#002776"/><path d="M11.5,10.2 Q18,13.5 24.5,10.2" stroke="white" stroke-width="1.3" fill="none" stroke-linecap="round"/><circle cx="15" cy="12.5" r=".9" fill="white"/><circle cx="18" cy="13.2" r=".9" fill="white"/><circle cx="21" cy="12.5" r=".9" fill="white"/></svg></button>
+      <button class="flag-btn" id="flag-en" title="English" onclick="setFlag('en')"><svg viewBox="0 0 36 24"><rect width="36" height="24" fill="#fff"/><rect y="0" width="36" height="1.85" fill="#B22234"/><rect y="3.69" width="36" height="1.85" fill="#B22234"/><rect y="7.38" width="36" height="1.85" fill="#B22234"/><rect y="11.08" width="36" height="1.85" fill="#B22234"/><rect y="14.77" width="36" height="1.85" fill="#B22234"/><rect y="18.46" width="36" height="1.85" fill="#B22234"/><rect y="22.15" width="36" height="1.85" fill="#B22234"/><rect width="14.5" height="12.92" fill="#3C3B6E"/><circle cx="2" cy="2.2" r="1.1" fill="white"/><circle cx="5.2" cy="2.2" r="1.1" fill="white"/><circle cx="8.4" cy="2.2" r="1.1" fill="white"/><circle cx="11.6" cy="2.2" r="1.1" fill="white"/><circle cx="3.6" cy="5" r="1.1" fill="white"/><circle cx="6.8" cy="5" r="1.1" fill="white"/><circle cx="10" cy="5" r="1.1" fill="white"/><circle cx="2" cy="7.8" r="1.1" fill="white"/><circle cx="5.2" cy="7.8" r="1.1" fill="white"/><circle cx="8.4" cy="7.8" r="1.1" fill="white"/><circle cx="11.6" cy="7.8" r="1.1" fill="white"/><circle cx="3.6" cy="10.6" r="1.1" fill="white"/><circle cx="6.8" cy="10.6" r="1.1" fill="white"/><circle cx="10" cy="10.6" r="1.1" fill="white"/></svg></button>
+      <button class="flag-btn" id="flag-es" title="Espanol" onclick="setFlag('es')"><svg viewBox="0 0 36 24"><rect width="36" height="24" fill="#c60b1e"/><rect y="6" width="36" height="12" fill="#ffc400"/><rect x="13" y="7.5" width="4.5" height="9" fill="#c60b1e" rx=".8"/><rect x="13" y="7.5" width="4.5" height="3.2" fill="#002395"/><text x="15.25" y="14.5" font-size="4.5" fill="#ffc400" text-anchor="middle" font-family="serif" font-weight="bold">E</text></svg></button>
+    </div>
   </div>
 </nav>
-
 <div class="hero">
   <h1 data-i18n="pg.hero.title">ESCOLHA SEU PILOTO</h1>
-  <p data-i18n="pg.hero.sub">Cada tampinha é um NFT com atributos reais &mdash; velocidade, controle e aerodinâmica</p>
+  <p data-i18n="pg.hero.sub">Cada tampinha &eacute; um NFT com atributos reais</p>
 </div>
-
 <div class="grid">
 
-<!-- ─── KENTA ─── Maine Coon Brown Tabby - manga/anime style -->
+<!-- KENTA - Maine Coon -->
 <div class="card">
-  <div class="rarity r-epica">&#9670; <span data-i18n="r.epica">&Eacute;PICA</span></div>
-  <div class="avatar-wrap" style="background:radial-gradient(circle at 50% 40%,rgba(123,97,255,.25),transparent 70%);">
-    <div class="ring ring1" style="border-color:rgba(123,97,255,.45);"></div>
-    <div class="ring ring2" style="border-color:rgba(123,97,255,.28);"></div>
-    <svg class="avatar-svg" style="animation:breathe 3s ease-in-out infinite;filter:drop-shadow(0 0 14px rgba(123,97,255,.7))" viewBox="0 0 150 150" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <!-- Corpo -->
-      <ellipse cx="75" cy="98" rx="40" ry="30" fill="#7A4422"/>
-      <ellipse cx="75" cy="98" rx="33" ry="23" fill="#9B5E2E"/>
-      <!-- Listras tabby escuras -->
-      <path d="M48 88 Q62 78 75 88 Q88 78 102 88 Q98 98 88 103 Q75 95 62 103 Q52 98 48 88Z" fill="#5A2E0A" opacity=".55"/>
-      <path d="M52 96 Q60 90 68 96" stroke="#4A2208" stroke-width="1.5" fill="none" opacity=".6"/>
-      <path d="M82 96 Q90 90 98 96" stroke="#4A2208" stroke-width="1.5" fill="none" opacity=".6"/>
-      <!-- Cabeça grande anime -->
-      <ellipse cx="75" cy="55" rx="30" ry="28" fill="#9B5E2E"/>
-      <!-- Orelhas pontudas Maine Coon com tufos -->
-      <polygon points="50,32 41,10 62,27" fill="#9B5E2E"/>
-      <polygon points="52,31 45,14 62,27" fill="#C4845A" opacity=".9"/>
-      <line x1="43" y1="9" x2="40" y2="4" stroke="#7A4422" stroke-width="1.5" stroke-linecap="round"/>
-      <line x1="46" y1="8" x2="44" y2="3" stroke="#7A4422" stroke-width="1.5" stroke-linecap="round"/>
-      <polygon points="100,32 109,10 88,27" fill="#9B5E2E"/>
-      <polygon points="98,31 105,14 88,27" fill="#C4845A" opacity=".9"/>
-      <line x1="107" y1="9" x2="110" y2="4" stroke="#7A4422" stroke-width="1.5" stroke-linecap="round"/>
-      <line x1="104" y1="8" x2="106" y2="3" stroke="#7A4422" stroke-width="1.5" stroke-linecap="round"/>
-      <!-- Face mais clara -->
-      <ellipse cx="75" cy="59" rx="24" ry="22" fill="#B07040"/>
-      <!-- Listras testa -->
-      <path d="M64 39 Q75 35 86 39" stroke="#5A2E0A" stroke-width="1.5" fill="none" opacity=".7"/>
-      <path d="M66 37 Q75 33 84 37" stroke="#5A2E0A" stroke-width="1" fill="none" opacity=".5"/>
-      <!-- OLHOS grandes anime - característica principal manga -->
-      <!-- Olho Esquerdo -->
-      <ellipse cx="63" cy="56" rx="10" ry="11.5" fill="#0D0D1E"/>
-      <ellipse cx="63" cy="56" rx="8.5" ry="10" fill="#2ECC71"/>
-      <ellipse cx="63" cy="56" rx="4.5" ry="6.5" fill="#111827"/>
-      <!-- Highlights múltiplos - estilo manga -->
-      <circle cx="65.5" cy="50.5" r="2.8" fill="white" opacity=".95"/>
-      <circle cx="59.5" cy="60.5" r="1.4" fill="white" opacity=".7"/>
-      <ellipse cx="66" cy="57" rx="1.2" ry=".7" fill="rgba(255,255,255,.5)"/>
-      <!-- Brilho íris -->
-      <ellipse cx="63" cy="53" rx="4" ry="2.5" fill="#4AE88A" opacity=".45"/>
-      <!-- Olho Direito -->
-      <ellipse cx="87" cy="56" rx="10" ry="11.5" fill="#0D0D1E"/>
-      <ellipse cx="87" cy="56" rx="8.5" ry="10" fill="#2ECC71"/>
-      <ellipse cx="87" cy="56" rx="4.5" ry="6.5" fill="#111827"/>
-      <circle cx="89.5" cy="50.5" r="2.8" fill="white" opacity=".95"/>
-      <circle cx="83.5" cy="60.5" r="1.4" fill="white" opacity=".7"/>
-      <ellipse cx="90" cy="57" rx="1.2" ry=".7" fill="rgba(255,255,255,.5)"/>
-      <ellipse cx="87" cy="53" rx="4" ry="2.5" fill="#4AE88A" opacity=".45"/>
-      <!-- Cílios superiores -->
-      <path d="M54 48 Q58 44 63 47" stroke="#1A0A00" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-      <path d="M78 48 Q82 44 87 47" stroke="#1A0A00" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-      <!-- Nariz pequeno anime -->
-      <ellipse cx="75" cy="67" rx="2.5" ry="1.8" fill="#C4845A"/>
-      <!-- Bocão leve sorriso -->
-      <path d="M70 71 Q75 75 80 71" stroke="#9B5E2E" stroke-width="1.5" fill="none"/>
-      <!-- Bochechas rosadas -->
-      <ellipse cx="53" cy="65" rx="7" ry="4" fill="#FF8C69" opacity=".3"/>
-      <ellipse cx="97" cy="65" rx="7" ry="4" fill="#FF8C69" opacity=".3"/>
-      <!-- Bigodes longos -->
-      <line x1="46" y1="65" x2="65" y2="68" stroke="#EEE" stroke-width="1.2"/>
-      <line x1="44" y1="69" x2="63" y2="70" stroke="#EEE" stroke-width="1.2"/>
-      <line x1="104" y1="65" x2="85" y2="68" stroke="#EEE" stroke-width="1.2"/>
-      <line x1="106" y1="69" x2="87" y2="70" stroke="#EEE" stroke-width="1.2"/>
-      <!-- Rabo peludo Maine Coon -->
-      <path d="M115 96 Q132 82 130 62 Q128 46 120 52 Q117 70 104 85" stroke="#9B5E2E" stroke-width="11" fill="none" stroke-linecap="round"/>
-      <path d="M115 96 Q132 82 130 62 Q128 46 120 52 Q117 70 104 85" stroke="#B87040" stroke-width="5" fill="none" stroke-linecap="round"/>
-      <!-- Capacete racing roxo -->
-      <path d="M47 49 Q47 29 75 27 Q103 29 103 49" fill="#6B4FCC" opacity=".9"/>
-      <path d="M50 45 Q75 31 100 45" fill="none" stroke="#9A78FF" stroke-width="2.5"/>
-      <path d="M50 45 Q75 31 100 45" fill="none" stroke="rgba(200,180,255,.3)" stroke-width="5"/>
-      <text x="75" y="43" text-anchor="middle" font-family="Bebas Neue,sans-serif" font-size="11" fill="white" letter-spacing="1.5">KENTA</text>
-    </svg>
+  <div class="rarity r-epica">&#9670; &Eacute;PICA</div>
+  <div class="avatar-wrap" style="background:radial-gradient(circle at 50% 40%,rgba(123,97,255,.22),transparent 70%);">
+    <div class="ring ring1" style="border-color:rgba(123,97,255,.4);"></div>
+    <div class="ring ring2" style="border-color:rgba(123,97,255,.25);"></div>
+    <div class="avatar-svg" style="filter:drop-shadow(0 0 12px rgba(123,97,255,.65))">
+      <svg viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Rabo longo e peludo Maine Coon -->
+  <path d="M118,138 Q145,118 142,88 Q140,65 128,72 Q125,92 108,112" stroke="#4A1E06" stroke-width="16" stroke-linecap="round" fill="none"/>
+  <path d="M118,138 Q145,118 142,88 Q140,65 128,72 Q125,92 108,112" stroke="#8B4218" stroke-width="8" stroke-linecap="round" fill="none"/>
+  <path d="M118,138 Q145,118 142,88 Q140,65 128,72 Q125,92 108,112" stroke="#B0602A" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <!-- Corpo Maine Coon - grande e majestoso -->
+  <ellipse cx="78" cy="118" rx="46" ry="33" fill="#6A3210"/>
+  <ellipse cx="78" cy="116" rx="38" ry="26" fill="#8B4520"/>
+  <!-- Peito creme -->
+  <ellipse cx="78" cy="120" rx="24" ry="20" fill="#C8844A"/>
+  <ellipse cx="78" cy="124" rx="18" ry="14" fill="#D8A060"/>
+  <!-- Listras tabby no corpo -->
+  <path d="M46,108 Q62,98 72,108 Q82,98 92,108" stroke="#3A1005" stroke-width="2.5" fill="none" opacity=".65"/>
+  <path d="M44,118 Q56,110 66,118" stroke="#3A1005" stroke-width="2" fill="none" opacity=".55"/>
+  <path d="M90,118 Q102,110 112,118" stroke="#3A1005" stroke-width="2" fill="none" opacity=".55"/>
+  <!-- Ruff de pelo no pescoco -->
+  <ellipse cx="78" cy="94" rx="34" ry="22" fill="#7A3A12"/>
+  <ellipse cx="78" cy="96" rx="28" ry="17" fill="#9B5222"/>
+  <!-- Cabeca grande Maine Coon -->
+  <ellipse cx="78" cy="62" rx="33" ry="31" fill="#9B5222"/>
+  <!-- ORELHAS PONTUDAS COM TUFOS - caracteristica Maine Coon -->
+  <!-- Orelha esq -->
+  <polygon points="52,36 42,8 68,28" fill="#8B4520"/>
+  <polygon points="54,34 46,12 66,28" fill="#C47848" opacity=".9"/>
+  <!-- Tufos Maine Coon -->
+  <path d="M43,8 L40,2" stroke="#4A1E06" stroke-width="2" stroke-linecap="round"/>
+  <path d="M46,7 L44,1" stroke="#4A1E06" stroke-width="2" stroke-linecap="round"/>
+  <path d="M49,6.5 L48,0" stroke="#4A1E06" stroke-width="2" stroke-linecap="round"/>
+  <!-- Orelha dir -->
+  <polygon points="104,36 118,8 92,28" fill="#8B4520"/>
+  <polygon points="106,34 114,12 94,28" fill="#C47848" opacity=".9"/>
+  <path d="M117,8 L120,2" stroke="#4A1E06" stroke-width="2" stroke-linecap="round"/>
+  <path d="M114,7 L116,1" stroke="#4A1E06" stroke-width="2" stroke-linecap="round"/>
+  <path d="M111,6.5 L112,0" stroke="#4A1E06" stroke-width="2" stroke-linecap="round"/>
+  <!-- Face mais clara -->
+  <ellipse cx="78" cy="67" rx="26" ry="24" fill="#B07842"/>
+  <!-- Marcas na testa (tabby M) -->
+  <path d="M64,42 Q78,36 92,42" stroke="#4A1E06" stroke-width="1.8" fill="none" opacity=".7"/>
+  <path d="M68,38 Q78,33 88,38" stroke="#4A1E06" stroke-width="1.2" fill="none" opacity=".5"/>
+  <path d="M72,35 Q78,30 84,35" stroke="#4A1E06" stroke-width="1" fill="none" opacity=".4"/>
+  <!-- OLHOS GRANDES MANGA - ambar/dourado intenso -->
+  <!-- Olho esq -->
+  <ellipse cx="64" cy="61" rx="11.5" ry="13" fill="#0C0400"/>
+  <ellipse cx="64" cy="61" rx="10" ry="11.5" fill="#CA8010"/>
+  <ellipse cx="64" cy="61" rx="5.5" ry="7.5" fill="#0C0800"/>
+  <!-- Detalhes iris -->
+  <ellipse cx="64" cy="57" rx="5.5" ry="3" fill="#E8A820" opacity=".55"/>
+  <!-- Brilhos multiplos -->
+  <circle cx="66.5" cy="55" r="3.2" fill="white" opacity=".96"/>
+  <circle cx="60" cy="66" r="1.7" fill="white" opacity=".65"/>
+  <ellipse cx="68" cy="62" rx="1.4" ry=".85" fill="rgba(255,255,255,.5)"/>
+  <!-- Olho dir -->
+  <ellipse cx="92" cy="61" rx="11.5" ry="13" fill="#0C0400"/>
+  <ellipse cx="92" cy="61" rx="10" ry="11.5" fill="#CA8010"/>
+  <ellipse cx="92" cy="61" rx="5.5" ry="7.5" fill="#0C0800"/>
+  <ellipse cx="92" cy="57" rx="5.5" ry="3" fill="#E8A820" opacity=".55"/>
+  <circle cx="94.5" cy="55" r="3.2" fill="white" opacity=".96"/>
+  <circle cx="88" cy="66" r="1.7" fill="white" opacity=".65"/>
+  <ellipse cx="96" cy="62" rx="1.4" ry=".85" fill="rgba(255,255,255,.5)"/>
+  <!-- Cilios superiores Maine Coon -->
+  <path d="M54,51 Q60,47 65,51" stroke="#1A0800" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  <path d="M82,51 Q88,47 93,51" stroke="#1A0800" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  <!-- Nariz triangular pequeno -->
+  <polygon points="78,72 75,77 81,77" fill="#7A2A10"/>
+  <!-- Boca - expressao seria mas elegante -->
+  <path d="M73,79 Q78,81 83,79" stroke="#5C2010" stroke-width="1.5" fill="none"/>
+  <!-- Bochechas sutis -->
+  <ellipse cx="51" cy="70" rx="8" ry="4.5" fill="#FF8C60" opacity=".2"/>
+  <ellipse cx="105" cy="70" rx="8" ry="4.5" fill="#FF8C60" opacity=".2"/>
+  <!-- Bigodes longos -->
+  <line x1="46" y1="71" x2="66" y2="74" stroke="#DDD" stroke-width="1.3"/>
+  <line x1="44" y1="75.5" x2="64" y2="77" stroke="#DDD" stroke-width="1.3"/>
+  <line x1="110" y1="71" x2="90" y2="74" stroke="#DDD" stroke-width="1.3"/>
+  <line x1="112" y1="75.5" x2="92" y2="77" stroke="#DDD" stroke-width="1.3"/>
+  <!-- Patinhas na frente -->
+  <ellipse cx="58" cy="142" rx="20" ry="14" fill="#8B4520"/>
+  <ellipse cx="98" cy="142" rx="20" ry="14" fill="#8B4520"/>
+  <ellipse cx="58" cy="146" rx="14" ry="9" fill="#7A3812"/>
+  <ellipse cx="98" cy="146" rx="14" ry="9" fill="#7A3812"/>
+</svg>
+    </div>
   </div>
   <div class="info">
     <div class="name" style="color:#A78BFF;">KENTA</div>
-    <div class="title" data-i18n="pg.kenta.title">Maine Coon Brown Tabby / Especialidade: Velocidade</div>
+    <div class="title" data-i18n="pg.kenta.title">Maine Coon Brown Tabby / Velocidade</div>
     <div class="attrs">
-      <div class="attr-row"><span class="attr-lbl" data-i18n="attr.vel">Velocidade</span><div class="attr-bar"><div class="attr-fill" style="width:95%;background:linear-gradient(90deg,#7B61FF,#A78BFF);"></div></div><span class="attr-val" style="color:#A78BFF;">95</span></div>
-      <div class="attr-row"><span class="attr-lbl" data-i18n="attr.ctrl">Controle</span><div class="attr-bar"><div class="attr-fill" style="width:68%;background:linear-gradient(90deg,#7B61FF,#A78BFF);"></div></div><span class="attr-val" style="color:#A78BFF;">68</span></div>
-      <div class="attr-row"><span class="attr-lbl" data-i18n="attr.aero">Aerodin.</span><div class="attr-bar"><div class="attr-fill" style="width:80%;background:linear-gradient(90deg,#7B61FF,#A78BFF);"></div></div><span class="attr-val" style="color:#A78BFF;">80</span></div>
+      <div class="attr-row"><span class="attr-lbl" data-i18n="attr.vel">Velocidade</span><div class="attr-bar"><div class="attr-fill" style="width:95%;background:linear-gradient(90deg,#7B61FF,#A78BFF)"></div></div><span class="attr-val" style="color:#A78BFF">95</span></div>
+      <div class="attr-row"><span class="attr-lbl" data-i18n="attr.ctrl">Controle</span><div class="attr-bar"><div class="attr-fill" style="width:68%;background:linear-gradient(90deg,#7B61FF,#A78BFF)"></div></div><span class="attr-val" style="color:#A78BFF">68</span></div>
+      <div class="attr-row"><span class="attr-lbl" data-i18n="attr.aero">Aerodin.</span><div class="attr-bar"><div class="attr-fill" style="width:80%;background:linear-gradient(90deg,#7B61FF,#A78BFF)"></div></div><span class="attr-val" style="color:#A78BFF">80</span></div>
     </div>
-    <div class="ability" style="border-color:#7B61FF;"><div class="abl-name" style="color:#A78BFF;">TURBO BURST</div><div class="abl-desc" data-i18n="pg.abl.kenta">Bônus de +18% de velocidade no primeiro lançamento de cada volta. Ideal para abrir vantagem na largada.</div></div>
+    <div class="ability" style="border-color:#7B61FF;"><div class="abl-name" style="color:#A78BFF;">TURBO BURST</div><div class="abl-desc" data-i18n="pg.abl.kenta">B&ocirc;nus de +18% de velocidade no primeiro lan&ccedil;amento de cada volta.</div></div>
     <div class="nft-row"><div class="nft-id">Token ID<span>#CR-0001</span></div><a href="caprush-game.html" class="btn-select" style="color:#A78BFF;border-color:#7B61FF;" data-i18n="pg.sel">SELECIONAR</a></div>
   </div>
 </div>
 
-<!-- ─── YUKI ─── Samoeida - manga/anime style -->
+<!-- YUKI - Samoieda -->
 <div class="card">
   <div class="rarity r-lendaria">&#9670; LEND&Aacute;RIA</div>
-  <div class="avatar-wrap" style="background:radial-gradient(circle at 50% 40%,rgba(0,229,255,.2),transparent 70%);">
-    <div class="ring ring1" style="border-color:rgba(0,229,255,.4);"></div>
-    <div class="ring ring2" style="border-color:rgba(0,229,255,.22);"></div>
-    <svg class="avatar-svg" style="animation:breathe 3s ease-in-out infinite .5s;filter:drop-shadow(0 0 14px rgba(0,229,255,.65))" viewBox="0 0 150 150" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <!-- Pelo fofo corpo - samoeida volumoso -->
-      <ellipse cx="75" cy="98" rx="42" ry="32" fill="#E8EDF8"/>
-      <ellipse cx="75" cy="98" rx="36" ry="26" fill="#F0F5FF"/>
-      <!-- Pelagem extra fofa (puffs) -->
-      <circle cx="44" cy="98" r="16" fill="#EDF2FF" opacity=".85"/>
-      <circle cx="106" cy="98" r="16" fill="#EDF2FF" opacity=".85"/>
-      <circle cx="60" cy="115" r="14" fill="#EDF2FF" opacity=".8"/>
-      <circle cx="90" cy="115" r="14" fill="#EDF2FF" opacity=".8"/>
-      <!-- Cabeça redonda fofa -->
-      <ellipse cx="75" cy="54" rx="30" ry="28" fill="#F2F6FF"/>
-      <!-- Orelhas pontudas com pelo -->
-      <polygon points="53,33 44,11 65,29" fill="#E8EDF8"/>
-      <polygon points="55,32 48,15 64,29" fill="#D8E2F5" opacity=".9"/>
-      <circle cx="50" cy="26" r="5" fill="#E8EDF8"/>
-      <polygon points="97,33 106,11 85,29" fill="#E8EDF8"/>
-      <polygon points="95,32 102,15 86,29" fill="#D8E2F5" opacity=".9"/>
-      <circle cx="100" cy="26" r="5" fill="#E8EDF8"/>
-      <!-- Face -->
-      <ellipse cx="75" cy="57" rx="25" ry="23" fill="#F8FBFF"/>
-      <!-- OLHOS grandes manga - samoeida tem olhos amendoados espertos -->
-      <!-- Olho Esquerdo -->
-      <ellipse cx="63" cy="54" rx="10" ry="11" fill="#0A0A1A"/>
-      <ellipse cx="63" cy="54" rx="8.5" ry="9.5" fill="#1A90FF"/>
-      <ellipse cx="63" cy="54" rx="5" ry="6.5" fill="#0D3A8C"/>
-      <!-- Iris gradient azul gelo -->
-      <ellipse cx="63" cy="51" rx="5" ry="3" fill="#4DC8FF" opacity=".5"/>
-      <circle cx="65.5" cy="49" r="2.8" fill="white" opacity=".95"/>
-      <circle cx="59.5" cy="58.5" r="1.4" fill="white" opacity=".65"/>
-      <ellipse cx="66" cy="55" rx="1.1" ry=".65" fill="rgba(255,255,255,.5)"/>
-      <!-- Olho Direito -->
-      <ellipse cx="87" cy="54" rx="10" ry="11" fill="#0A0A1A"/>
-      <ellipse cx="87" cy="54" rx="8.5" ry="9.5" fill="#1A90FF"/>
-      <ellipse cx="87" cy="54" rx="5" ry="6.5" fill="#0D3A8C"/>
-      <ellipse cx="87" cy="51" rx="5" ry="3" fill="#4DC8FF" opacity=".5"/>
-      <circle cx="89.5" cy="49" r="2.8" fill="white" opacity=".95"/>
-      <circle cx="83.5" cy="58.5" r="1.4" fill="white" opacity=".65"/>
-      <ellipse cx="90" cy="55" rx="1.1" ry=".65" fill="rgba(255,255,255,.5)"/>
-      <!-- Nariz preto triangular - característico samoeida -->
-      <polygon points="75,63 72,67 78,67" fill="#1A1A2E"/>
-      <!-- SORRISO samoeida - cantos levantados característico -->
-      <path d="M63 68 Q75 74 87 68" stroke="#C8D6EC" stroke-width="1.8" fill="none"/>
-      <circle cx="63" cy="68" r="2" fill="#FFB6C1" opacity=".75"/>
-      <circle cx="87" cy="68" r="2" fill="#FFB6C1" opacity=".75"/>
-      <!-- Bochechas -->
-      <ellipse cx="52" cy="63" rx="8" ry="5" fill="#B8D4FF" opacity=".35"/>
-      <ellipse cx="98" cy="63" rx="8" ry="5" fill="#B8D4FF" opacity=".35"/>
-      <!-- Bigodes platina -->
-      <line x1="48" y1="63" x2="65" y2="65" stroke="#B0BCCC" stroke-width="1.3"/>
-      <line x1="46" y1="66.5" x2="63.5" y2="67.5" stroke="#B0BCCC" stroke-width="1.3"/>
-      <line x1="102" y1="63" x2="85" y2="65" stroke="#B0BCCC" stroke-width="1.3"/>
-      <line x1="104" y1="66.5" x2="86.5" y2="67.5" stroke="#B0BCCC" stroke-width="1.3"/>
-      <!-- Rabo esponjoso enorme -->
-      <path d="M34 100 Q20 84 22 66 Q24 50 35 57 Q39 74 46 88" stroke="#E8EDF8" stroke-width="14" fill="none" stroke-linecap="round"/>
-      <path d="M34 100 Q20 84 22 66 Q24 50 35 57 Q39 74 46 88" stroke="#F5F8FF" stroke-width="7" fill="none" stroke-linecap="round"/>
-      <!-- Flocos de neve -->
-      <circle cx="56" cy="29" r="2.2" fill="#00E5FF" opacity=".7"/>
-      <circle cx="88" cy="24" r="1.7" fill="#00E5FF" opacity=".6"/>
-      <circle cx="38" cy="54" r="1.6" fill="#00E5FF" opacity=".5"/>
-      <circle cx="112" cy="48" r="1.5" fill="#00E5FF" opacity=".5"/>
-      <!-- Estrela neve -->
-      <path d="M76 20 L77.5 24 L81 24 L78.5 26.5 L79.5 30 L76 28 L72.5 30 L73.5 26.5 L71 24 L74.5 24Z" fill="#00E5FF" opacity=".6"/>
-      <!-- Capacete ciano -->
-      <path d="M46 46 Q46 27 75 25 Q104 27 104 46" fill="#007EA0" opacity=".9"/>
-      <path d="M49 43 Q75 29 101 43" fill="none" stroke="#00E5FF" stroke-width="2.5"/>
-      <path d="M49 43 Q75 29 101 43" fill="none" stroke="rgba(0,229,255,.25)" stroke-width="6"/>
-      <text x="75" y="40" text-anchor="middle" font-family="Bebas Neue,sans-serif" font-size="11" fill="white" letter-spacing="1.5">YUKI</text>
-    </svg>
+  <div class="avatar-wrap" style="background:radial-gradient(circle at 50% 40%,rgba(0,229,255,.18),transparent 70%);">
+    <div class="ring ring1" style="border-color:rgba(0,229,255,.38);"></div>
+    <div class="ring ring2" style="border-color:rgba(0,229,255,.2);"></div>
+    <div class="avatar-svg" style="filter:drop-shadow(0 0 12px rgba(0,229,255,.6));animation-delay:.5s">
+      <svg viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fundo aquarela / pinceladas azul-esverdeadas -->
+  <ellipse cx="80" cy="90" rx="68" ry="58" fill="#C8E8F8" opacity=".38"/>
+  <ellipse cx="60" cy="80" rx="48" ry="40" fill="#A0D4EE" opacity=".22"/>
+  <!-- Pinceladas dinamicas de pelo ao vento (como na ref) -->
+  <path d="M12,70 Q30,50 55,60 Q40,45 60,40 Q45,30 70,38" stroke="#E8F6FF" stroke-width="4" stroke-linecap="round" fill="none" opacity=".7"/>
+  <path d="M18,80 Q38,62 58,72 Q44,58 64,52" stroke="#D0ECFF" stroke-width="3" stroke-linecap="round" fill="none" opacity=".65"/>
+  <path d="M8,92 Q28,76 50,86 Q36,70 58,64" stroke="#C4E4F8" stroke-width="2.5" stroke-linecap="round" fill="none" opacity=".6"/>
+  <!-- Corpo fofo arredondado -->
+  <ellipse cx="80" cy="118" rx="44" ry="32" fill="#F4FAFE"/>
+  <ellipse cx="80" cy="114" rx="38" ry="26" fill="#FAFFFE"/>
+  <!-- Pelo em layers - efeito volumoso -->
+  <circle cx="48" cy="112" r="20" fill="#F0F8FF" opacity=".9"/>
+  <circle cx="112" cy="112" r="18" fill="#F0F8FF" opacity=".85"/>
+  <circle cx="64" cy="128" r="18" fill="#EFFAFF" opacity=".9"/>
+  <circle cx="96" cy="128" r="18" fill="#EFFAFF" opacity=".85"/>
+  <!-- Rabo volumoso ao vento (como na ref - horizontal) -->
+  <path d="M120,108 Q145,90 148,68 Q150,50 138,52 Q132,68 124,85" stroke="#EEF8FF" stroke-width="16" stroke-linecap="round" fill="none"/>
+  <path d="M120,108 Q145,90 148,68 Q150,50 138,52 Q132,68 124,85" stroke="#F8FDFF" stroke-width="7" stroke-linecap="round" fill="none"/>
+  <!-- Linhas de pelo fluindo (detalhes) -->
+  <path d="M42,105 Q50,98 58,105" stroke="#C8E8FF" stroke-width="1.5" fill="none" opacity=".6"/>
+  <path d="M38,112 Q46,105 54,112" stroke="#C8E8FF" stroke-width="1.5" fill="none" opacity=".5"/>
+  <!-- Cabeca grande e redonda -->
+  <ellipse cx="80" cy="66" rx="34" ry="32" fill="#F8FDFF"/>
+  <!-- Orelhas pontudas com pelo -->
+  <ellipse cx="55" cy="40" rx="13" ry="18" fill="#EEF8FF" transform="rotate(16 55 40)"/>
+  <ellipse cx="55" cy="40" rx="9"  ry="13" fill="#D8EEFF" transform="rotate(16 55 40)" opacity=".8"/>
+  <circle cx="52" cy="34" r="6" fill="#EEF8FF"/>
+  <ellipse cx="105" cy="40" rx="13" ry="18" fill="#EEF8FF" transform="rotate(-16 105 40)"/>
+  <ellipse cx="105" cy="40" rx="9"  ry="13" fill="#D8EEFF" transform="rotate(-16 105 40)" opacity=".8"/>
+  <circle cx="108" cy="34" r="6" fill="#EEF8FF"/>
+  <!-- Face suave -->
+  <ellipse cx="80" cy="69" rx="27" ry="25" fill="#FAFFFE"/>
+  <!-- OLHOS - estilo manga fechados/entrecerrados de felicidade (como na ref watercolor) -->
+  <!-- Olho esquerdo - entrecerrado, curvo para cima de alegria -->
+  <path d="M58,64 Q64,58 70,64" stroke="#2A4A6A" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+  <path d="M58,64 Q64,60 70,64" fill="#A8D4EE" opacity=".25"/>
+  <!-- Cilios superiores -->
+  <path d="M57,63 Q60,59 64,62" stroke="#2A4A6A" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <!-- Olho direito -->
+  <path d="M90,64 Q96,58 102,64" stroke="#2A4A6A" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+  <path d="M90,64 Q96,60 102,64" fill="#A8D4EE" opacity=".25"/>
+  <path d="M90,63 Q94,59 98,62" stroke="#2A4A6A" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <!-- Nariz pequeno triangular -->
+  <polygon points="80,74 77.5,78 82.5,78" fill="#4A8AAA"/>
+  <!-- Sorriso samoeida tipico (cantos levantados) -->
+  <path d="M70,80 Q80,86 90,80" stroke="#5A9AAA" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <circle cx="70" cy="80" r="2.2" fill="#8ABCCC" opacity=".7"/>
+  <circle cx="90" cy="80" r="2.2" fill="#8ABCCC" opacity=".7"/>
+  <!-- Bochechas com aquarela azulada -->
+  <ellipse cx="56" cy="73" rx="10" ry="6" fill="#A8D8F0" opacity=".32"/>
+  <ellipse cx="104" cy="73" rx="10" ry="6" fill="#A8D8F0" opacity=".32"/>
+  <!-- Bigodes platina -->
+  <line x1="46" y1="73" x2="64" y2="76" stroke="#B8CCD8" stroke-width="1.4"/>
+  <line x1="44" y1="77" x2="62" y2="78.5" stroke="#B8CCD8" stroke-width="1.4"/>
+  <line x1="114" y1="73" x2="96" y2="76" stroke="#B8CCD8" stroke-width="1.4"/>
+  <line x1="116" y1="77" x2="98" y2="78.5" stroke="#B8CCD8" stroke-width="1.4"/>
+  <!-- Respingos de aquarela (como na ref) -->
+  <circle cx="28" cy="55" r="3.5" fill="#88C8E8" opacity=".5"/>
+  <circle cx="22" cy="68" r="2.5" fill="#A8D8F4" opacity=".45"/>
+  <circle cx="130" cy="45" r="3" fill="#88C8E8" opacity=".4"/>
+  <circle cx="138" cy="62" r="2" fill="#A8D8F4" opacity=".4"/>
+  <circle cx="34" cy="42" r="2" fill="#7AB8DE" opacity=".5"/>
+  <circle cx="142" cy="78" r="2.8" fill="#88C8E8" opacity=".38"/>
+</svg>
+    </div>
   </div>
   <div class="info">
     <div class="name" style="color:#00E5FF;">YUKI</div>
-    <div class="title" data-i18n="pg.yuki.title">Samoeida / Especialidade: Controle</div>
+    <div class="title" data-i18n="pg.yuki.title">Samoieda / Controle</div>
     <div class="attrs">
-      <div class="attr-row"><span class="attr-lbl" data-i18n="attr.vel">Velocidade</span><div class="attr-bar"><div class="attr-fill" style="width:82%;background:linear-gradient(90deg,#0088AA,#00E5FF);"></div></div><span class="attr-val" style="color:#00E5FF;">82</span></div>
-      <div class="attr-row"><span class="attr-lbl" data-i18n="attr.ctrl">Controle</span><div class="attr-bar"><div class="attr-fill" style="width:91%;background:linear-gradient(90deg,#0088AA,#00E5FF);"></div></div><span class="attr-val" style="color:#00E5FF;">91</span></div>
-      <div class="attr-row"><span class="attr-lbl" data-i18n="attr.aero">Aerodin.</span><div class="attr-bar"><div class="attr-fill" style="width:75%;background:linear-gradient(90deg,#0088AA,#00E5FF);"></div></div><span class="attr-val" style="color:#00E5FF;">75</span></div>
+      <div class="attr-row"><span class="attr-lbl" data-i18n="attr.vel">Velocidade</span><div class="attr-bar"><div class="attr-fill" style="width:82%;background:linear-gradient(90deg,#0088AA,#00E5FF)"></div></div><span class="attr-val" style="color:#00E5FF">82</span></div>
+      <div class="attr-row"><span class="attr-lbl" data-i18n="attr.ctrl">Controle</span><div class="attr-bar"><div class="attr-fill" style="width:91%;background:linear-gradient(90deg,#0088AA,#00E5FF)"></div></div><span class="attr-val" style="color:#00E5FF">91</span></div>
+      <div class="attr-row"><span class="attr-lbl" data-i18n="attr.aero">Aerodin.</span><div class="attr-bar"><div class="attr-fill" style="width:75%;background:linear-gradient(90deg,#0088AA,#00E5FF)"></div></div><span class="attr-val" style="color:#00E5FF">75</span></div>
     </div>
-    <div class="ability" style="border-color:#00E5FF;"><div class="abl-name" style="color:#00E5FF;">TRAJET&Oacute;RIA GELADA</div><div class="abl-desc" data-i18n="pg.abl.yuki">Reduz o erro angular em 9% &mdash; a mira fica mais precisa. Perfeita para chicanes e curvas fechadas.</div></div>
+    <div class="ability" style="border-color:#00E5FF;"><div class="abl-name" style="color:#00E5FF;">TRAJET&Oacute;RIA GELADA</div><div class="abl-desc" data-i18n="pg.abl.yuki">Reduz o erro angular em 9% &mdash; a mira fica mais precisa.</div></div>
     <div class="nft-row"><div class="nft-id">Token ID<span>#CR-0002</span></div><a href="caprush-game.html" class="btn-select" style="color:#00E5FF;border-color:#00E5FF;" data-i18n="pg.play">JOGAR AGORA</a></div>
   </div>
 </div>
 
-<!-- ─── BRUNA ─── SRD marrom + laço - manga/anime style - BLOQUEADA -->
+<!-- BRUNA - SRD Marrom c/ bandana (BLOQUEADA) -->
 <div class="card locked">
   <div class="rarity r-rara">&#9670; RARA</div>
-  <div class="avatar-wrap" style="background:radial-gradient(circle at 50% 40%,rgba(255,215,0,.14),transparent 70%);">
-    <div class="ring ring1" style="border-color:rgba(255,215,0,.32);"></div>
-    <div class="ring ring2" style="border-color:rgba(255,215,0,.2);"></div>
-    <svg class="avatar-svg" style="color:#FFD700;" viewBox="0 0 150 150" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <!-- Corpo -->
-      <ellipse cx="75" cy="100" rx="38" ry="28" fill="#6B3A1A"/>
-      <ellipse cx="75" cy="103" rx="42" ry="22" fill="#5A2E0A"/>
-      <!-- Cabeça arredondada kawaii -->
-      <ellipse cx="75" cy="55" rx="30" ry="28" fill="#7A4422"/>
-      <!-- Orelhas caídas - floppy ears -->
-      <ellipse cx="51" cy="40" rx="12" ry="17" fill="#6B3A1A" transform="rotate(18 51 40)"/>
-      <ellipse cx="51" cy="40" rx="9" ry="13" fill="#5A2E0A" transform="rotate(18 51 40)" opacity=".7"/>
-      <ellipse cx="99" cy="40" rx="12" ry="17" fill="#6B3A1A" transform="rotate(-18 99 40)"/>
-      <ellipse cx="99" cy="40" rx="9" ry="13" fill="#5A2E0A" transform="rotate(-18 99 40)" opacity=".7"/>
-      <!-- Face mais clara -->
-      <ellipse cx="75" cy="59" rx="23" ry="21" fill="#8B5230"/>
-      <!-- Focinho mais claro -->
-      <ellipse cx="75" cy="67" rx="12" ry="9" fill="#A06040" opacity=".65"/>
-      <!-- OLHOS GRANDES manga - expressivos, castanhos cálidos -->
-      <!-- Olho Esquerdo -->
-      <ellipse cx="63" cy="53" rx="10.5" ry="12" fill="#0D0400"/>
-      <ellipse cx="63" cy="53" rx="9" ry="10.5" fill="#8B3A0A"/>
-      <ellipse cx="63" cy="53" rx="5.5" ry="7" fill="#1A0800"/>
-      <ellipse cx="63" cy="50" rx="5" ry="3" fill="#D4700A" opacity=".5"/>
-      <circle cx="65.8" cy="47" r="3" fill="white" opacity=".96"/>
-      <circle cx="59.5" cy="58" r="1.5" fill="white" opacity=".7"/>
-      <ellipse cx="66.5" cy="55" rx="1.2" ry=".7" fill="rgba(255,255,255,.5)"/>
-      <!-- Olho Direito -->
-      <ellipse cx="87" cy="53" rx="10.5" ry="12" fill="#0D0400"/>
-      <ellipse cx="87" cy="53" rx="9" ry="10.5" fill="#8B3A0A"/>
-      <ellipse cx="87" cy="53" rx="5.5" ry="7" fill="#1A0800"/>
-      <ellipse cx="87" cy="50" rx="5" ry="3" fill="#D4700A" opacity=".5"/>
-      <circle cx="89.8" cy="47" r="3" fill="white" opacity=".96"/>
-      <circle cx="83.5" cy="58" r="1.5" fill="white" opacity=".7"/>
-      <ellipse cx="90.5" cy="55" rx="1.2" ry=".7" fill="rgba(255,255,255,.5)"/>
-      <!-- Nariz pequeno e fofo -->
-      <ellipse cx="75" cy="64" rx="3.5" ry="2.5" fill="#0D0400"/>
-      <path d="M71 67 Q75 71 79 67" stroke="#6B3A1A" stroke-width="1.5" fill="none"/>
-      <!-- Bochechas fofas -->
-      <ellipse cx="52" cy="63" rx="9" ry="5.5" fill="#CC6040" opacity=".35"/>
-      <ellipse cx="98" cy="63" rx="9" ry="5.5" fill="#CC6040" opacity=".35"/>
-      <!-- LAÇO ROSA GRANDE de menina -->
-      <ellipse cx="85" cy="28" rx="11" ry="7" fill="#FF69B4" transform="rotate(-28 85 28)"/>
-      <ellipse cx="96" cy="23" rx="11" ry="7" fill="#FF69B4" transform="rotate(28 96 23)"/>
-      <circle cx="90" cy="26" r="5.5" fill="#FF1493"/>
-      <!-- Brilho laço -->
-      <ellipse cx="83" cy="24" rx="3" ry="2" fill="rgba(255,255,255,.4)" transform="rotate(-28 83 24)"/>
-      <circle cx="87" cy="23" r="1.5" fill="rgba(255,255,255,.5)"/>
-      <!-- Rabinho curto -->
-      <path d="M113 96 Q126 84 123 70 Q120 58 112 64 Q112 74 104 85" stroke="#6B3A1A" stroke-width="8" fill="none" stroke-linecap="round"/>
-      <!-- Capacete dourado -->
-      <path d="M47 47 Q47 29 75 27 Q103 29 103 47" fill="#AA7800" opacity=".9"/>
-      <path d="M50 44 Q75 30 100 44" fill="none" stroke="#FFD700" stroke-width="2.5"/>
-      <path d="M50 44 Q75 30 100 44" fill="none" stroke="rgba(255,215,0,.25)" stroke-width="6"/>
-      <text x="75" y="41" text-anchor="middle" font-family="Bebas Neue,sans-serif" font-size="11" fill="white" letter-spacing="1.5">BRUNA</text>
-    </svg>
+  <div class="avatar-wrap" style="background:radial-gradient(circle at 50% 40%,rgba(255,215,0,.12),transparent 70%);">
+    <div class="ring ring1" style="border-color:rgba(255,215,0,.3);"></div>
+    <div class="ring ring2" style="border-color:rgba(255,215,0,.18);"></div>
+    <div class="avatar-svg" style="filter:drop-shadow(0 0 10px rgba(255,215,0,.5));animation-delay:1s">
+      <svg viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Corpo kawaii - cachorrinho marrom com bandana azul (ref: pastor alemao kawaii) -->
+  <!-- Corpo arredondado -->
+  <ellipse cx="80" cy="118" rx="42" ry="32" fill="#7A3A10"/>
+  <ellipse cx="80" cy="114" rx="36" ry="26" fill="#9B4E1C"/>
+  <!-- Barriga mais clara -->
+  <ellipse cx="80" cy="122" rx="24" ry="18" fill="#C8885A"/>
+  <!-- BANDANA AZUL - elemento central da ref -->
+  <path d="M50,98 Q80,106 110,98 Q108,112 80,116 Q52,112 50,98Z" fill="#4488CC"/>
+  <path d="M50,98 Q80,104 110,98" stroke="#3366AA" stroke-width="1.5" fill="none"/>
+  <path d="M80,116 L74,124" stroke="#4488CC" stroke-width="3" stroke-linecap="round"/>
+  <path d="M74,124 Q72,128 74,130 Q76,133 80,131 Q84,133 86,130 Q88,128 86,124Z" fill="#4488CC"/>
+  <!-- Marcas escuras (pastor alemao - sela) -->
+  <path d="M42,100 Q56,92 70,100 Q56,88 62,82 Q50,88 42,100Z" fill="#2A1005" opacity=".55"/>
+  <path d="M118,100 Q104,92 90,100 Q104,88 98,82 Q110,88 118,100Z" fill="#2A1005" opacity=".55"/>
+  <!-- Cabeca kawaii grande e redonda -->
+  <ellipse cx="80" cy="60" rx="36" ry="34" fill="#9B4E1C"/>
+  <!-- Marcas escuras da testa (pastor) -->
+  <ellipse cx="80" cy="48" rx="18" ry="14" fill="#5A2808" opacity=".55"/>
+  <!-- Orelhas - eretas mas arredondadas na ponta (kawaii) -->
+  <ellipse cx="54" cy="34" rx="14" ry="20" fill="#8A4018"/>
+  <ellipse cx="54" cy="34" rx="10" ry="15" fill="#5A2808" opacity=".8"/>
+  <ellipse cx="54" cy="38" rx="7" ry="11" fill="#C47845" opacity=".5"/>
+  <ellipse cx="106" cy="34" rx="14" ry="20" fill="#8A4018"/>
+  <ellipse cx="106" cy="34" rx="10" ry="15" fill="#5A2808" opacity=".8"/>
+  <ellipse cx="106" cy="38" rx="7" ry="11" fill="#C47845" opacity=".5"/>
+  <!-- Face mais clara -->
+  <ellipse cx="80" cy="66" rx="28" ry="26" fill="#B06835"/>
+  <!-- Focinho arredondado kawaii -->
+  <ellipse cx="80" cy="76" rx="16" ry="12" fill="#C88050" opacity=".75"/>
+  <!-- OLHOS GRANDES kawaii - castanhos expressivos -->
+  <!-- Olho esq -->
+  <ellipse cx="64" cy="60" rx="12" ry="13.5" fill="#0A0300"/>
+  <ellipse cx="64" cy="60" rx="10.5" ry="12" fill="#7A3808"/>
+  <ellipse cx="64" cy="60" rx="5.5" ry="7.5" fill="#0A0500"/>
+  <!-- Iris grad -->
+  <ellipse cx="64" cy="56.5" rx="5.5" ry="3.2" fill="#B05010" opacity=".5"/>
+  <circle cx="66.5" cy="53.5" r="3.5" fill="white" opacity=".97"/>
+  <circle cx="59.5" cy="65" r="1.8" fill="white" opacity=".68"/>
+  <ellipse cx="68" cy="61" rx="1.5" ry=".9" fill="rgba(255,255,255,.52)"/>
+  <!-- Olho dir -->
+  <ellipse cx="96" cy="60" rx="12" ry="13.5" fill="#0A0300"/>
+  <ellipse cx="96" cy="60" rx="10.5" ry="12" fill="#7A3808"/>
+  <ellipse cx="96" cy="60" rx="5.5" ry="7.5" fill="#0A0500"/>
+  <ellipse cx="96" cy="56.5" rx="5.5" ry="3.2" fill="#B05010" opacity=".5"/>
+  <circle cx="98.5" cy="53.5" r="3.5" fill="white" opacity=".97"/>
+  <circle cx="91.5" cy="65" r="1.8" fill="white" opacity=".68"/>
+  <ellipse cx="100" cy="61" rx="1.5" ry=".9" fill="rgba(255,255,255,.52)"/>
+  <!-- Nariz preto grande e fofo -->
+  <ellipse cx="80" cy="74" rx="5.5" ry="4" fill="#0A0300"/>
+  <!-- Nariz brilho -->
+  <circle cx="78.5" cy="72.5" r="1.5" fill="white" opacity=".6"/>
+  <!-- Boca kawaii -->
+  <path d="M73,80 Q80,85 87,80" stroke="#5A2808" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  <!-- Bochechas fofas -->
+  <ellipse cx="52" cy="70" rx="10" ry="6" fill="#FF6840" opacity=".35"/>
+  <ellipse cx="108" cy="70" rx="10" ry="6" fill="#FF6840" opacity=".35"/>
+  <!-- Bigodes -->
+  <line x1="46" y1="72" x2="65" y2="75" stroke="#222" stroke-width="1.4"/>
+  <line x1="44" y1="76.5" x2="63" y2="78" stroke="#222" stroke-width="1.4"/>
+  <line x1="114" y1="72" x2="95" y2="75" stroke="#222" stroke-width="1.4"/>
+  <line x1="116" y1="76.5" x2="97" y2="78" stroke="#222" stroke-width="1.4"/>
+  <!-- PATINHA LEVANTADA - elemento central da ref -->
+  <ellipse cx="116" cy="110" rx="18" ry="20" fill="#9B4E1C" transform="rotate(-25 116 110)"/>
+  <ellipse cx="116" cy="108" rx="14" ry="16" fill="#B06030" transform="rotate(-25 116 108)"/>
+  <!-- Almofadinhas da pata -->
+  <ellipse cx="120" cy="104" rx="9" ry="7" fill="#7A3810" transform="rotate(-25 120 104)"/>
+  <ellipse cx="122" cy="103" rx="3" ry="2.5" fill="#5A2808" opacity=".8" transform="rotate(-25 122 103)"/>
+  <ellipse cx="116" cy="101" rx="3" ry="2.5" fill="#5A2808" opacity=".8" transform="rotate(-25 116 101)"/>
+  <ellipse cx="110" cy="103" rx="3" ry="2.5" fill="#5A2808" opacity=".8" transform="rotate(-25 110 103)"/>
+  <!-- Pata dianteira esq (apoiada) -->
+  <ellipse cx="56" cy="140" rx="18" ry="13" fill="#9B4E1C"/>
+  <ellipse cx="56" cy="144" rx="13" ry="9" fill="#7A3810"/>
+  <!-- Rabo curto abanando -->
+  <path d="M38,108 Q20,96 22,80 Q24,68 34,74 Q32,84 36,98" stroke="#7A3A10" stroke-width="10" stroke-linecap="round" fill="none"/>
+</svg>
+    </div>
   </div>
   <div class="info">
     <div class="name" style="color:#FFD700;">BRUNA</div>
-    <div class="title" data-i18n="pg.bruna.title">SRD Marrom / Especialidade: Versatilidade</div>
+    <div class="title" data-i18n="pg.bruna.title">SRD Marrom / Versatilidade</div>
     <div class="attrs">
-      <div class="attr-row"><span class="attr-lbl" data-i18n="attr.vel">Velocidade</span><div class="attr-bar"><div class="attr-fill" style="width:78%;background:linear-gradient(90deg,#AA8800,#FFD700);"></div></div><span class="attr-val" style="color:#FFD700;">78</span></div>
-      <div class="attr-row"><span class="attr-lbl" data-i18n="attr.ctrl">Controle</span><div class="attr-bar"><div class="attr-fill" style="width:79%;background:linear-gradient(90deg,#AA8800,#FFD700);"></div></div><span class="attr-val" style="color:#FFD700;">79</span></div>
-      <div class="attr-row"><span class="attr-lbl" data-i18n="attr.aero">Aerodin.</span><div class="attr-bar"><div class="attr-fill" style="width:78%;background:linear-gradient(90deg,#AA8800,#FFD700);"></div></div><span class="attr-val" style="color:#FFD700;">78</span></div>
+      <div class="attr-row"><span class="attr-lbl" data-i18n="attr.vel">Velocidade</span><div class="attr-bar"><div class="attr-fill" style="width:78%;background:linear-gradient(90deg,#AA8800,#FFD700)"></div></div><span class="attr-val" style="color:#FFD700">78</span></div>
+      <div class="attr-row"><span class="attr-lbl" data-i18n="attr.ctrl">Controle</span><div class="attr-bar"><div class="attr-fill" style="width:79%;background:linear-gradient(90deg,#AA8800,#FFD700)"></div></div><span class="attr-val" style="color:#FFD700">79</span></div>
+      <div class="attr-row"><span class="attr-lbl" data-i18n="attr.aero">Aerodin.</span><div class="attr-bar"><div class="attr-fill" style="width:78%;background:linear-gradient(90deg,#AA8800,#FFD700)"></div></div><span class="attr-val" style="color:#FFD700">78</span></div>
     </div>
-    <div class="ability" style="border-color:#FFD700;"><div class="abl-name" style="color:#FFD700;">INSTINTO DA PACK</div><div class="abl-desc" data-i18n="pg.abl.bruna">Bônus +5% em todos os atributos ao completar uma volta sem errar nenhum checkpoint.</div></div>
+    <div class="ability" style="border-color:#FFD700;"><div class="abl-name" style="color:#FFD700;">INSTINTO DA PACK</div><div class="abl-desc" data-i18n="pg.abl.bruna">B&ocirc;nus +5% em todos os atributos ao completar uma volta sem errar checkpoint.</div></div>
     <div class="nft-row"><div class="nft-id">Token ID<span>#CR-0003</span></div><span class="btn-select" style="color:#FFD700;border-color:#FFD700;opacity:.5;cursor:not-allowed;" data-i18n="pg.locked">BLOQUEADA</span></div>
   </div>
   <div class="lock-badge"><div class="lock-icon">&#128274;</div><p data-i18n="pg.locked">BLOQUEADA</p><p style="font-size:.7rem;color:#666;margin-top:.3rem;letter-spacing:1px;" data-i18n="pg.next">Pr&oacute;xima Fase</p></div>
 </div>
 
-<!-- ─── TAPZ ─── Golden Retriever Angelical + laço - manga/anime - BLOQUEADA -->
+<!-- TAPZ - Golden c/ asas (BLOQUEADA) -->
 <div class="card locked">
   <div class="rarity r-mitica">&#9670; M&Iacute;TICA</div>
-  <div class="avatar-wrap" style="background:radial-gradient(circle at 50% 40%,rgba(255,42,42,.18),transparent 70%);">
-    <div class="ring ring1" style="border-color:rgba(255,107,107,.35);"></div>
-    <div class="ring ring2" style="border-color:rgba(255,107,107,.2);"></div>
-    <svg class="avatar-svg" style="color:#FF6B6B;" viewBox="0 0 150 150" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <!-- ASAS DE ANJO - camada mais atrás -->
-      <!-- Asa esquerda -->
-      <path d="M28 65 Q10 50 12 34 Q15 20 28 28 Q24 44 26 60Z" fill="white" opacity=".9"/>
-      <path d="M26 72 Q8 60 10 44 Q12 32 24 38 Q20 52 24 68Z" fill="white" opacity=".75"/>
-      <path d="M30 80 Q15 72 16 60 Q18 50 27 55 Q24 65 28 76Z" fill="white" opacity=".65"/>
-      <!-- Penas asa esq -->
-      <path d="M14 34 Q18 28 24 32" stroke="#DDD" stroke-width="1.5" fill="none"/>
-      <path d="M11 42 Q16 36 22 40" stroke="#DDD" stroke-width="1.5" fill="none"/>
-      <path d="M10 50 Q15 44 21 48" stroke="#DDD" stroke-width="1.5" fill="none"/>
-      <!-- Asa direita -->
-      <path d="M122 65 Q140 50 138 34 Q135 20 122 28 Q126 44 124 60Z" fill="white" opacity=".9"/>
-      <path d="M124 72 Q142 60 140 44 Q138 32 126 38 Q130 52 126 68Z" fill="white" opacity=".75"/>
-      <path d="M120 80 Q135 72 134 60 Q132 50 123 55 Q126 65 122 76Z" fill="white" opacity=".65"/>
-      <path d="M136 34 Q132 28 126 32" stroke="#DDD" stroke-width="1.5" fill="none"/>
-      <path d="M139 42 Q134 36 128 40" stroke="#DDD" stroke-width="1.5" fill="none"/>
-      <path d="M140 50 Q135 44 129 48" stroke="#DDD" stroke-width="1.5" fill="none"/>
-      <!-- Corpo Golden (pelagem dourada) -->
-      <ellipse cx="75" cy="100" rx="39" ry="28" fill="#C8860A"/>
-      <ellipse cx="75" cy="100" rx="32" ry="22" fill="#D9950C"/>
-      <!-- Detalhe pelo dourado -->
-      <path d="M38 90 Q32 78 37 66 Q42 55 48 66 Q42 78 40 90Z" fill="#DBA025" opacity=".65"/>
-      <path d="M112 90 Q118 78 113 66 Q108 55 102 66 Q108 78 110 90Z" fill="#DBA025" opacity=".65"/>
-      <!-- Cabeça arredondada golden -->
-      <ellipse cx="75" cy="55" rx="30" ry="28" fill="#D4950C"/>
-      <!-- Orelhas caídas golden -->
-      <ellipse cx="50" cy="44" rx="13" ry="19" fill="#C8860A" transform="rotate(14 50 44)"/>
-      <ellipse cx="100" cy="44" rx="13" ry="19" fill="#C8860A" transform="rotate(-14 100 44)"/>
-      <!-- Face golden mais clara -->
-      <ellipse cx="75" cy="59" rx="24" ry="22" fill="#DBA025"/>
-      <ellipse cx="75" cy="68" rx="14" ry="9" fill="#C8860A" opacity=".55"/>
-      <!-- AUREOLA DOURADA animada -->
-      <ellipse cx="75" cy="20" rx="18" ry="5.5" fill="none" stroke="#FFD700" stroke-width="3"/>
-      <ellipse cx="75" cy="20" rx="18" ry="5.5" fill="none" stroke="#FFA500" stroke-width="1.2" opacity=".55"/>
-      <!-- brilho aréola -->
-      <path d="M60 19 Q67.5 16 75 19 Q82.5 16 90 19" stroke="#FFFACD" stroke-width="1.5" fill="none" opacity=".8"/>
-      <!-- OLHOS grandes manga - mel/ambra angelical -->
-      <!-- Olho Esquerdo -->
-      <ellipse cx="63" cy="54" rx="10.5" ry="12" fill="#0A0400"/>
-      <ellipse cx="63" cy="54" rx="9" ry="10.5" fill="#C8860A"/>
-      <ellipse cx="63" cy="54" rx="5" ry="7" fill="#0A0800"/>
-      <ellipse cx="63" cy="51" rx="5" ry="3" fill="#E8A020" opacity=".55"/>
-      <!-- Estrela highlight - estilo celestial -->
-      <circle cx="65.8" cy="48" r="3" fill="white" opacity=".97"/>
-      <circle cx="59.5" cy="59" r="1.6" fill="white" opacity=".72"/>
-      <ellipse cx="66.5" cy="55.5" rx="1.3" ry=".75" fill="rgba(255,255,255,.55)"/>
-      <!-- Olho Direito -->
-      <ellipse cx="87" cy="54" rx="10.5" ry="12" fill="#0A0400"/>
-      <ellipse cx="87" cy="54" rx="9" ry="10.5" fill="#C8860A"/>
-      <ellipse cx="87" cy="54" rx="5" ry="7" fill="#0A0800"/>
-      <ellipse cx="87" cy="51" rx="5" ry="3" fill="#E8A020" opacity=".55"/>
-      <circle cx="89.8" cy="48" r="3" fill="white" opacity=".97"/>
-      <circle cx="83.5" cy="59" r="1.6" fill="white" opacity=".72"/>
-      <ellipse cx="90.5" cy="55.5" rx="1.3" ry=".75" fill="rgba(255,255,255,.55)"/>
-      <!-- Nariz preto fofo -->
-      <ellipse cx="75" cy="65" rx="4" ry="3" fill="#0A0400"/>
-      <path d="M70 69 Q75 73.5 80 69" stroke="#A07010" stroke-width="1.5" fill="none"/>
-      <!-- Bochechas rosadas angelicais -->
-      <ellipse cx="52" cy="63" rx="9" ry="5.5" fill="#FFB0A0" opacity=".4"/>
-      <ellipse cx="98" cy="63" rx="9" ry="5.5" fill="#FFB0A0" opacity=".4"/>
-      <!-- LAÇO DOURADO grande de menina -->
-      <ellipse cx="86" cy="27" rx="12" ry="8" fill="#FFD700" transform="rotate(-24 86 27)"/>
-      <ellipse cx="98" cy="21" rx="12" ry="8" fill="#FFD700" transform="rotate(24 98 21)"/>
-      <circle cx="92" cy="24" r="5.5" fill="#FFA500"/>
-      <ellipse cx="84" cy="23" rx="3.5" ry="2.2" fill="rgba(255,255,255,.45)" transform="rotate(-24 84 23)"/>
-      <!-- Capacete vermelho mítico -->
-      <path d="M46 47 Q46 29 75 27 Q104 29 104 47" fill="#AA0000" opacity=".9"/>
-      <path d="M49 44 Q75 30 101 44" fill="none" stroke="#FF6B6B" stroke-width="2.5"/>
-      <path d="M49 44 Q75 30 101 44" fill="none" stroke="rgba(255,107,107,.25)" stroke-width="6"/>
-      <text x="75" y="41" text-anchor="middle" font-family="Bebas Neue,sans-serif" font-size="11" fill="white" letter-spacing="1.5">TAPZ</text>
-      <!-- Sparkles angelicais -->
-      <path d="M35 38 L36.5 42 L40 42 L37.5 44.5 L38.5 48 L35 46 L31.5 48 L32.5 44.5 L30 42 L33.5 42Z" fill="#FFE566" opacity=".8" transform="scale(.7) translate(18 12)"/>
-      <path d="M120 30 L121 33 L124 33 L122 35 L122.5 38 L120 36.5 L117.5 38 L118 35 L116 33 L119 33Z" fill="#FFE566" opacity=".75" transform="scale(.65) translate(60 8)"/>
-    </svg>
+  <div class="avatar-wrap" style="background:radial-gradient(circle at 50% 40%,rgba(255,42,42,.15),transparent 70%);">
+    <div class="ring ring1" style="border-color:rgba(255,107,107,.32);"></div>
+    <div class="ring ring2" style="border-color:rgba(255,107,107,.18);"></div>
+    <div class="avatar-svg" style="filter:drop-shadow(0 0 10px rgba(255,180,50,.6));animation-delay:1.5s">
+      <svg viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- ASA ESQUERDA (camada fundo) -->
+  <path d="M22,68 Q2,48 5,28 Q8,12 22,22 Q18,40 20,58Z" fill="white" opacity=".92"/>
+  <path d="M20,76 Q0,58 2,38 Q4,24 16,32 Q12,50 18,68Z" fill="white" opacity=".78"/>
+  <path d="M24,86 Q6,72 8,58 Q10,46 20,54 Q18,66 22,80Z" fill="white" opacity=".65"/>
+  <!-- Penas asa esq -->
+  <path d="M5,28 Q10,22 16,26" stroke="#DDD" stroke-width="1.5" fill="none"/>
+  <path d="M3,36 Q9,30 15,34" stroke="#DDD" stroke-width="1.5" fill="none"/>
+  <path d="M2,44 Q8,38 14,42" stroke="#DDD" stroke-width="1.5" fill="none"/>
+  <path d="M2,52 Q8,46 14,50" stroke="#DDD" stroke-width="1.3" fill="none"/>
+  <!-- ASA DIREITA (camada fundo) -->
+  <path d="M138,68 Q158,48 155,28 Q152,12 138,22 Q142,40 140,58Z" fill="white" opacity=".92"/>
+  <path d="M140,76 Q160,58 158,38 Q156,24 144,32 Q148,50 142,68Z" fill="white" opacity=".78"/>
+  <path d="M136,86 Q154,72 152,58 Q150,46 140,54 Q142,66 138,80Z" fill="white" opacity=".65"/>
+  <path d="M155,28 Q150,22 144,26" stroke="#DDD" stroke-width="1.5" fill="none"/>
+  <path d="M157,36 Q151,30 145,34" stroke="#DDD" stroke-width="1.5" fill="none"/>
+  <path d="M158,44 Q152,38 146,42" stroke="#DDD" stroke-width="1.5" fill="none"/>
+  <path d="M158,52 Q152,46 146,50" stroke="#DDD" stroke-width="1.3" fill="none"/>
+  <!-- Nuvenzinhas ao redor -->
+  <circle cx="30" cy="115" r="12" fill="white" opacity=".5"/>
+  <circle cx="42" cy="120" r="16" fill="white" opacity=".45"/>
+  <circle cx="56" cy="118" r="11" fill="white" opacity=".4"/>
+  <circle cx="122" cy="115" r="12" fill="white" opacity=".5"/>
+  <circle cx="110" cy="120" r="16" fill="white" opacity=".45"/>
+  <circle cx="96" cy="118" r="11" fill="white" opacity=".4"/>
+  <!-- AUREOLA dourada animada -->
+  <ellipse cx="80" cy="20" rx="22" ry="6" fill="none" stroke="#FFD700" stroke-width="3.5"/>
+  <ellipse cx="80" cy="20" rx="22" ry="6" fill="none" stroke="#FFFACD" stroke-width="1.5" opacity=".6"/>
+  <path d="M63,18.5 Q72,16 80,18.5 Q88,16 97,18.5" stroke="rgba(255,250,200,.8)" stroke-width="1.5" fill="none"/>
+  <!-- Corpo golden fofo - pose de voo -->
+  <ellipse cx="80" cy="108" rx="40" ry="30" fill="#C88A10"/>
+  <ellipse cx="80" cy="105" rx="34" ry="24" fill="#D4A020"/>
+  <!-- Pelo extra volumoso -->
+  <circle cx="50" cy="104" r="18" fill="#CC9018" opacity=".85"/>
+  <circle cx="110" cy="104" r="18" fill="#CC9018" opacity=".85"/>
+  <!-- Cabeca golden grande -->
+  <ellipse cx="80" cy="65" rx="33" ry="31" fill="#D4A020"/>
+  <!-- Orelhas caidas golden -->
+  <ellipse cx="53" cy="52" rx="14" ry="20" fill="#C08810" transform="rotate(14 53 52)"/>
+  <ellipse cx="53" cy="52" rx="10" ry="15" fill="#A07010" transform="rotate(14 53 52)" opacity=".7"/>
+  <ellipse cx="107" cy="52" rx="14" ry="20" fill="#C08810" transform="rotate(-14 107 52)"/>
+  <ellipse cx="107" cy="52" rx="10" ry="15" fill="#A07010" transform="rotate(-14 107 52)" opacity=".7"/>
+  <!-- Focinho -->
+  <ellipse cx="80" cy="72" rx="27" ry="24" fill="#D4A825"/>
+  <ellipse cx="80" cy="80" rx="15" ry="10" fill="#C09015" opacity=".6"/>
+  <!-- OLHOS MANGA grandes - mel/ambar angelical -->
+  <!-- Olho esq -->
+  <ellipse cx="64" cy="62" rx="11.5" ry="13" fill="#0A0300"/>
+  <ellipse cx="64" cy="62" rx="10" ry="11.5" fill="#C88810"/>
+  <ellipse cx="64" cy="62" rx="5.5" ry="7.5" fill="#0A0800"/>
+  <ellipse cx="64" cy="58" rx="5.5" ry="3.2" fill="#E8A820" opacity=".55"/>
+  <!-- Estrela de brilho - estilo celestial -->
+  <circle cx="66.5" cy="55.5" r="3.5" fill="white" opacity=".97"/>
+  <circle cx="60" cy="67" r="1.8" fill="white" opacity=".7"/>
+  <ellipse cx="68" cy="63" rx="1.5" ry=".9" fill="rgba(255,255,255,.55)"/>
+  <!-- Olho dir -->
+  <ellipse cx="96" cy="62" rx="11.5" ry="13" fill="#0A0300"/>
+  <ellipse cx="96" cy="62" rx="10" ry="11.5" fill="#C88810"/>
+  <ellipse cx="96" cy="62" rx="5.5" ry="7.5" fill="#0A0800"/>
+  <ellipse cx="96" cy="58" rx="5.5" ry="3.2" fill="#E8A820" opacity=".55"/>
+  <circle cx="98.5" cy="55.5" r="3.5" fill="white" opacity=".97"/>
+  <circle cx="92" cy="67" r="1.8" fill="white" opacity=".7"/>
+  <ellipse cx="100" cy="63" rx="1.5" ry=".9" fill="rgba(255,255,255,.55)"/>
+  <!-- Nariz preto fofo -->
+  <ellipse cx="80" cy="74" rx="4" ry="3.2" fill="#0A0300"/>
+  <!-- BOCA ABERTA de alegria - caracteristica Golden -->
+  <path d="M68,79 Q80,87 92,79" stroke="#8A6010" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+  <ellipse cx="80" cy="84" rx="8" ry="5" fill="#FF6680" opacity=".85"/>
+  <!-- Lingua -->
+  <ellipse cx="80" cy="87" rx="5.5" ry="4.5" fill="#FF4466" opacity=".9"/>
+  <!-- Bochechas angelicais -->
+  <ellipse cx="52" cy="72" rx="10" ry="6" fill="#FFB090" opacity=".42"/>
+  <ellipse cx="108" cy="72" rx="10" ry="6" fill="#FFB090" opacity=".42"/>
+  <!-- Sparkles / estrelinhas -->
+  <!-- Estrela esq -->
+  <path d="M28,32 L29.5,36.5 L34,36.5 L30.5,39 L32,43.5 L28,41 L24,43.5 L25.5,39 L22,36.5 L26.5,36.5Z" fill="#FFE566" opacity=".85" transform="scale(.75) translate(13 8)"/>
+  <!-- Estrela dir -->
+  <path d="M128,28 L129.5,32.5 L134,32.5 L130.5,35 L132,39.5 L128,37 L124,39.5 L125.5,35 L122,32.5 L126.5,32.5Z" fill="#FFE566" opacity=".8" transform="scale(.72) translate(52 6)"/>
+  <circle cx="36" cy="48" r="2.5" fill="#FFD700" opacity=".7"/>
+  <circle cx="124" cy="44" r="2.2" fill="#FFD700" opacity=".65"/>
+  <circle cx="30" cy="95" r="1.8" fill="#FFF" opacity=".8"/>
+  <circle cx="130" cy="92" r="1.5" fill="#FFF" opacity=".75"/>
+</svg>
+    </div>
   </div>
   <div class="info">
     <div class="name" style="color:#FF6B6B;">TAPZ</div>
-    <div class="title" data-i18n="pg.tapz.title">Golden Retriever Angelical / Especialidade: For&ccedil;a M&aacute;xima</div>
+    <div class="title" data-i18n="pg.tapz.title">Golden Retriever Angelical / For&ccedil;a M&aacute;xima</div>
     <div class="attrs">
-      <div class="attr-row"><span class="attr-lbl" data-i18n="attr.vel">Velocidade</span><div class="attr-bar"><div class="attr-fill" style="width:70%;background:linear-gradient(90deg,#880000,#FF6B6B);"></div></div><span class="attr-val" style="color:#FF6B6B;">70</span></div>
-      <div class="attr-row"><span class="attr-lbl" data-i18n="attr.ctrl">Controle</span><div class="attr-bar"><div class="attr-fill" style="width:55%;background:linear-gradient(90deg,#880000,#FF6B6B);"></div></div><span class="attr-val" style="color:#FF6B6B;">55</span></div>
-      <div class="attr-row"><span class="attr-lbl" data-i18n="attr.aero">Aerodin.</span><div class="attr-bar"><div class="attr-fill" style="width:99%;background:linear-gradient(90deg,#880000,#FF6B6B);"></div></div><span class="attr-val" style="color:#FF6B6B;">99</span></div>
+      <div class="attr-row"><span class="attr-lbl" data-i18n="attr.vel">Velocidade</span><div class="attr-bar"><div class="attr-fill" style="width:70%;background:linear-gradient(90deg,#880000,#FF6B6B)"></div></div><span class="attr-val" style="color:#FF6B6B">70</span></div>
+      <div class="attr-row"><span class="attr-lbl" data-i18n="attr.ctrl">Controle</span><div class="attr-bar"><div class="attr-fill" style="width:55%;background:linear-gradient(90deg,#880000,#FF6B6B)"></div></div><span class="attr-val" style="color:#FF6B6B">55</span></div>
+      <div class="attr-row"><span class="attr-lbl" data-i18n="attr.aero">Aerodin.</span><div class="attr-bar"><div class="attr-fill" style="width:99%;background:linear-gradient(90deg,#880000,#FF6B6B)"></div></div><span class="attr-val" style="color:#FF6B6B">99</span></div>
     </div>
-    <div class="ability" style="border-color:#FF6B6B;"><div class="abl-name" style="color:#FF6B6B;">GRACE OF HEAVEN</div><div class="abl-desc" data-i18n="pg.abl.tapz">Ignora 40% do arrasto de qualquer superf&iacute;cie. A mais veloz em linha reta &mdash; quase imposs&iacute;vel de controlar.</div></div>
+    <div class="ability" style="border-color:#FF6B6B;"><div class="abl-name" style="color:#FF6B6B;">GRACE OF HEAVEN</div><div class="abl-desc" data-i18n="pg.abl.tapz">Ignora 40% do arrasto de qualquer superf&iacute;cie. A mais veloz em linha reta.</div></div>
     <div class="nft-row"><div class="nft-id">Token ID<span>#CR-0004</span></div><span class="btn-select" style="color:#FF6B6B;border-color:#FF6B6B;opacity:.5;cursor:not-allowed;" data-i18n="pg.locked">BLOQUEADA</span></div>
   </div>
   <div class="lock-badge"><div class="lock-icon">&#128274;</div><p data-i18n="pg.locked">BLOQUEADA</p><p style="font-size:.7rem;color:#666;margin-top:.3rem;letter-spacing:1px;" data-i18n="pg.nft">Via Marketplace NFT</p></div>
 </div>
-
-</div><!-- end grid -->
-
-<script src="i18n.js"></script>
+</div>
 <script>
+function setFlag(lang){
+  document.querySelectorAll('.flag-btn').forEach(function(b){b.classList.toggle('active',b.id==='flag-'+lang);});
+  if(window.i18n) window.i18n.setLang(lang);
+  else localStorage.setItem('caprush_lang',lang);
+}
 (function(){
   var fills=document.querySelectorAll('.attr-fill');
   fills.forEach(function(f){f._t=f.style.width;f.style.width='0%';});
@@ -439,7 +493,10 @@ nav{position:sticky;top:0;z-index:100;display:flex;justify-content:space-between
     });
   },{threshold:0.3});
   document.querySelectorAll('.card').forEach(function(c){obs.observe(c);});
+  var lang=localStorage.getItem('caprush_lang')||'pt';
+  document.querySelectorAll('.flag-btn').forEach(function(b){b.classList.toggle('active',b.id==='flag-'+lang);});
 })();
 </script>
+<script src="i18n.js"></script>
 </body>
 </html>
