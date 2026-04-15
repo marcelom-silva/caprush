@@ -5,7 +5,7 @@ var Physics = (function(){
   var BASE_DRAG = 1.8;
   var MAX_PX    = 165;
   var MAX_SPD   = 620;
-  var REST      = 0.65;
+  var REST      = 0.72;
   var MIN_SPD   = 6;
 
   // FIX v3: valores corrigidos (estavam invertidos!)

@@ -43,11 +43,16 @@ var TrackV3 = (function(){
 
     // FIX v4: startRect EXPANDIDO - cobre toda a largura da pista na reta esquerda
     // Para as tampinhas passarem livremente
-    startRect = {
-      x: m - TW*0.5,
-      y: CH*0.46,
-      w: TW,
-      h: 14,
+    startRect = {
+
+      x: m - TW*0.5,
+
+      y: CH*0.46,
+
+      w: TW,
+
+      h: 14,
+
     };
     // Area visual estendida (decorativa - barra de pit lane)
     startExtended = {
@@ -73,8 +78,8 @@ var TrackV3 = (function(){
 
     // FIX v4: Poca 1 no chicane central, Poca 2 na RETA DIREITA (dentro da pista)
     puddleZones = [
-      { x: CW*0.50, y: CH*0.38, r: TW*0.36 },  // poca 1: curva do chicane
-      { x: CW*0.92, y: CH*0.42, r: TW*0.33 },  // poca 2: RETA DIREITA - CORRIGIDA
+      { x: CW*0.50, y: CH*0.52, r: TW*0.60 },  // poca 1: curva do chicane
+      { x: CW*0.78, y: CH*0.50, r: TW*0.55 },  // poca 2: RETA DIREITA - CORRIGIDA
     ];
 
     // FIX v4: Grama on-track em formato ORGANICO (blob) - colisao via elipse

@@ -1,149 +1,44 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>CapRush - Overdrive!</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
-<style>
-*{margin:0;padding:0;box-sizing:border-box;}
-html,body{width:100%;height:100%;overflow:hidden;background:#05050A;font-family:'Rajdhani',sans-serif;}
-
-/* ─ estrelas animadas ─ */
-#stars{position:fixed;inset:0;pointer-events:none;z-index:0;}
-.star{position:absolute;border-radius:50%;background:#fff;animation:twinkle var(--d,3s) ease-in-out infinite var(--dl,0s);}
-@keyframes twinkle{0%,100%{opacity:.15;transform:scale(1)}50%{opacity:.9;transform:scale(1.4)}}
-
-/* ─ botoes orbitais ─ */
-#orb-wrap{position:fixed;inset:0;z-index:5;}
-.orb-btn{position:absolute;width:72px;height:72px;border-radius:50%;border:2px solid;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;text-decoration:none;font-family:'Bebas Neue',sans-serif;font-size:.65rem;letter-spacing:2px;transition:transform .25s,box-shadow .25s;animation:float var(--fs,4s) ease-in-out infinite var(--fd,0s);}
-.orb-btn:hover{transform:scale(1.18)!important;filter:brightness(1.4);}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-.orb-jogar  {top:25%;  left:12%; color:#FF2A2A;border-color:#FF2A2A;background:rgba(255,42,42,.12);box-shadow:0 0 20px rgba(255,42,42,.25);--fs:3.8s;}
-.orb-pilotos{top:21%;  right:7%;  color:#00E5FF;border-color:#00E5FF;background:rgba(0,229,255,.10);box-shadow:0 0 20px rgba(0,229,255,.2);--fs:4.5s;--fd:.4s;}
-.orb-ranking{top:72%;  left:11%; color:#3B82F6;border-color:#3B82F6;background:rgba(59,130,246,.10);box-shadow:0 0 20px rgba(59,130,246,.2);--fs:3.5s;--fd:.8s;}
-.orb-manual {top:82%;  left:50%;transform:translateX(-50%); color:#A855F7;border-color:#A855F7;background:rgba(168,85,247,.10);box-shadow:0 0 20px rgba(168,85,247,.2);--fs:4.2s;--fd:.2s;}
-.orb-arq    {top:71%;  right:6%; color:#F59E0B;border-color:#F59E0B;background:rgba(245,158,11,.10);box-shadow:0 0 20px rgba(245,158,11,.2);--fs:4.8s;--fd:.6s;}
-
-/* ─ logo central ─ */
-#logo-wrap{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10;text-align:center;}
-#logo-img{
-  display:block;
-  max-width:min(420px,80vw);
-  max-height:min(280px,45vh);
-  object-fit:contain;
-  position:relative;
-  cursor:pointer;
-  filter:drop-shadow(0 0 30px rgba(255,42,42,.35));
-  transition:filter .3s;
-}
-#logo-img:hover{filter:drop-shadow(0 0 50px rgba(255,42,42,.6)) drop-shadow(0 0 20px rgba(255,215,0,.4));}
-
-/* ─ container do brilho metalico sobre o arco vermelho ─ */
-#logo-shine-wrap{
-  position:absolute;
-  /* ajustado para o arco vermelho curvo no TOPO da tampinha */
-  top: 32%;
-  left: 18%;
-  width: 64%;
-  height: 22%;
-  pointer-events:none;
-  overflow:hidden;
-  border-radius: 50% 50% 0 0 / 80% 80% 0 0;
-}
-#logo-shine{
-  position:absolute;inset:0;
-  background: linear-gradient(105deg,
-    rgba(255,255,255,0) 0%,
-    rgba(255,255,255,.55) 48%,
-    rgba(255,255,255,0) 60%
-  );
-  transform:translateX(-110%);
-  transition:none;
-}
-#logo-img-wrap{position:relative;display:inline-block;}
-#logo-img-wrap:hover #logo-shine{animation:metalSweep .7s ease-in-out forwards;}
-@keyframes metalSweep{0%{transform:translateX(-110%)}100%{transform:translateX(110%)}}
-
-/* ─ flag container ─ */
-#flag-pos{position:fixed;top:16px;right:18px;z-index:30;display:flex;gap:6px;}
-#flag-container{display:flex;gap:6px;}
-.flag-btn{background:none;border:1px solid transparent;border-radius:4px;padding:2px;cursor:pointer;opacity:.6;transition:opacity .2s,border-color .2s;}
-.flag-btn:hover,.flag-btn.flag-active{opacity:1;border-color:rgba(255,215,0,.5);}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Racing Online - Home</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body class="page-home">
+    <div class="parallax-bg"></div>
+    
+    <nav class="main-nav">
+        <div class="nav-left">
+            <a href="index.html" class="nav-logo">
+                <span class="logo-metallic">RACING</span>
+                <span class="logo-online">ONLINE</span>
+            </a>
+            <ul class="nav-menu">
+                <li><a href="index.html" data-i18n="home">Início</a></li>
+                <li><a href="pilotos.html" data-i18n="pilots">Pilotos</a></li>
+                <li><a href="arquitetura.html" data-i18n="tech">Arquitetura</a></li>
+                <li><a href="manual.html" data-i18n="manual">Manual</a></li>
+                <li><a href="ranking.html" data-i18n="ranking">Ranking</a></li>
+            </ul>
+        </div>
+        <div class="nav-flags">
+            <button onclick="setLang('pt')" class="flag-btn" title="Português">🇧🇷</button>
+            <button onclick="setLang('en')" class="flag-btn" title="English">🇺🇸</button>
+            <button onclick="setLang('es')" class="flag-btn" title="Español">🇪🇸</button>
+        </div>
+    </nav>
 
-<!-- Estrelas -->
-<canvas id="stars"></canvas>
+    <main class="hero">
+        <h1 data-i18n="hero_title">Corra Online em Tempo Real</h1>
+        <p data-i18n="hero_sub">Solo ou 1v1 com física realista</p>
+        <div class="cta-buttons">
+            <a href="jogo.html?mode=solo" class="btn-primary" data-i18n="play_solo">JOGAR SOLO</a>
+            <a href="jogo.html?mode=1v1" class="btn-secondary" data-i18n="play_1v1">1V1 ONLINE</a>
+        </div>
+    </main>
 
-<!-- Botoes orbitais -->
-<div id="orb-wrap">
-  <a href="caprush-game.html" class="orb-btn orb-jogar" style="--fs:3.8s">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="#FF2A2A"><polygon points="5,3 19,12 5,21"/></svg>
-    JOGAR
-  </a>
-  <a href="personagens.html" class="orb-btn orb-pilotos" style="--fs:4.5s;--fd:.4s">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00E5FF" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4,20 Q4,14 12,14 Q20,14 20,20"/></svg>
-    PILOTOS
-  </a>
-  <a href="ranking.html" class="orb-btn orb-ranking" style="--fs:3.5s;--fd:.8s">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2"><path d="M8,18 V10 M12,18 V6 M16,18 V14"/></svg>
-    RANKING
-  </a>
-  <a href="manual.html" class="orb-btn orb-manual" style="--fs:4.2s;--fd:.2s">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#A855F7" stroke-width="2"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9,7 H15 M9,11 H15 M9,15 H12"/></svg>
-    MANUAL
-  </a>
-  <a href="arquitetura.html" class="orb-btn orb-arq" style="--fs:4.8s;--fd:.6s">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="9"/><line x1="12" y1="3" x2="12" y2="9"/><line x1="12" y1="15" x2="12" y2="21"/><line x1="3" y1="12" x2="9" y2="12"/><line x1="15" y1="12" x2="21" y2="12"/></svg>
-    ARQT.
-  </a>
-</div>
-
-<!-- Logo central -->
-<div id="logo-wrap">
-  <div id="logo-img-wrap">
-    <a href="caprush-game.html">
-      <img id="logo-img" src="Whisk_2.png" alt="CapRush Overdrive!"/>
-    </a>
-    <div id="logo-shine-wrap">
-      <div id="logo-shine"></div>
-    </div>
-  </div>
-</div>
-
-<!-- Bandeiras -->
-<div id="flag-pos">
-  <div id="flag-container"></div>
-</div>
-
-<script src="i18n.js"></script>
-<script>
-// Estrelas procedurais
-(function(){
-  var c=document.getElementById('stars'),x=c.getContext('2d');
-  c.width=window.innerWidth; c.height=window.innerHeight;
-  var stars=[];
-  for(var i=0;i<160;i++) stars.push({
-    x:Math.random()*c.width, y:Math.random()*c.height,
-    r:Math.random()*1.5+.3,
-    a:Math.random(), da:(Math.random()-.5)*.012,
-    color:Math.random()<.15?'#FFD700':Math.random()<.2?'#FF4040':'#FFFFFF'
-  });
-  function frame(){
-    x.clearRect(0,0,c.width,c.height);
-    stars.forEach(function(s){
-      s.a+=s.da; if(s.a>1||s.a<.1) s.da*=-1;
-      x.globalAlpha=s.a; x.fillStyle=s.color;
-      x.beginPath();x.arc(s.x,s.y,s.r,0,Math.PI*2);x.fill();
-    });
-    x.globalAlpha=1;
-    requestAnimationFrame(frame);
-  }
-  frame();
-  window.addEventListener('resize',function(){c.width=window.innerWidth;c.height=window.innerHeight;});
-})();
-</script>
+    <script src="js/i18n.js"></script>
 </body>
 </html>
