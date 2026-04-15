@@ -1,4 +1,25 @@
-// SoundEngine.js  v4b  --  CapRush Overdrive!
+# -*- coding: utf-8 -*-
+"""
+build_v04b_p2.py  --  CapRush Overdrive! v0.4b
+Gera: client/src/scenes/TrackV3.js, client/src/core/SoundEngine.js
+"""
+import os, sys
+if hasattr(sys.stdout,'reconfigure'):
+    try: sys.stdout.reconfigure(encoding='utf-8',errors='replace')
+    except: pass
+
+ROOT = os.path.dirname(os.path.abspath(__file__))
+
+def w(rel, txt):
+    path = os.path.join(ROOT, *rel.replace('/','\\').split('\\'))
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path,'w',encoding='utf-8') as f:
+        f.write(txt)
+    print(f'  [OK]  {rel}')
+    print(f'        {path}')
+
+# ─── SoundEngine.js ───────────────────────────────────────────────────────
+SOUND = r"""// SoundEngine.js  v4b  --  CapRush Overdrive!
 // BGM procedural com session-ID (sem overlap ao toggle rapido)
 var SoundEngine = (function(){
   var ctx = null;
@@ -175,3 +196,113 @@ var SoundEngine = (function(){
     get sfxOn(){ return _sfxOn; }
   };
 })();
+"""
+
+# ─── TrackV3.js ───────────────────────────────────────────────────────────
+# Le o arquivo atual e aplica patches pontuais (mais seguro que reescrever tudo)
+def patch_trackv3():
+    src = os.path.join(ROOT,'client','src','scenes','TrackV3.js')
+    with open(src,'r',encoding='utf-8') as f:
+        code = f.read()
+
+    # ── Patch 1: startRect - faixa FINA (sem bloquear fisica) ─────────────
+    old_sr = (
+        "    startRect = {\r\n"
+        "      x: m - TW*0.5,\r\n"
+        "      y: CH*0.46 - TW*0.5,\r\n"
+        "      w: TW,\r\n"
+        "      h: TW,\r\n"
+        "    };"
+    )
+    new_sr = (
+        "    // Largada: faixa FINA de deteccao - tampinhas passam livremente\r\n"
+        "    startRect = {\r\n"
+        "      x: m - TW*0.5,\r\n"
+        "      y: CH*0.46,\r\n"
+        "      w: TW,\r\n"
+        "      h: 14,\r\n"
+        "    };"
+    )
+    if old_sr in code:
+        code = code.replace(old_sr, new_sr)
+        print("  [v]  startRect -> faixa fina")
+    else:
+        # fallback: patch LF variant
+        old_lf = old_sr.replace('\r\n','\n')
+        new_lf = new_sr.replace('\r\n','\n')
+        if old_lf in code:
+            code = code.replace(old_lf, new_lf)
+            print("  [v]  startRect -> faixa fina (LF)")
+        else:
+            print("  [!]  startRect nao encontrado, tentando regex")
+            import re
+            code = re.sub(
+                r'startRect\s*=\s*\{[^}]*\};',
+                'startRect = {\r\n      x: m - TW*0.5,\r\n      y: CH*0.46,\r\n      w: TW,\r\n      h: 14,\r\n    };',
+                code
+            )
+
+    # ── Patch 2: getStartPos - ponto DENTRO da pista ──────────────────────
+    old_gsp = "    return{x:startRect.x+startRect.w+20, y:startRect.y+startRect.h/2};"
+    new_gsp = "    return{x:m, y:CH*0.54}; // dentro da pista, abaixo da linha de largada"
+    if old_gsp in code:
+        code = code.replace(old_gsp, new_gsp)
+        print("  [v]  getStartPos -> dentro da pista")
+    else:
+        old_lf2 = old_gsp.replace('\r\n','\n')
+        new_lf2 = new_gsp.replace('\r\n','\n')
+        if old_lf2 in code:
+            code = code.replace(old_lf2, new_lf2)
+            print("  [v]  getStartPos -> dentro da pista (LF)")
+        else:
+            print("  [!]  getStartPos nao encontrado")
+
+    # ── Patch 3: pocas - posicoes corrigidas dentro da pista ─────────────
+    old_puddles = (
+        "    puddleZones = [\r\n"
+        "      { x: CW*0.77, y: CH*0.12, r: TW*0.38 },  // sup-dir\r\n"
+        "      { x: CW*0.80, y: CH*0.60, r: TW*0.38 },  // mid-dir\r\n"
+        "    ];"
+    )
+    new_puddles = (
+        "    // Pocas: posicoes corrigidas DENTRO da faixa da pista\r\n"
+        "    puddleZones = [\r\n"
+        "      { x: CW*0.49, y: CH*0.30, r: TW*0.30 },  // cotovelo do V (chicane)\r\n"
+        "      { x: CW-m,    y: CH*0.38, r: TW*0.28 },  // reta direita\r\n"
+        "    ];"
+    )
+    if old_puddles in code:
+        code = code.replace(old_puddles, new_puddles)
+        print("  [v]  puddleZones -> posicoes corrigidas")
+    else:
+        old_lf3 = old_puddles.replace('\r\n','\n')
+        new_lf3 = new_puddles.replace('\r\n','\n')
+        if old_lf3 in code:
+            code = code.replace(old_lf3, new_lf3)
+            print("  [v]  puddleZones -> posicoes corrigidas (LF)")
+        else:
+            print("  [!]  puddleZones nao encontrado (manual fix necessario)")
+
+    # ── Patch 4: checkLap - deteccao pela faixa fina ─────────────────────
+    old_cl = "    return(pos.x>=s.x-8&&pos.x<=s.x+s.w+8&&pos.y>=s.y-8&&pos.y<=s.y+s.h+8);"
+    new_cl = "    return(pos.x>=s.x&&pos.x<=s.x+s.w&&pos.y>=s.y-5&&pos.y<=s.y+s.h+5);"
+    if old_cl in code:
+        code = code.replace(old_cl, new_cl)
+        print("  [v]  checkLap -> deteccao faixa fina")
+    else:
+        old_lf4 = old_cl.replace('\r\n','\n')
+        new_lf4 = new_cl.replace('\r\n','\n')
+        if old_lf4 in code:
+            code = code.replace(old_lf4, new_lf4)
+            print("  [v]  checkLap -> deteccao faixa fina (LF)")
+        else:
+            print("  [!]  checkLap nao encontrado")
+
+    return code
+
+TRACKV3 = patch_trackv3()
+
+print("\n=== build_v04b_p2.py  --  CapRush Overdrive! v0.4b ===\n")
+w('client/src/core/SoundEngine.js', SOUND)
+w('client/src/scenes/TrackV3.js', TRACKV3)
+print("\n[CONCLUIDO] Part 2: SoundEngine.js + TrackV3.js\n")

@@ -1,4 +1,282 @@
-<!DOCTYPE html>
+# -*- coding: utf-8 -*-
+"""
+build_v04b_p1.py  --  CapRush Overdrive! v0.4b
+Gera: index.html, i18n.js, personagens.html
+ROOT = mesmo diretorio deste script (caprush/)
+"""
+import os, sys
+if hasattr(sys.stdout,'reconfigure'):
+    try: sys.stdout.reconfigure(encoding='utf-8',errors='replace')
+    except: pass
+
+ROOT = os.path.dirname(os.path.abspath(__file__))
+
+def w(rel, txt):
+    path = os.path.join(ROOT, *rel.replace('/','\\').split('\\'))
+    os.makedirs(os.path.dirname(path) if os.path.dirname(path) else ROOT, exist_ok=True)
+    with open(path,'w',encoding='utf-8') as f:
+        f.write(txt)
+    print(f'  [OK]  {rel}')
+    print(f'        {path}')
+
+# ─── i18n.js ──────────────────────────────────────────────────────────────
+I18N = r"""// i18n.js  v2  --  CapRush Overdrive!
+// Injeta APENAS no #flag-container (sem duplicar se ja existir)
+(function(){
+  var langs = {
+    pt: {
+      nav_jogar:'JOGAR', nav_pilotos:'PILOTOS', nav_ranking:'RANKING', nav_manual:'MANUAL',
+      page_title:'CapRush - Overdrive!',
+      hero_sub:'Jogo de tampinhas para 1 a 4 jogadores',
+      pilots_title:'ESCOLHA SEU PILOTO',
+      pilots_sub:'Cada tampinha e um NFT com atributos reais - Velocidade, Controle e Aerodinamica',
+      manual_title:'MANUAL DO JOGADOR',
+      arch_title:'ARQUITETURA v0.4b',
+    },
+    en: {
+      nav_jogar:'PLAY', nav_pilotos:'PILOTS', nav_ranking:'RANKING', nav_manual:'MANUAL',
+      page_title:'CapRush - Overdrive!',
+      hero_sub:'Bottle-cap racing game for 1 to 4 players',
+      pilots_title:'CHOOSE YOUR PILOT',
+      pilots_sub:'Each cap is an NFT with real attributes - Speed, Control and Aerodynamics',
+      manual_title:'PLAYER MANUAL',
+      arch_title:'ARCHITECTURE v0.4b',
+    },
+    es: {
+      nav_jogar:'JUGAR', nav_pilotos:'PILOTOS', nav_ranking:'RANKING', nav_manual:'MANUAL',
+      page_title:'CapRush - Overdrive!',
+      hero_sub:'Juego de chapas para 1 a 4 jugadores',
+      pilots_title:'ELIGE TU PILOTO',
+      pilots_sub:'Cada tapa es un NFT con atributos reales - Velocidad, Control y Aerodinamica',
+      manual_title:'MANUAL DEL JUGADOR',
+      arch_title:'ARQUITECTURA v0.4b',
+    }
+  };
+
+  var cur = localStorage.getItem('caprush_lang') || 'pt';
+
+  function applyLang(l){
+    cur = l;
+    localStorage.setItem('caprush_lang', l);
+    var d = langs[l] || langs.pt;
+    // Textos de nav
+    ['jogar','pilotos','ranking','manual'].forEach(function(k){
+      var el = document.getElementById('nav-'+k);
+      if(el) el.textContent = d['nav_'+k];
+    });
+    // Titulos de pagina
+    if(d.page_title) document.title = d.page_title;
+    var ht = document.getElementById('hero-title');
+    if(ht) ht.textContent = d.hero_sub || '';
+    var pt = document.getElementById('pilots-title');
+    if(pt) pt.textContent = d.pilots_title || '';
+    var ps = document.getElementById('pilots-sub');
+    if(ps) ps.textContent = d.pilots_sub || '';
+    var mt = document.getElementById('manual-title');
+    if(mt) mt.textContent = d.manual_title || '';
+    var at = document.getElementById('arch-title');
+    if(at) at.textContent = d.arch_title || '';
+    // Destaca bandeira ativa
+    document.querySelectorAll('.flag-btn').forEach(function(b){
+      b.classList.toggle('flag-active', b.dataset.lang === l);
+    });
+  }
+
+  // Funcao global para onclick inline
+  window.setFlagLang = function(l){ applyLang(l); };
+
+  // Injeta bandeiras no #flag-container se estiver vazio
+  function injectFlags(){
+    var fc = document.getElementById('flag-container');
+    if(!fc || fc.children.length > 0) return; // ja tem filhos -> nao injeta
+    fc.innerHTML =
+      '<button class="flag-btn" data-lang="pt" onclick="setFlagLang(\'pt\')" title="Portugues">' +
+      '<svg width="28" height="19" viewBox="0 0 28 19"><rect width="28" height="19" fill="#009c3b"/>' +
+      '<rect x="11" width="17" height="19" fill="#009c3b"/>' +
+      '<polygon points="0,0 11,9.5 0,19" fill="#fedf00"/>' +
+      '<polygon points="0,0 14,9.5 0,19" fill="#fedf00"/>' +
+      '<circle cx="9" cy="9.5" r="4.2" fill="#002776"/>' +
+      '<path d="M5.5,8.8 Q9,7 12.5,8.8" stroke="#fff" stroke-width=".8" fill="none"/>' +
+      '</svg></button>' +
+      '<button class="flag-btn" data-lang="en" onclick="setFlagLang(\'en\')" title="English">' +
+      '<svg width="28" height="19" viewBox="0 0 28 19"><rect width="28" height="19" fill="#012169"/>' +
+      '<path d="M0,0 L28,19 M28,0 L0,19" stroke="#fff" stroke-width="3"/>' +
+      '<path d="M0,0 L28,19 M28,0 L0,19" stroke="#c8102e" stroke-width="1.5"/>' +
+      '<path d="M14,0 V19 M0,9.5 H28" stroke="#fff" stroke-width="5"/>' +
+      '<path d="M14,0 V19 M0,9.5 H28" stroke="#c8102e" stroke-width="3"/>' +
+      '</svg></button>' +
+      '<button class="flag-btn" data-lang="es" onclick="setFlagLang(\'es\')" title="Espanol">' +
+      '<svg width="28" height="19" viewBox="0 0 28 19"><rect width="28" height="19" fill="#c60b1e"/>' +
+      '<rect y="4.75" width="28" height="9.5" fill="#ffc400"/>' +
+      '</svg></button>';
+  }
+
+  // Init
+  document.addEventListener('DOMContentLoaded', function(){
+    injectFlags();
+    applyLang(cur);
+  });
+  if(document.readyState !== 'loading'){
+    injectFlags();
+    applyLang(cur);
+  }
+})();
+"""
+
+# ─── index.html ──────────────────────────────────────────────────────────
+INDEX = r"""<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CapRush - Overdrive!</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;overflow:hidden;background:#05050A;font-family:'Rajdhani',sans-serif;}
+
+/* ─ estrelas animadas ─ */
+#stars{position:fixed;inset:0;pointer-events:none;z-index:0;}
+.star{position:absolute;border-radius:50%;background:#fff;animation:twinkle var(--d,3s) ease-in-out infinite var(--dl,0s);}
+@keyframes twinkle{0%,100%{opacity:.15;transform:scale(1)}50%{opacity:.9;transform:scale(1.4)}}
+
+/* ─ botoes orbitais ─ */
+#orb-wrap{position:fixed;inset:0;z-index:5;}
+.orb-btn{position:absolute;width:72px;height:72px;border-radius:50%;border:2px solid;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;text-decoration:none;font-family:'Bebas Neue',sans-serif;font-size:.65rem;letter-spacing:2px;transition:transform .25s,box-shadow .25s;animation:float var(--fs,4s) ease-in-out infinite var(--fd,0s);}
+.orb-btn:hover{transform:scale(1.18)!important;filter:brightness(1.4);}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.orb-jogar  {top:25%;  left:12%; color:#FF2A2A;border-color:#FF2A2A;background:rgba(255,42,42,.12);box-shadow:0 0 20px rgba(255,42,42,.25);--fs:3.8s;}
+.orb-pilotos{top:21%;  right:7%;  color:#00E5FF;border-color:#00E5FF;background:rgba(0,229,255,.10);box-shadow:0 0 20px rgba(0,229,255,.2);--fs:4.5s;--fd:.4s;}
+.orb-ranking{top:72%;  left:11%; color:#3B82F6;border-color:#3B82F6;background:rgba(59,130,246,.10);box-shadow:0 0 20px rgba(59,130,246,.2);--fs:3.5s;--fd:.8s;}
+.orb-manual {top:82%;  left:50%;transform:translateX(-50%); color:#A855F7;border-color:#A855F7;background:rgba(168,85,247,.10);box-shadow:0 0 20px rgba(168,85,247,.2);--fs:4.2s;--fd:.2s;}
+.orb-arq    {top:71%;  right:6%; color:#F59E0B;border-color:#F59E0B;background:rgba(245,158,11,.10);box-shadow:0 0 20px rgba(245,158,11,.2);--fs:4.8s;--fd:.6s;}
+
+/* ─ logo central ─ */
+#logo-wrap{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10;text-align:center;}
+#logo-img{
+  display:block;
+  max-width:min(420px,80vw);
+  max-height:min(280px,45vh);
+  object-fit:contain;
+  position:relative;
+  cursor:pointer;
+  filter:drop-shadow(0 0 30px rgba(255,42,42,.35));
+  transition:filter .3s;
+}
+#logo-img:hover{filter:drop-shadow(0 0 50px rgba(255,42,42,.6)) drop-shadow(0 0 20px rgba(255,215,0,.4));}
+
+/* ─ container do brilho metalico sobre o arco vermelho ─ */
+#logo-shine-wrap{
+  position:absolute;
+  /* ajustado para o arco vermelho curvo no TOPO da tampinha */
+  top: 32%;
+  left: 18%;
+  width: 64%;
+  height: 22%;
+  pointer-events:none;
+  overflow:hidden;
+  border-radius: 50% 50% 0 0 / 80% 80% 0 0;
+}
+#logo-shine{
+  position:absolute;inset:0;
+  background: linear-gradient(105deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,.55) 48%,
+    rgba(255,255,255,0) 60%
+  );
+  transform:translateX(-110%);
+  transition:none;
+}
+#logo-img-wrap{position:relative;display:inline-block;}
+#logo-img-wrap:hover #logo-shine{animation:metalSweep .7s ease-in-out forwards;}
+@keyframes metalSweep{0%{transform:translateX(-110%)}100%{transform:translateX(110%)}}
+
+/* ─ flag container ─ */
+#flag-pos{position:fixed;top:16px;right:18px;z-index:30;display:flex;gap:6px;}
+#flag-container{display:flex;gap:6px;}
+.flag-btn{background:none;border:1px solid transparent;border-radius:4px;padding:2px;cursor:pointer;opacity:.6;transition:opacity .2s,border-color .2s;}
+.flag-btn:hover,.flag-btn.flag-active{opacity:1;border-color:rgba(255,215,0,.5);}
+</style>
+</head>
+<body>
+
+<!-- Estrelas -->
+<canvas id="stars"></canvas>
+
+<!-- Botoes orbitais -->
+<div id="orb-wrap">
+  <a href="caprush-game.html" class="orb-btn orb-jogar" style="--fs:3.8s">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="#FF2A2A"><polygon points="5,3 19,12 5,21"/></svg>
+    JOGAR
+  </a>
+  <a href="personagens.html" class="orb-btn orb-pilotos" style="--fs:4.5s;--fd:.4s">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00E5FF" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4,20 Q4,14 12,14 Q20,14 20,20"/></svg>
+    PILOTOS
+  </a>
+  <a href="ranking.html" class="orb-btn orb-ranking" style="--fs:3.5s;--fd:.8s">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2"><path d="M8,18 V10 M12,18 V6 M16,18 V14"/></svg>
+    RANKING
+  </a>
+  <a href="manual.html" class="orb-btn orb-manual" style="--fs:4.2s;--fd:.2s">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#A855F7" stroke-width="2"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9,7 H15 M9,11 H15 M9,15 H12"/></svg>
+    MANUAL
+  </a>
+  <a href="arquitetura.html" class="orb-btn orb-arq" style="--fs:4.8s;--fd:.6s">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="9"/><line x1="12" y1="3" x2="12" y2="9"/><line x1="12" y1="15" x2="12" y2="21"/><line x1="3" y1="12" x2="9" y2="12"/><line x1="15" y1="12" x2="21" y2="12"/></svg>
+    ARQT.
+  </a>
+</div>
+
+<!-- Logo central -->
+<div id="logo-wrap">
+  <div id="logo-img-wrap">
+    <a href="caprush-game.html">
+      <img id="logo-img" src="Whisk_2.png" alt="CapRush Overdrive!"/>
+    </a>
+    <div id="logo-shine-wrap">
+      <div id="logo-shine"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Bandeiras -->
+<div id="flag-pos">
+  <div id="flag-container"></div>
+</div>
+
+<script src="i18n.js"></script>
+<script>
+// Estrelas procedurais
+(function(){
+  var c=document.getElementById('stars'),x=c.getContext('2d');
+  c.width=window.innerWidth; c.height=window.innerHeight;
+  var stars=[];
+  for(var i=0;i<160;i++) stars.push({
+    x:Math.random()*c.width, y:Math.random()*c.height,
+    r:Math.random()*1.5+.3,
+    a:Math.random(), da:(Math.random()-.5)*.012,
+    color:Math.random()<.15?'#FFD700':Math.random()<.2?'#FF4040':'#FFFFFF'
+  });
+  function frame(){
+    x.clearRect(0,0,c.width,c.height);
+    stars.forEach(function(s){
+      s.a+=s.da; if(s.a>1||s.a<.1) s.da*=-1;
+      x.globalAlpha=s.a; x.fillStyle=s.color;
+      x.beginPath();x.arc(s.x,s.y,s.r,0,Math.PI*2);x.fill();
+    });
+    x.globalAlpha=1;
+    requestAnimationFrame(frame);
+  }
+  frame();
+  window.addEventListener('resize',function(){c.width=window.innerWidth;c.height=window.innerHeight;});
+})();
+</script>
+</body>
+</html>
+"""
+
+# ─── personagens.html ─────────────────────────────────────────────────────
+PERSONAGENS = r"""<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8"/>
@@ -396,3 +674,10 @@ document.querySelectorAll('.stat-fill').forEach(function(b){
 </script>
 </body>
 </html>
+"""
+
+print("\n=== build_v04b_p1.py  --  CapRush Overdrive! v0.4b ===\n")
+w('i18n.js', I18N)
+w('index.html', INDEX)
+w('personagens.html', PERSONAGENS)
+print("\n[CONCLUIDO] Part 1: i18n.js + index.html + personagens.html\n")

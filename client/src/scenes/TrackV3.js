@@ -43,11 +43,11 @@ var TrackV3 = (function(){
 
     // FIX v4: startRect EXPANDIDO - cobre toda a largura da pista na reta esquerda
     // Para as tampinhas passarem livremente
-    startRect = {
-      x: 0,
-      y: CH * 0.36,
-      w: m + TW * 0.55 + 8,
-      h: CH * 0.20
+    startRect = {
+      x: m - TW*0.5,
+      y: CH*0.46,
+      w: TW,
+      h: 14,
     };
     // Area visual estendida (decorativa - barra de pit lane)
     startExtended = {
@@ -242,7 +242,7 @@ var TrackV3 = (function(){
   function checkLap(pos){
     if(!startRect) return false;
     var s=startRect;
-    return(pos.x>=s.x-8&&pos.x<=s.x+s.w+8&&pos.y>=s.y-8&&pos.y<=s.y+s.h+8);
+    return(pos.x>=s.x&&pos.x<=s.x+s.w&&pos.y>=s.y-5&&pos.y<=s.y+s.h+5);
   }
   function checkObstacles(pos,r){
     for(var i=0;i<obstacles.length;i++){

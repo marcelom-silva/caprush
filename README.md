@@ -1,64 +1,70 @@
-# CapRush — Overdrive! v0.3
+# CapRush — Overdrive! v0.4b
 
-Jogo de corrida de tampinhas estilo turno, com física realista, gráficos Canvas 2D e suporte a NFTs Solana (Devnet).
-
-## Novidades v0.3
-
-- **Física corrigida** — arrasto da água e grama estavam invertidos; ricochete em obstáculos usa reflexão vetorial correta
-- **Arquibancadas (amarelo)** — visual com torcida animada, ricocheteia com REST=0.72
-- **Paddock (laranja)** — visual com boxes e barris; ricocheteia (solo) ou perde rodada (1v1/online)
-- **Água orgânica** — poças desenhadas com blob bezier animado, não mais círculos
-- **Grama texturizada** — hastes animadas nas zonas de grama
-- **i18n** — PT-BR / EN-US / ES com bandeirinhas em todas as páginas
-- **Logo** — imagem Whisk_2.png substituindo texto, com brilho metálico no arco vermelho ao hover
-- **Personagens manga/anime** — SVGs redesenhados com olhos maiores, highlights, estilo mais expressivo
-- **1v1 Local** — colisão cap×cap com troca de momento, painel lateral, stands/paddock ativo
-- **Online 1v1** — guia de como jogar, display de IP ao iniciar o servidor
+Jogo de corrida de tampinhas (bottle caps) para 1-4 jogadores.
+Canvas 2D, Web Audio API, PeerJS WebRTC online.
 
 ## Estrutura
 
 ```
-caprush/
-├── index.html              ← Landing page (tampinhas flutuantes + logo img)
-├── personagens.html        ← Seleção de pilotos (SVGs manga/anime)
-├── caprush-game.html       ← Shell iframe → client/game.html
-├── manual.html             ← Manual do jogador v0.3
-├── arquitetura.html        ← Documentação técnica v0.3
-├── ranking.html
-├── i18n.js                 ← Sistema de tradução PT/EN/ES
-├── Whisk_2.png             ← Logo (coloque na raiz)
-├── client/
-│   ├── game.html           ← Modo Solo
-│   ├── game-multi.html     ← Seletor de modo multiplayer
-│   ├── game-multi-local.html   ← 1v1 Local (com painel + cap×cap)
-│   ├── game-multi-online.html  ← Lobby Online
-│   └── src/
-│       ├── core/Physics.js     ← Motor de física v3
-│       ├── core/GameLoop.js    ← Loop solo v3
-│       ├── scenes/TrackV3.js   ← Pista v3 (stands, paddock, organico)
-│       └── ...
-└── server/
-    └── ws-server.js        ← WebSocket v3 (display IP melhorado)
+caprush/                     <- RAIZ do projeto (servir daqui)
+  index.html                 <- Landing page
+  personagens.html           <- Galeria de pilotos
+  manual.html                <- Manual do jogador (PT/EN/ES)
+  arquitetura.html           <- Documentacao tecnica
+  ranking.html               <- Ranking
+  caprush-game.html          <- Wrapper -> client/game.html
+  i18n.js                    <- Internacionalizacao
+  Whisk_2.png                <- Logo
+
+  client/
+    game.html                <- Solo
+    game-multi.html          <- Menu modos
+    game-multi-local.html    <- 1v1 Local (turnos)
+    game-multi-online.html   <- 1v1 Online (PeerJS - Beta)
+    src/core/                <- Motor: Vector2D, Physics, SoundEngine, CapSprite, GameLoop
+    src/scenes/TrackV3.js    <- Pista v4b
 ```
 
-## Desenvolvimento local
+## Como rodar localmente
 
 ```bash
-# Servidor estático (qualquer um)
-npx serve .
-# ou
+# Python 3
 python -m http.server 8080
-
-# Servidor WebSocket (multiplayer online)
-cd server && node ws-server.js
+# Acessar: http://localhost:8080/index.html
 ```
 
-## Superfícies v0.3
+## Builders v0.4b
 
-| Superfície | Efeito       | Visual          |
-|------------|--------------|-----------------|
-| Asfalto    | Normal       | Marrom          |
-| Água       | Freia        | Blob azul orgânico |
-| Grama      | Acelera      | Verde com hastes |
-| Stands     | Ricocheteia  | Amarelo + torcida |
-| Paddock    | Rico. / perde turno | Laranja + boxes |
+Execute na raiz do projeto:
+
+```bash
+python build_v04b_p1.py   # index.html + i18n.js + personagens.html
+python build_v04b_p2.py   # SoundEngine.js + TrackV3.js
+python build_v04b_p3.py   # game.html + game-multi-local.html + manual.html + arquitetura.html
+# OU tudo de uma vez:
+python builder_v04b_run.py
+```
+
+## Mudancas v0.4b
+
+- **Start/Finish**: Faixa fina (14px), sem bloqueio fisico. Tampinhas passam livremente.
+- **Pocas**: Reposicionadas dentro da pista (cotovelo do chicane + reta direita).
+- **BGM**: Inicia automaticamente. Sem overlap ao toggle rapido (session-ID).
+- **Painel lateral**: Incluido no modo 1v1 Local.
+- **i18n.js**: Flags sem duplicacao.
+
+## Deploy (Vercel)
+
+Conecte o repositorio GitHub ao Vercel. O `vercel.json` ja esta configurado.
+Com URL publica, qualquer pessoa pode jogar online sem configuracao.
+
+## Fase 1 — Prototipo Jogavel
+
+- [x] Motor de fisica (drag, bounce, superficies)
+- [x] Pista procedural (TrackV3) com checkpoints, pocas, grama
+- [x] Modo Solo com timer e voltas
+- [x] Modo 1v1 Local (turnos alternados)
+- [x] Modo Online Beta (PeerJS WebRTC)
+- [x] Audio procedural + BGM 148 BPM
+- [x] 4 pilotos com SVG + atributos
+- [x] Internacionalizacao PT/EN/ES

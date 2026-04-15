@@ -18,20 +18,28 @@ html,body{width:100%;height:100%;background:var(--dark);font-family:'Rajdhani',s
 .hs span{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--gold);}
 #wrap{position:relative;flex:1;min-height:0;display:flex;}
 #gameCanvas{display:block;flex:1;cursor:crosshair;}
+
 #panel{width:155px;flex-shrink:0;background:var(--panel);border-left:1px solid rgba(255,42,42,.2);display:flex;flex-direction:column;padding:9px;gap:9px;overflow:hidden;}
-.pt{font-family:'Bebas Neue',sans-serif;font-size:.88rem;letter-spacing:2px;color:var(--red);border-bottom:1px solid rgba(255,42,42,.25);padding-bottom:3px;}
-#fbg{width:100%;height:100px;background:#1A1A28;border:1px solid #333;border-radius:4px;position:relative;overflow:hidden;}
+.pt{font-family:'Bebas Neue',sans-serif;font-size:.88rem;letter-spacing:2px;color:var(--red);border-bottom:1px solid rgba(255,42,42,.25);padding-bottom:3px;display:flex;justify-content:space-between;align-items:center;}
+.audio-btns{display:flex;gap:5px;}
+.audio-btn{background:rgba(255,42,42,.1);border:1px solid rgba(255,42,42,.3);color:#888;border-radius:3px;font-size:.8rem;padding:1px 5px;cursor:pointer;transition:all .2s;line-height:1;}
+.audio-btn:hover{background:rgba(255,42,42,.25);color:#ccc;}
+.audio-btn.off{opacity:.35;color:#555;}
+#fbg{width:100%;height:90px;background:#1A1A28;border:1px solid #333;border-radius:4px;position:relative;overflow:hidden;}
 #force-bar-fill{position:absolute;bottom:0;left:0;right:0;height:0%;background:linear-gradient(0deg,var(--red),var(--gold));transition:height .05s;}
 #flbl{font-size:.65rem;color:#666680;letter-spacing:1px;text-transform:uppercase;text-align:center;}
 #force-value{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--gold);text-align:center;}
 #cc{background:#1A1A28;border:1px solid rgba(255,42,42,.3);border-radius:6px;padding:7px;text-align:center;}
-.cn-av{width:52px;height:52px;border-radius:50%;margin:0 auto 5px;border:2px solid var(--acc);display:flex;align-items:center;justify-content:center;}
 #cnm{font-family:'Bebas Neue',sans-serif;font-size:.88rem;color:var(--acc);letter-spacing:2px;}
 .ar{display:flex;justify-content:space-between;font-size:.65rem;color:#666680;margin-top:2px;}
 .av{color:var(--gold);font-weight:700;}
 #log-box{flex:1;overflow-y:auto;font-size:.6rem;color:#555570;}
 #log-box p{padding:2px 0;border-bottom:1px solid #1A1A28;}
 #log-box p.ev{color:var(--gold);}
+#surf-legend{font-size:.6rem;color:#666680;margin-top:2px;}
+.sl-row{display:flex;align-items:center;gap:4px;margin:2px 0;}
+.sl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
 #overlay{position:absolute;left:0;top:0;right:155px;bottom:0;background:rgba(0,0,0,.82);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:20;cursor:pointer;}
 #overlay h2{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:5px;color:var(--gold);text-shadow:0 0 20px rgba(255,215,0,.5);margin-bottom:.5rem;}
 #overlay p{color:#AAA;letter-spacing:2px;font-size:.85rem;margin:.2rem 0;}
@@ -41,22 +49,6 @@ html,body{width:100%;height:100%;background:var(--dark);font-family:'Rajdhani',s
 #btnBack:hover{background:var(--red);color:#fff;}
 #btnMulti{position:absolute;top:8px;right:168px;z-index:25;background:rgba(0,229,255,.15);border:1px solid var(--acc);color:var(--acc);font-family:'Rajdhani',sans-serif;font-size:.75rem;letter-spacing:2px;padding:3px 8px;cursor:pointer;border-radius:3px;text-decoration:none;}
 #btnMulti:hover{background:var(--acc);color:#000;}
-/* Legenda superficies */
-#surf-legend{font-size:.6rem;color:#666680;margin-top:4px;}
-.sl-row{display:flex;align-items:center;gap:4px;margin:2px 0;}
-.sl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-
-/* ── Botoes de audio ── */
-.audio-btns{display:flex;gap:4px;align-items:center;margin-left:auto;}
-.audio-btn{
-  font-size:1rem;font-family:Bebas Neue,sans-serif;
-  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);
-  border-radius:4px;color:#CCC;cursor:pointer;
-  padding:2px 7px;transition:all .18s;line-height:1.5;letter-spacing:1px;
-  min-width:32px;text-align:center;
-}
-.audio-btn:hover{background:rgba(255,215,0,.15);border-color:#FFD700;color:#FFD700;}
-.audio-btn.off{opacity:.4;background:rgba(255,50,50,.1);border-color:rgba(255,50,50,.4);}
 </style>
 </head>
 <body>
@@ -70,14 +62,16 @@ html,body{width:100%;height:100%;background:var(--dark);font-family:'Rajdhani',s
       <div class="hs"><label>Melhor</label><span id="hud-best">--:--.--</span></div>
     </div>
   </div>
-      <div class="audio-btns">
-      <button class="audio-btn" id="btn-bgm" title="Musica ligada/desligada" onclick="SoundEngine.toggleBGM()">&#9836;</button>
-      <button class="audio-btn" id="btn-sfx" title="Sons ligados/desligados" onclick="SoundEngine.toggleSFX()">&#9654;&#9654;</button>
-    </div>
-<div id="wrap">
+  <div id="wrap">
     <canvas id="gameCanvas"></canvas>
     <div id="panel">
-      <div class="pt">FORCA</div>
+      <div class="pt">
+        <span>FORCA</span>
+        <div class="audio-btns">
+          <button class="audio-btn" id="btn-bgm" onclick="toggleBGM()" title="Musica">&#9836;</button>
+          <button class="audio-btn" id="btn-sfx" onclick="toggleSFX()" title="Efeitos">&#9654;&#9654;</button>
+        </div>
+      </div>
       <div id="flbl">Potencia</div>
       <div id="fbg"><div id="force-bar-fill"></div></div>
       <div id="force-value">0%</div>
@@ -118,6 +112,16 @@ html,body{width:100%;height:100%;background:var(--dark);font-family:'Rajdhani',s
 <script src="src/scenes/TrackV3.js"></script>
 <script src="src/core/GameLoop.js"></script>
 <script>
+
+function toggleBGM(){
+  var on=SoundEngine.toggleBGM();
+  document.getElementById('btn-bgm').classList.toggle('off',!on);
+}
+function toggleSFX(){
+  var on=SoundEngine.toggleSFX();
+  document.getElementById('btn-sfx').classList.toggle('off',!on);
+}
+
 // Preview da tampinha no painel
 (function(){
   var cv=document.getElementById('capPreview');
@@ -130,6 +134,20 @@ html,body{width:100%;height:100%;background:var(--dark);font-family:'Rajdhani',s
   }
   requestAnimationFrame(drawPreview);
 })();
+
+// Patch: startGame deve chamar BGM automaticamente
+// (GameLoop.js ja chama SoundEngine.resume; aqui garantimos o BGM)
+var _origOverlayClick = null;
+document.addEventListener('DOMContentLoaded', function(){
+  SoundEngine.init();
+  var overlay = document.getElementById('overlay');
+  if(overlay){
+    overlay.addEventListener('click', function(){
+      SoundEngine.resume();
+      SoundEngine.startBGM();
+    }, {once:true});
+  }
+});
 </script>
 </body>
 </html>
