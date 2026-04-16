@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>CapRush - 1v1 Local</title>
+<script async src="https://vibej.am/2026/widget.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
 <style>
 :root{--red:#FF2A2A;--gold:#FFD700;--dark:#0A0A0F;--panel:rgba(8,8,18,.96);--acc:#00E5FF;--p2:#FF9900;}
@@ -66,6 +67,8 @@ function resize(){var w=canvas.parentElement;canvas.width=w.offsetWidth-155;canv
 window.addEventListener('resize',resize);setTimeout(resize,80);
 function startGame(){SoundEngine.resume();SoundEngine.startBGM();overlay.style.display='none';phase='AIM';if(canvas.width<50)resize();showTurn()}
 overlay.addEventListener('click',startGame);overlay.addEventListener('touchend',function(e){e.preventDefault();startGame()},{passive:false});
+// PORTAL AUTO-START
+if(new URLSearchParams(location.search).get('portal')==='true'){setTimeout(startGame,300)}
 function showTurn(){var p=P[cur];tb.textContent='TURNO '+p.name;tb.style.color=p.color;tb.style.opacity='1';setTimeout(function(){tb.style.opacity='0'},1100);updPanel();logEv('Vez de '+p.name)}
 function cpos(e){var r=canvas.getBoundingClientRect();return new Vector2D(e.clientX-r.left,e.clientY-r.top)}
 function bnd(){return{x:0,y:0,w:canvas.width,h:canvas.height}}
@@ -83,9 +86,11 @@ if(phase==='MOVING'){P[0].phys.step(dt,bnd());P[1].phys.step(dt,bnd());var p=P[c
 P.forEach(function(p){var ph=p.phys.snap(),s=ph.speed;p.anim.rot+=s*dt*.006;p.anim.glow+=.03*p.anim.gdir;if(p.anim.glow>=1||p.anim.glow<=0)p.anim.gdir*=-1;p.anim.trail.push({x:ph.pos.x,y:ph.pos.y});if(p.anim.trail.length>20)p.anim.trail.shift();CapSprite.drawTrail(ctx,p.anim.trail,p.color,s);CapSprite.drawCap(ctx,ph.pos.x,ph.pos.y,16,p.color,p.accent,p.kanji,p.anim.rot,s,p.anim.glow);if(P[cur]===p&&phase==='AIM'){ctx.save();ctx.strokeStyle=p.color;ctx.lineWidth=2;var pul=Math.sin(Date.now()*.004)*4;ctx.beginPath();ctx.arc(ph.pos.x,ph.pos.y,23+pul,0,Math.PI*2);ctx.stroke();ctx.restore()}});
 if(ds&&dc){var ap=P[cur].phys.snap(),dir=ap.pos.sub(dc).normalize(),dist=Math.min(ap.pos.distanceTo(dc),165),end=ap.pos.add(dir.scale(dist*1.8));ctx.save();var g=ctx.createLinearGradient(ap.pos.x,ap.pos.y,end.x,end.y);g.addColorStop(0,P[cur].color);g.addColorStop(1,'rgba(0,0,0,0)');ctx.strokeStyle=g;ctx.lineWidth=2+dist/165*2;ctx.setLineDash([7,5]);ctx.beginPath();ctx.moveTo(ap.pos.x,ap.pos.y);ctx.lineTo(end.x,end.y);ctx.stroke();ctx.setLineDash([]);ctx.restore()}
 requestAnimationFrame(loop)}
-function onWin(p){setTimeout(function(){overlay.innerHTML='<h2 style="color:'+p.color+'">'+p.name+' VENCEU!</h2><p style="color:'+p.color+';font-size:2rem;font-family:Bebas Neue,sans-serif">'+fmt(p.elapsed)+'</p><p style="color:#aaa;margin-top:.5rem">Clique para jogar novamente</p>';overlay.style.display='flex';overlay.style.right='155px';overlay.onclick=function(){location.reload()}},1400)}
+function onWin(p){setTimeout(function(){overlay.innerHTML='<h2 style="color:'+p.color+'">'+p.name+' VENCEU!</h2><p style="color:'+p.color+';font-size:2rem;font-family:Bebas Neue,sans-serif">'+fmt(p.elapsed)+'</p><p style="color:#aaa;margin-top:.5rem">Clique para jogar novamente</p><p style="margin-top:1rem"><a href="https://vibej.am/portal/2026?ref='+encodeURIComponent(location.host)+'" style="color:#FFD700;font-size:.9rem">→ VIBE PORTAL</a></p>';overlay.style.display='flex';overlay.style.right='155px';overlay.onclick=function(){location.reload()}},1400)}
 function fmt(s){var m=Math.floor(s/60),ss=(s%60).toFixed(1);return(m<10?'0':'')+m+':'+(parseFloat(ss)<10?'0':'')+ss}
 requestAnimationFrame(function(t){lt=t;requestAnimationFrame(loop)});
+// Adiciona botão portal no HUD
+setTimeout(()=>{const h=document.getElementById('hud');if(h){const a=document.createElement('a');a.href='https://vibej.am/portal/2026?ref='+encodeURIComponent(location.host);a.textContent='PORTAL';a.style='margin-left:8px;font-family:Bebas Neue;color:#FFD700;font-size:.75rem;border:1px solid #FFD700;padding:2px 6px;border-radius:3px;text-decoration:none';h.appendChild(a)}},500)
 </script>
 </body>
 </html>
