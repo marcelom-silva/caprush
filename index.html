@@ -1,8 +1,65 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CapRush Overdrive</title><script async src="https://vibej.am/2026/widget.js"></script><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@600&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box}body{height:100vh;background:#030308;overflow:hidden;font-family:'Rajdhani',sans-serif;color:#fff}#bg{position:fixed;inset:0;background:radial-gradient(circle at 50% 40%,#1a0f1f 0%,#030308 70%)}#logo{position:absolute;top:48%;left:50%;transform:translate(-50%,-50%);width:min(760px,90vw);filter:drop-shadow(0 0 60px rgba(255,42,42,.4));z-index:2}.cap{position:absolute;width:118px;height:118px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-decoration:none;color:#fff;font-family:'Bebas Neue';letter-spacing:2px;font-size:14px;z-index:3;background:radial-gradient(circle,#2a2a3a 0%,#141420 70%);border:3px solid currentColor;box-shadow:0 0 0 4px #0a0a14,inset 0 0 18px rgba(0,0,0,.8),0 0 24px currentColor;transition:.3s;overflow:hidden}.cap::before{content:'';position:absolute;inset:-8px;border-radius:50%;background:repeating-conic-gradient(from 0deg,currentColor 0deg 12deg,transparent 12deg 24deg);mask:radial-gradient(circle,transparent 58%,black 60%);opacity:.5}.cap:hover{transform:scale(1.15) rotate(8deg);box-shadow:0 0 0 4px #0a0a14,inset 0 0 24px rgba(0,0,0,.6),0 0 42px currentColor}.cap span:first-child{font-size:28px;margin-bottom:3px;filter:drop-shadow(0 2px 4px #000)}.c1{top:15%;left:14%;color:#ff3b3b}.c2{top:10%;right:15%;color:#00e5ff}.c3{bottom:17%;left:12%;color:#3b82f6}.c4{bottom:9%;left:50%;transform:translateX(-50%);color:#a855f7}.c5{bottom:19%;right:14%;color:#ffb02e}nav{position:fixed;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:rgba(5,5,12,.7);backdrop-filter:blur(8px);z-index:10;border-bottom:1px solid rgba(255,255,255,.06)}.nav-title{font-family:'Bebas Neue';letter-spacing:4px;font-size:1.2rem;background:linear-gradient(135deg,#ff2a2a,#ffd700);-webkit-background-clip:text;-webkit-text-fill-color:transparent}#flag-container{display:flex;gap:6px}.flag-btn{width:28px;height:20px;border:1px solid rgba(255,255,255,.2);border-radius:3px;cursor:pointer;opacity:.7;background-size:cover}.flag-btn:hover{opacity:1}.flag-pt{background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23009b3a"/><polygon points="1.5,0.2 2.7,1 1.5,1.8 0.3,1" fill="%23ffdf00"/><circle cx="1.5" cy="1" r="0.35" fill="%23002776"/></svg>')}.flag-us{background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23b22234"/><g fill="%23fff"><rect y="0.15" width="3" height="0.15"/><rect y="0.45" width="3" height="0.15"/><rect y="0.75" width="3" height="0.15"/><rect y="1.05" width="3" height="0.15"/><rect y="1.35" width="3" height="0.15"/><rect y="1.65" width="3" height="0.15"/></g><rect width="1.2" height="1.05" fill="%233c3b6e"/></svg>')}.flag-es{background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23c60b1e"/><rect y="0.5" width="3" height="1" fill="%23ffc400"/></svg>')}</style></head><body><div id="bg"></div><nav><div class="nav-title">CAPRUSH</div><div id="flag-container"></div></nav><img id="logo" src="Whisk_2_transparent.png" alt="CapRush"><a href="caprush-game.html" class="cap c1"><span>▶</span><span id="nav-jogar">JOGAR</span></a><a href="personagens.html" class="cap c2"><span>●</span><span id="nav-pilotos">PILOTOS</span></a><a href="ranking.html" class="cap c3"><span>≡</span><span id="nav-ranking">RANKING</span></a><a href="manual.html" class="cap c4"><span>☰</span><span id="nav-manual">MANUAL</span></a><a href="arquitetura.html" class="cap c5"><span>◎</span><span id="nav-arq">ARQT.</span></a><script src="i18n.js"></script><script>document.addEventListener('DOMContentLoaded',()=>{const f=document.getElementById('flag-container');if(f){f.innerHTML='<button class="flag-btn flag-pt" onclick="setLang('pt')" title="Português"></button><button class="flag-btn flag-us" onclick="setLang('en')" title="English"></button><button class="flag-btn flag-es" onclick="setLang('es')" title="Español"></button>'}})</script>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<script async src="https://vibej.am/2026/widget.js"></script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CapRush Overdrive!</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--red:#FF2A2A;--gold:#FFD700;--dark:#020208}
+*{margin:0;padding:0;box-sizing:border-box;cursor:none}
+html,body{height:100%;background:var(--dark);overflow:hidden;font-family:'Rajdhani',sans-serif}
+#bg{position:fixed;inset:0;z-index:0}
+nav{position:fixed;top:0;right:0;padding:18px 24px;z-index:20}
+#flag-container{display:flex;gap:8px}
+.flag-btn{width:30px;height:20px;border:1px solid rgba(255,255,255,.25);border-radius:3px;background-size:cover;opacity:.85;transition:.2s}
+.flag-btn:hover{opacity:1;transform:scale(1.12)}
+.flag-pt{background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23009b3a"/><polygon points="1.5,0.2 2.7,1 1.5,1.8 0.3,1" fill="%23ffdf00"/><circle cx="1.5" cy="1" r="0.35" fill="%23002776"/></svg>')}
+.flag-us{background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23b22234"/><g fill="%23fff"><rect y="0.15" width="3" height="0.15"/><rect y="0.45" width="3" height="0.15"/><rect y="0.75" width="3" height="0.15"/><rect y="1.05" width="3" height="0.15"/><rect y="1.35" width="3" height="0.15"/><rect y="1.65" width="3" height="0.15"/></g><rect width="1.2" height="1.05" fill="%233c3b6e"/></svg>')}
+.flag-es{background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23c60b1e"/><rect y="0.5" width="3" height="1" fill="%23ffc400"/></svg>')}
+.stage{position:relative;z-index:5;height:100vh;display:grid;place-items:center}
+.orbit{position:relative;width:1000px;height:1000px}
+.center-logo{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:520px;height:auto;z-index:10;display:grid;place-items:center;cursor:none}
+.center-logo img{width:100%;height:auto;filter:drop-shadow(0 0 40px rgba(255,42,42,.35)) drop-shadow(0 0 80px rgba(255,215,0,.2));transition:filter .3s;pointer-events:none}
+.center-logo:hover img{filter:drop-shadow(0 0 60px rgba(255,42,42,.55)) drop-shadow(0 0 120px rgba(255,215,0,.35))}
+.cap{position:absolute;width:142px;height:142px;left:50%;top:50%;margin:-71px 0 0 -71px;border-radius:50%;text-decoration:none;z-index:5;transition:filter .2s}
+.cap::before{content:'';position:absolute;inset:-7px;border-radius:50%;background:repeating-conic-gradient(from 0deg,var(--gold) 0deg 9deg,#7a5a0f 9deg 18deg);-webkit-mask:radial-gradient(circle,transparent 63%,#000 64%);mask:radial-gradient(circle,transparent 63%,#000 64%)}
+.cap::after{content:'';position:absolute;inset:7px;border-radius:50%;background:radial-gradient(circle at 28% 22%,#ff3f3f,#9d0000 60%,#400000);box-shadow:inset 0 -12px 24px rgba(0,0,0,.8),inset 0 8px 16px rgba(255,255,255,.16)}
+.cap span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:'Bebas Neue';font-size:1.55rem;letter-spacing:3px;color:#fff;text-shadow:0 3px 0 #000,0 0 16px rgba(0,0,0,1);z-index:2}
+.cap:hover{filter:brightness(1.35) drop-shadow(0 0 32px var(--gold));z-index:15}
+.cursor{position:fixed;width:40px;height:40px;pointer-events:none;z-index:100;transform:translate(-50%,-50%)}
+.cursor svg{width:100%;height:100%;animation:spin 2s linear infinite;filter:drop-shadow(0 0 14px var(--gold))}
+@keyframes spin{to{transform:rotate(360deg)}}
+.hint{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.28);font-size:.73rem;letter-spacing:2.2px}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="cursor" id="cur"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="none" stroke="#FFD700" stroke-width="5" stroke-dasharray="4 3"/><circle cx="50" cy="50" r="36" fill="#150000"/><text x="50" y="65" text-anchor="middle" font-family="Bebas Neue" font-size="38" fill="#FFD700">CR</text></svg></div>
+<nav><div id="flag-container">
+  <button class="flag-btn flag-pt" onclick="setLang('pt')"></button>
+  <button class="flag-btn flag-us" onclick="setLang('en')"></button>
+  <button class="flag-btn flag-es" onclick="setLang('es')"></button>
+</div></nav>
+<div class="stage">
+  <div class="orbit">
+    <div class="center-logo" id="center"><img src="Whisk_2_transparent.png" alt="CapRush Overdrive"></div>
+    <a href="caprush-game.html" class="cap"><span data-i18n="play">JOGAR</span></a>
+    <a href="personagens.html" class="cap"><span data-i18n="pilots">PILOTOS</span></a>
+    <a href="ranking.html" class="cap"><span data-i18n="ranking">RANKING</span></a>
+    <a href="manual.html" class="cap"><span data-i18n="manual">MANUAL</span></a>
+  </div>
+</div>
+<div class="hint">passe o mouse no logo para girar</div>
+<script src="/i18n.js"></script>
 <script>
-// Portal: se vier do vibej.am, vai direto pro jogo
-if(new URLSearchParams(location.search).get('portal')==='true'){
-  location.href = 'caprush-game.html?portal=true';
-}
+const cv=document.getElementById('bg'),x=cv.getContext('2d');function rs(){cv.width=innerWidth;cv.height=innerHeight}rs();addEventListener('resize',rs);const pts=Array(220).fill().map(()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,vx:(Math.random()-.5)*.45,vy:(Math.random()-.5)*.45}));let mx=innerWidth/2,my=innerHeight/2;addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY});(function a(){x.clearRect(0,0,cv.width,cv.height);pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>cv.width)p.vx*=-1;if(p.y<0||p.y>cv.height)p.vy*=-1;const d=Math.hypot(p.x-mx,p.y-my);if(d<180){p.vx+=(p.x-mx)*0.00035;p.vy+=(p.y-my)*0.00035}x.beginPath();x.arc(p.x,p.y,1.4,0,7);x.fillStyle=d<180?'rgba(255,50,50,.85)':'rgba(255,30,30,.14)';x.fill()});requestAnimationFrame(a)})();
+const cur=document.getElementById('cur');addEventListener('mousemove',e=>{cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px'});
+const caps=[...document.querySelectorAll('.cap')],cent=document.getElementById('center'),R=340;let ang=0,hover=false,vel=0;
+function pos(){caps.forEach((el,i)=>{const a=ang+i*Math.PI/2;const tx=Math.cos(a)*R,ty=Math.sin(a)*R;const sc=el.matches(':hover')?1.08:1;el.style.transform=`translate(${tx}px,${ty}px) scale(${sc})`;});}
+pos();cent.addEventListener('mouseenter',()=>hover=true);cent.addEventListener('mouseleave',()=>hover=false);
+(function loop(){if(hover){vel=Math.min(vel+0.0007,0.012)}else{vel=Math.max(vel-0.0015,0)}ang+=vel;if(vel>0)pos();requestAnimationFrame(loop)})();
 </script>
-</body></html>
+</body>
+</html>

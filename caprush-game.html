@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+<script async src="https://vibej.am/2026/widget.js"></script>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>CapRush - Jogar</title>
@@ -17,17 +18,18 @@ html,body{width:100%;height:100%;background:var(--dark);font-family:'Rajdhani',s
 .tbadge{background:var(--red);color:#fff;font-size:.6rem;letter-spacing:2px;padding:2px 7px;border-radius:2px;text-transform:uppercase;}
 #gframe{width:100%;height:calc(100vh - 46px);border:none;display:block;}
 </style>
+<script src="/i18n.js"></script>
 </head>
 <body>
   <div style="display:flex;flex-direction:column;height:100vh;">
     <div id="topbar">
       <a href="index.html" class="tlogo">CAP RUSH</a>
       <div class="tlinks">
-        <a href="index.html">Lobby</a>
+        <a href="index.html" data-i18n="lobby">Lobby</a>
         <a href="personagens.html">Pilotos</a>
         <a href="ranking.html">Ranking</a>
         <a href="manual.html">Manual</a>
-        <a href="arquitetura.html">Arquitetura</a>
+        <a href="arquitetura.html" data-i18n="arch">Arquitetura</a>
         <span class="tbadge">v0.2</span>
       </div>
     </div>
