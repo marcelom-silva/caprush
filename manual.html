@@ -12,11 +12,14 @@
 html,body{background:var(--dark);color:#E8E8F0;font-family:'Rajdhani',sans-serif;min-height:100%;}
 nav{display:flex;align-items:center;padding:12px 24px;background:rgba(5,5,12,.95);border-bottom:1px solid rgba(255,42,42,.25);gap:1.4rem;position:sticky;top:0;z-index:50;}
 .nav-logo{font-family:'Bebas Neue',sans-serif;font-size:1.35rem;letter-spacing:4px;background:linear-gradient(135deg,var(--red),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-decoration:none;white-space:nowrap;margin-right:.4rem;}
-.nav-link{color:#AAA;text-decoration:none;font-size:.9rem;letter-spacing:2px;text-transform:uppercase;transition:color .2s;white-space:nowrap;}
+.nav-link{color:#AAA;text-decoration:none;font-size:.9rem;letter-spacing:2px;text-transform:uppercase;transition:color.2s;white-space:nowrap;}
 .nav-link:hover,.nav-link.active{color:var(--gold);}
 #flag-container{display:flex;gap:6px;margin-left:auto;}
-.flag-btn{background:none;border:1px solid transparent;border-radius:4px;padding:2px;cursor:pointer;opacity:.6;transition:opacity .2s,border-color .2s;}
-.flag-btn:hover,.flag-btn.flag-active{opacity:1;border-color:rgba(255,215,0,.5);}
+.flag-btn{width:24px;height:16px;border:1px solid rgba(255,255,255,.2);border-radius:3px;cursor:pointer;opacity:.6;background-size:cover;background-position:center;transition:opacity.2s}
+.flag-btn:hover,.flag-btn.flag-active{opacity:1;border-color:var(--gold)}
+.flag-pt{background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23009b3a"/><polygon points="1.5,0.2 2.7,1 1.5,1.8 0.3,1" fill="%23ffdf00"/><circle cx="1.5" cy="1" r="0.35" fill="%23002776"/></svg>')}
+.flag-us{background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23b22234"/><g fill="%23fff"><rect y="0.15" width="3" height="0.15"/><rect y="0.45" width="3" height="0.15"/><rect y="0.75" width="3" height="0.15"/><rect y="1.05" width="3" height="0.15"/><rect y="1.35" width="3" height="0.15"/><rect y="1.65" width="3" height="0.15"/></g><rect width="1.2" height="1.05" fill="%233c3b6e"/></svg>')}
+.flag-es{background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23c60b1e"/><rect y="0.5" width="3" height="1" fill="%23ffc400"/></svg>')}
 .content{max-width:780px;margin:0 auto;padding:40px 24px 80px;}
 h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,6vw,3.5rem);letter-spacing:5px;background:linear-gradient(135deg,var(--red),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px;}
 h2{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:3px;color:var(--gold);border-bottom:1px solid rgba(255,215,0,.2);padding-bottom:4px;margin:32px 0 12px;}
@@ -32,62 +35,58 @@ p{font-size:.95rem;line-height:1.7;color:#C8C8D8;margin-bottom:10px;}
 .surf-table td{padding:6px 10px;border-bottom:1px solid rgba(255,255,255,.05);color:#C0C0D0;}
 .surf-table tr:last-child td{border:none;}
 .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle;}
-.flag-btn{width:24px;height:16px;border:1px solid rgba(255,255,.2);border-radius:3px;cursor:pointer;opacity:.6;background-size:cover;background-position:center;transition:opacity .2s}
-.flag-btn:hover,.flag-btn.flag-active{opacity:1;border-color:var(--gold)}
-.flag-pt{background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23009b3a"/><polygon points="1.5,0.2 2.7,1 1.5,1.8 0.3,1" fill="%23ffdf00"/><circle cx="1.5" cy="1" r="0.35" fill="%23002776"/></svg>')}
-.flag-us{background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23b22234"/><g fill="%23fff"><rect y="0.15" width="3" height="0.15"/><rect y="0.45" width="3" height="0.15"/><rect y="0.75" width="3" height="0.15"/><rect y="1.05" width="3" height="0.15"/><rect y="1.35" width="3" height="0.15"/><rect y="1.65" width="3" height="0.15"/></g><rect width="1.2" height="1.05" fill="%233c3b6e"/></svg>')}
-.flag-es{background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23c60b1e"/><rect y="0.5" width="3" height="1" fill="%23ffc400"/></svg>')}
 </style>
 </head>
 <body>
 <nav>
   <a href="index.html" class="nav-logo">CAP RUSH</a>
-  <a id="nav-jogar"   href="caprush-game.html" class="nav-link" data-i18n="play">JOGAR</a>
-  <a id="nav-pilotos" href="personagens.html"   class="nav-link" data-i18n="pilots">PILOTOS</a>
-  <a id="nav-ranking" href="ranking.html"        class="nav-link" data-i18n="ranking">RANKING</a>
-  <a id="nav-manual"  href="manual.html"         class="nav-link active" data-i18n="manual">MANUAL</a>
+  <a href="caprush-game.html" class="nav-link" data-i18n="play">JOGAR</a>
+  <a href="personagens.html" class="nav-link" data-i18n="pilots">PILOTOS</a>
+  <a href="ranking.html" class="nav-link" data-i18n="ranking">RANKING</a>
+  <a href="manual.html" class="nav-link active" data-i18n="manual">MANUAL</a>
   <div id="flag-container"></div>
 </nav>
 <div class="content">
-  <h1 id="manual-title">MANUAL DO JOGADOR</h1>
-  <p>Bem-vindo ao CapRush Overdrive! &mdash; o jogo de corrida de tampinhas mais eletrizante do universo digital. Esta pagina explica como jogar, dominar a pista e vencer seus oponentes.</p>
+  <h1 data-i18n="manual-title">MANUAL DO JOGADOR</h1>
+  <p data-i18n="manual-intro">Bem-vindo ao CapRush Overdrive! — o jogo de corrida de tampinhas mais eletrizante do universo digital.</p>
 
-  <h2>COMO JOGAR</h2>
-  <p>O controle e simples: clique e arraste para mirar, solte para lancar. A forca do lancamento depende de quanto voce puxou.</p>
-  <div class="step"><span class="step-num">1</span><div class="step-txt"><strong>Clique sobre a sua tampinha</strong> &mdash; um circulo pulsante indica qual e a sua.</div></div>
-  <div class="step"><span class="step-num">2</span><div class="step-txt"><strong>Arraste para tras</strong> em relacao ao destino. Quanto mais longe arrastar, mais forca.</div></div>
-  <div class="step"><span class="step-num">3</span><div class="step-txt"><strong>Solte o mouse</strong> para disparar. A tampinha parte na direcao oposta ao arrasto.</div></div>
-  <div class="step"><span class="step-num">4</span><div class="step-txt"><strong>Passe pelos Checkpoints</strong> em ordem (CP1 &rarr; CP2 &rarr; CP3) e cruze a linha Start/Finish para completar uma volta.</div></div>
+  <h2 data-i18n="manual-how">COMO JOGAR</h2>
+  <p data-i18n="manual-how-desc">O controle é simples: clique e arraste para mirar, solte para lançar. A força depende de quanto você puxou.</p>
 
-  <div class="tip">&#9432; A barra de Forca no painel direito mostra a potencia atual do lancamento em tempo real.</div>
+  <div class="step"><span class="step-num">1</span><div class="step-txt" data-i18n="manual-step1"><strong>Clique sobre a sua tampinha</strong> — um círculo pulsante indica qual é a sua.</div></div>
+  <div class="step"><span class="step-num">2</span><div class="step-txt" data-i18n="manual-step2"><strong>Arraste para trás</strong> em relação ao destino. Quanto mais longe, mais força.</div></div>
+  <div class="step"><span class="step-num">3</span><div class="step-txt" data-i18n="manual-step3"><strong>Solte o mouse</strong> para disparar. A tampinha parte na direção oposta ao arrasto.</div></div>
+  <div class="step"><span class="step-num">4</span><div class="step-txt" data-i18n="manual-step4"><strong>Passe pelos Checkpoints</strong> em ordem (CP1 → CP2 → CP3) e cruze a linha para completar a volta.</div></div>
 
-  <h2>SUPERFICIES DA PISTA</h2>
+  <div class="tip" data-i18n="manual-tip-force">ℹ A barra de Força no painel direito mostra a potência atual em tempo real.</div>
+
+  <h2 data-i18n="manual-surfaces">SUPERFÍCIES DA PISTA</h2>
   <table class="surf-table">
-    <tr><th>Superficie</th><th>Efeito</th><th>Dica</th></tr>
-    <tr><td><span class="dot" style="background:#5C4530"></span>Asfalto</td><td>Normal, sem bonus/penalidade</td><td>Linha ideal de corrida</td></tr>
-    <tr><td><span class="dot" style="background:#00A0FF;border:1px solid #00E5FF"></span>Agua</td><td>Mais aderencia, desacelera menos</td><td>Use para curvas fechadas</td></tr>
-    <tr><td><span class="dot" style="background:#38B838;border:1px solid #60E060"></span>Grama</td><td>Menos aderencia, desliza mais</td><td>Evite ou use para desviar</td></tr>
-    <tr><td><span class="dot" style="background:#5C3A1A"></span>Obstaculos</td><td>Reflete a tampinha</td><td>Podem ser usados estrategicamente</td></tr>
+    <tr><th data-i18n="manual-th-surface">Superfície</th><th data-i18n="manual-th-effect">Efeito</th><th data-i18n="manual-th-tip">Dica</th></tr>
+    <tr><td><span class="dot" style="background:#5C4530"></span><span data-i18n="manual-surf-asphalt">Asfalto</span></td><td data-i18n="manual-surf-asphalt-e">Normal, sem bônus</td><td data-i18n="manual-surf-asphalt-t">Linha ideal de corrida</td></tr>
+    <tr><td><span class="dot" style="background:#00A0FF;border:1px solid #00E5FF"></span><span data-i18n="manual-surf-water">Água</span></td><td data-i18n="manual-surf-water-e">Mais aderência</td><td data-i18n="manual-surf-water-t">Use para curvas fechadas</td></tr>
+    <tr><td><span class="dot" style="background:#38B838;border:1px solid #60E060"></span><span data-i18n="manual-surf-grass">Grama</span></td><td data-i18n="manual-surf-grass-e">Menos aderência</td><td data-i18n="manual-surf-grass-t">Evite ou use para desviar</td></tr>
+    <tr><td><span class="dot" style="background:#5C3A1A"></span><span data-i18n="manual-surf-obs">Obstáculos</span></td><td data-i18n="manual-surf-obs-e">Reflete a tampinha</td><td data-i18n="manual-surf-obs-t">Use estrategicamente</td></tr>
   </table>
 
-  <h2>MODOS DE JOGO</h2>
-  <h3>SOLO</h3>
-  <p>Corra contra o tempo. Complete 2 voltas no menor tempo possivel. Seu melhor tempo e exibido no HUD.</p>
-  <h3>1v1 LOCAL</h3>
-  <p>Dois jogadores se alternam em um mesmo computador. YUKI (azul) e KENTA (laranja) disputam quem completa 2 voltas primeiro. Cada jogador tem seu proprio tempo de reacao &mdash; vence quem usa menos lancamentos.</p>
-  <h3>ONLINE (Beta)</h3>
-  <p>Desafie amigos via internet usando WebRTC (PeerJS). Um jogador cria a sala e compartilha o codigo; o outro entra. Nao e necessario servidor proprio &mdash; a conexao e ponto a ponto.</p>
-  <div class="tip">&#9432; Se o jogo estiver publicado no Vercel ou GitHub Pages, qualquer pessoa com o link pode entrar e jogar sem configuracao adicional.</div>
+  <h2 data-i18n="manual-modes">MODOS DE JOGO</h2>
+  <h3 data-i18n="manual-mode-solo">SOLO</h3>
+  <p data-i18n="manual-mode-solo-d">Corra contra o tempo. Complete 2 voltas no menor tempo possível.</p>
+  <h3 data-i18n="manual-mode-1v1">1v1 LOCAL</h3>
+  <p data-i18n="manual-mode-1v1-d">Dois jogadores se alternam no mesmo PC. YUKI vs KENTA disputam 2 voltas.</p>
+  <h3 data-i18n="manual-mode-online">ONLINE (Beta)</h3>
+  <p data-i18n="manual-mode-online-d">Desafie amigos via WebRTC. Um cria a sala, o outro entra com o código.</p>
+  <div class="tip" data-i18n="manual-online-tip">ℹ Se o jogo estiver no Vercel ou GitHub Pages, qualquer pessoa com o link pode jogar.</div>
 
-  <h2>MUSICA E EFEITOS</h2>
-  <p>O botao <strong>&#9836;</strong> no painel lateral liga/desliga a musica de fundo. O botao <strong>&#9654;&#9654;</strong> controla os efeitos sonoros. A musica inicia automaticamente quando a corrida comeca.</p>
-  <div class="warn">&#9888; Alguns navegadores bloqueiam audio automatico. Se a musica nao tocar, clique dentro do jogo para ativar o contexto de audio.</div>
+  <h2 data-i18n="manual-audio">MÚSICA E EFEITOS</h2>
+  <p data-i18n="manual-audio-d">O botão ♬ liga/desliga a música. O botão ▶▶ controla os efeitos.</p>
+  <div class="warn" data-i18n="manual-audio-w">⚠ Alguns navegadores bloqueiam áudio automático. Clique no jogo para ativar.</div>
 
   <h2 data-i18n="pilots">PILOTOS</h2>
-  <p>Cada piloto tem tres atributos que afetam o comportamento da tampinha na pista. Visite a pagina <a href="personagens.html" style="color:var(--acc)" data-i18n="pilots">PILOTOS</a> para conhecer cada um.</p>
+  <p><span data-i18n="manual-pilots-d">Cada piloto tem atributos que afetam a tampinha.</span> <a href="personagens.html" style="color:var(--acc)" data-i18n="pilots">PILOTOS</a></p>
 
-  <h2>DICAS AVANCADAS</h2>
-  <p>Use as bordas da pista como guia. Tampinhas que saem da pista sao teleportadas para o ultimo checkpoint visitado. Planejar a trajetoria com menos lancamentos e mais eficiente que usar forca maxima sempre.</p>
+  <h2 data-i18n="manual-tips">DICAS AVANÇADAS</h2>
+  <p data-i18n="manual-tips-d">Use as bordas como guia. Tampinhas fora da pista voltam ao último checkpoint. Planeje a trajetória.</p>
 </div>
 <script src="i18n.js"></script>
 </body>
