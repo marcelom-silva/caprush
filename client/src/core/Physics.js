@@ -77,6 +77,7 @@ var Physics = (function(){
 
     s.vel = s.vel.normalize().scale(newSpd);
     s.pos = s.pos.add(s.vel.scale(dt));
+ if(s.moving) SoundEngine.drag(s.surf, s.vel.magnitude());
 
     // bordas do canvas
     var r = 14;
