@@ -1,647 +1,281 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+<!-- Playables SDK -->
+<script>// Playables SDK v1.0.0
+// Game lifecycle bridge: rAF-based game-ready detection + event communication
+(function() {
+  'use strict';
+
+  // Idempotency: skip if already initialized (e.g., server-side injection
+  // followed by client-side inject-javascript via the Bloks webview component).
+  if (window.playablesSDK) return;
+
+  var HANDLER_NAME = 'playablesGameEventHandler';
+  var ANDROID_BRIDGE_NAME = '_MetaPlayablesBridge';
+  var RAF_FRAME_THRESHOLD = 3;
+
+  var gameReadySent = false;
+  var firstInteractionSent = false;
+  var errorSent = false;
+  var frameCount = 0;
+  var originalRAF = window.requestAnimationFrame;
+
+  // --- Transport Layer ---
+
+  function hasIOSBridge() {
+    return !!(window.webkit &&
+              window.webkit.messageHandlers &&
+              window.webkit.messageHandlers[HANDLER_NAME]);
+  }
+
+  function hasAndroidBridge() {
+    return !!(window[ANDROID_BRIDGE_NAME] &&
+              typeof window[ANDROID_BRIDGE_NAME].postEvent === 'function');
+  }
+
+  function isInIframe() {
+    return !!(window.parent && window.parent !== window);
+  }
+
+  function sendEvent(eventName, payload) {
+    var message = {
+      type: eventName,
+      payload: payload || {},
+      timestamp: Date.now()
+    };
+
+    if (hasIOSBridge()) {
+      try {
+        window.webkit.messageHandlers[HANDLER_NAME].postMessage(message);
+      } catch (e) { /* ignore */ }
+      return;
+    }
+
+    if (hasAndroidBridge()) {
+    try {
+      var p = payload || {};
+      p.__secureToken = window.__fbAndroidBridgeAuthToken || '';
+      window[ANDROID_BRIDGE_NAME].postEvent(
+        eventName,
+        JSON.stringify(p)
+      );
+    } catch (e) { /* ignore */ }
+    return;
+  }
+
+    if (isInIframe()) {
+      try {
+        window.parent.postMessage(message, '*');
+      } catch (e) { /* ignore */ }
+      return;
+    }
+  }
+
+  // --- rAF Game-Ready Detection ---
+
+  function onFrame() {
+    if (gameReadySent) return;
+
+    frameCount++;
+    if (frameCount >= RAF_FRAME_THRESHOLD) {
+      gameReadySent = true;
+      sendEvent('game_ready', {
+        frame_count: frameCount,
+        detected_at: Date.now()
+      });
+      return;
+    }
+
+    originalRAF.call(window, onFrame);
+  }
+
+  if (originalRAF) {
+    window.requestAnimationFrame = function(callback) {
+      if (!gameReadySent) {
+        return originalRAF.call(window, function(timestamp) {
+          frameCount++;
+          if (frameCount >= RAF_FRAME_THRESHOLD && !gameReadySent) {
+            gameReadySent = true;
+            sendEvent('game_ready', {
+              frame_count: frameCount,
+              detected_at: Date.now()
+            });
+          }
+          callback(timestamp);
+        });
+      }
+      return originalRAF.call(window, callback);
+    };
+  }
+
+  // --- First User Interaction Detection ---
+
+  function setupFirstInteractionDetection() {
+    var events = ['touchstart', 'mousedown', 'keydown'];
+
+    function onFirstInteraction() {
+      if (firstInteractionSent) return;
+      firstInteractionSent = true;
+      sendEvent('user_interaction_start', null);
+
+      for (var i = 0; i < events.length; i++) {
+        document.removeEventListener(events[i], onFirstInteraction, true);
+      }
+    }
+
+    for (var i = 0; i < events.length; i++) {
+      document.addEventListener(events[i], onFirstInteraction, true);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupFirstInteractionDetection);
+  } else {
+    setupFirstInteractionDetection();
+  }
+
+  // --- Auto Error Capture ---
+
+  window.addEventListener('error', function(event) {
+    if (errorSent) return;
+    errorSent = true;
+    sendEvent('error', {
+      message: event.message || 'Unknown error',
+      source: event.filename || '',
+      lineno: event.lineno || 0,
+      colno: event.colno || 0,
+      auto_captured: true
+    });
+  });
+
+  window.addEventListener('unhandledrejection', function(event) {
+    if (errorSent) return;
+    errorSent = true;
+    var reason = event.reason;
+    sendEvent('error', {
+      message: (reason instanceof Error) ? reason.message : String(reason),
+      type: 'unhandled_promise_rejection',
+      auto_captured: true
+    });
+  });
+
+  // --- Public API ---
+
+  window.playablesSDK = {
+    complete: function(score) {
+      sendEvent('game_ended', {
+        score: score,
+        completed: true
+      });
+    },
+
+    error: function(message) {
+      if (errorSent) return;
+      errorSent = true;
+      sendEvent('error', {
+        message: message || 'Unknown error',
+        auto_captured: false
+      });
+    },
+
+    sendEvent: function(eventName, payload) {
+      if (!eventName || typeof eventName !== 'string') return;
+      sendEvent(eventName, payload);
+    }
+  };
+
+  // Kick off rAF detection in case no game code calls rAF immediately
+  if (originalRAF) {
+    originalRAF.call(window, onFrame);
+  }
+})();</script>
+<script>window.Intl=window.Intl||{};Intl.t=function(s){return(Intl._locale&&Intl._locale[s])||s;};</script>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>CapRush &ndash; Online 1v1</title>
+<title>CapRush – Online 1v1</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
-<!-- PeerJS: WebRTC peer-to-peer, funciona entre redes diferentes, sem servidor proprio -->
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
-:root{--red:#FF2A2A;--gold:#FFD700;--dark:#0A0A0F;--acc:#00E5FF;--p2:#FF9900;--muted:#666680;--panel:rgba(8,8,18,.97);}
-*{margin:0;padding:0;box-sizing:border-box;}
-html,body{width:100%;height:100%;background:var(--dark);font-family:'Rajdhani',sans-serif;color:#E8E8F0;overflow:auto;}
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(255,42,42,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,42,42,.04) 1px,transparent 1px);background-size:40px 40px;z-index:0;pointer-events:none;}
-.page{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:1.2rem;padding:2rem;min-height:100vh;}
-h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,7vw,4rem);letter-spacing:6px;background:linear-gradient(135deg,var(--red),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.sub{color:var(--muted);letter-spacing:3px;font-size:.82rem;text-transform:uppercase;}
-/* Paineis */
-.modes{display:flex;gap:1.2rem;flex-wrap:wrap;justify-content:center;width:100%;max-width:700px;}
-.mode-panel{flex:1;min-width:240px;background:var(--panel);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:1.4rem;display:flex;flex-direction:column;gap:.75rem;}
-.mode-panel.host{border-color:rgba(0,229,255,.2);}
-.mode-panel.guest{border-color:rgba(255,153,0,.2);}
-.pt{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:3px;padding-bottom:.4rem;border-bottom:1px solid rgba(255,255,255,.08);}
-.pt.c{color:var(--acc);}
-.pt.g{color:var(--p2);}
-input{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);border-radius:6px;padding:.6rem 1rem;color:#E8E8F0;font-family:'Rajdhani',sans-serif;font-size:1rem;letter-spacing:2px;width:100%;text-transform:uppercase;outline:none;}
-input:focus{border-color:var(--acc);}
-input::placeholder{color:#3A3A55;text-transform:none;letter-spacing:1px;}
-.btn{font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:3px;padding:.6rem 1.2rem;border-radius:6px;border:1px solid;cursor:pointer;transition:all .2s;background:transparent;width:100%;}
-.btn-host{color:var(--acc);border-color:var(--acc);}
-.btn-host:hover{background:var(--acc);color:var(--dark);}
-.btn-host:disabled{opacity:.4;cursor:not-allowed;}
-.btn-guest{color:var(--p2);border-color:var(--p2);}
-.btn-guest:hover{background:var(--p2);color:var(--dark);}
-.btn-guest:disabled{opacity:.4;cursor:not-allowed;}
-/* Codigo da sala */
-.room-code-box{display:none;background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.3);border-radius:10px;padding:1rem;text-align:center;}
-.room-code{font-family:'Bebas Neue',sans-serif;font-size:2.8rem;letter-spacing:12px;color:var(--acc);}
-.room-hint{font-size:.72rem;color:var(--muted);letter-spacing:2px;margin-top:.3rem;}
-/* Status */
-#status-box{width:100%;max-width:700px;background:var(--panel);border-radius:10px;padding:.8rem 1.2rem;border:1px solid rgba(255,255,255,.07);text-align:center;}
-.status-txt{font-size:.82rem;letter-spacing:2px;color:var(--muted);}
-.status-txt.ok{color:#00FF88;}
-.status-txt.err{color:var(--red);}
-.status-txt.warn{color:var(--gold);}
-/* Progress indicator */
-.dot-loader{display:inline-flex;gap:5px;vertical-align:middle;margin-left:6px;}
-.dot-loader span{width:6px;height:6px;border-radius:50%;background:currentColor;animation:dotBounce .9s ease-in-out infinite;}
-.dot-loader span:nth-child(2){animation-delay:.2s;}
-.dot-loader span:nth-child(3){animation-delay:.4s;}
-@keyframes dotBounce{0%,80%,100%{opacity:.2;transform:scale(.8);}40%{opacity:1;transform:scale(1.2);}}
-/* Game canvas area (oculto ate jogo iniciar) */
-#game-area{display:none;width:100%;max-width:900px;flex-direction:column;gap:8px;}
-#game-hud{display:flex;justify-content:space-between;align-items:center;padding:6px 14px;background:var(--panel);border:1px solid rgba(255,255,255,.07);border-radius:8px;height:44px;}
-.hlogo{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:3px;background:linear-gradient(135deg,var(--red),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.pi{display:flex;align-items:center;gap:.5rem;}
-.pd{width:10px;height:10px;border-radius:50%;}
-.pn{font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:2px;}
-.ps{font-family:'Bebas Neue',sans-serif;font-size:.75rem;color:#888;min-width:60px;}
-.vs{font-family:'Bebas Neue',sans-serif;color:#333;font-size:1.2rem;letter-spacing:3px;}
-#game-wrap{position:relative;}
-#gameCanvas{display:block;width:100%;border-radius:8px;cursor:crosshair;}
-#turn-banner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Bebas Neue',sans-serif;font-size:2.5rem;letter-spacing:6px;pointer-events:none;opacity:0;transition:opacity .3s;z-index:15;text-shadow:0 0 30px currentColor;}
-#g-overlay{position:absolute;inset:0;background:rgba(0,0,0,.82);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:20;cursor:pointer;border-radius:8px;}
-#g-overlay h2{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:5px;color:var(--gold);margin-bottom:.5rem;}
-#g-overlay p{color:#AAA;letter-spacing:2px;font-size:.82rem;margin:.2rem 0;}
-.pulse-t{animation:pulse 1.2s ease-in-out infinite;}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-/* How-to guide */
-.guide{width:100%;max-width:700px;background:var(--panel);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:1.2rem;}
-.guide h3{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:3px;color:var(--acc);margin-bottom:.8rem;}
-.step{display:flex;gap:.7rem;margin-bottom:.6rem;font-size:.8rem;line-height:1.55;}
-.step-n{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--gold);flex-shrink:0;width:18px;}
-.step-t{color:#B8B8CC;}
-.step-t b{color:var(--acc);}
-.step-t .highlight{color:var(--gold);}
-.back-link{color:var(--muted);font-size:.78rem;letter-spacing:2px;text-decoration:none;text-transform:uppercase;margin-top:.5rem;}
-.back-link:hover{color:var(--gold);}
-/* Audio btns */
-.audio-btns{display:flex;gap:4px;}
-.audio-btn{font-size:1rem;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);border-radius:4px;color:#CCC;cursor:pointer;padding:2px 7px;transition:all .18s;min-width:30px;text-align:center;}
-.audio-btn:hover{border-color:var(--gold);color:var(--gold);}
-.audio-btn.off{opacity:.4;}
+:root{--red:#FF2A2A;--gold:#FFD700;--dark:#0A0A0F;--panel:rgba(8,8,18,.96);--acc:#00E5FF;--p2:#FF9900;}
+*{margin:0;padding:0;box-sizing:border-box;}html,body{width:100%;height:100%;background:var(--dark);font-family:'Rajdhani',sans-serif;color:#E8E8F0;overflow:hidden;}
+#shell{display:flex;flex-direction:column;width:100%;height:100%;}
+#hud{display:flex;justify-content:space-between;align-items:center;padding:5px 14px;background:var(--panel);border-bottom:2px solid rgba(255,42,42,.3);flex-shrink:0;height:44px;gap:1rem;}
+.hlogo{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:3px;background:linear-gradient(135deg,var(--red),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-decoration:none;white-space:nowrap;}
+.pi{display:flex;align-items:center;gap:.5rem;}.pd{width:11px;height:11px;border-radius:50%;flex-shrink:0;}.pn{font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:2px;}.ps{font-family:'Bebas Neue',sans-serif;font-size:.8rem;color:#888;min-width:54px;}.vs{font-family:'Bebas Neue',sans-serif;color:#333;font-size:1.3rem;letter-spacing:3px;}
+#wrap{position:relative;flex:1;min-height:0;display:flex;}#gameCanvas{display:block;flex:1;cursor:crosshair;}
+#panel{width:155px;flex-shrink:0;background:var(--panel);border-left:1px solid rgba(255,42,42,.2);display:flex;flex-direction:column;padding:9px;gap:9px;overflow:hidden;}
+.pt{font-family:'Bebas Neue',sans-serif;font-size:.88rem;letter-spacing:2px;color:var(--red);border-bottom:1px solid rgba(255,42,42,.25);padding-bottom:3px;display:flex;justify-content:space-between;align-items:center;}
+.audio-btns{display:flex;gap:5px;}.audio-btn{background:rgba(255,42,42,.1);border:1px solid rgba(255,42,42,.3);color:#888;border-radius:3px;font-size:.8rem;padding:1px 5px;cursor:pointer;transition:all .2s;line-height:1;}.audio-btn:hover{background:rgba(255,42,42,.25);color:#ccc;}.audio-btn.off{opacity:.35;color:#555;}
+#fbg{width:100%;height:90px;background:#1A1A28;border:1px solid #333;border-radius:4px;position:relative;overflow:hidden;}#force-bar-fill{position:absolute;bottom:0;left:0;right:0;height:0%;background:linear-gradient(0deg,var(--red),var(--gold));transition:height .05s;}#flbl{font-size:.65rem;color:#666680;letter-spacing:1px;text-transform:uppercase;text-align:center;}#force-value{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--gold);text-align:center;}
+#log-box{flex:1;overflow-y:auto;font-size:.6rem;color:#555570;}#log-box p{padding:2px 0;border-bottom:1px solid #1A1A28;}#log-box p.ev{color:var(--gold);}
+#surf-legend{font-size:.6rem;color:#666680;margin-top:2px;}.sl-row{display:flex;align-items:center;gap:4px;margin:2px 0;}.sl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+#mp-turn{font-size:.65rem;letter-spacing:1px;text-transform:uppercase;color:#888;text-align:center;margin-top:2px;}#mp-p1-info,#mp-p2-info{padding:4px 0;border-bottom:1px solid #1A1A28;font-size:.65rem;}
+#overlay{position:absolute;left:0;top:0;right:155px;bottom:0;background:rgba(0,0,0,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:20;gap:.7rem;text-align:center;}#overlay h2{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:5px;color:var(--gold);margin-bottom:.3rem;}#overlay p{color:#AAA;letter-spacing:1px;font-size:.85rem;}#overlay input{width:220px;padding:8px 10px;background:#111;border:1px solid #333;border-radius:4px;color:#eee;font-family:'Rajdhani';text-align:center;}#overlay button{padding:8px 14px;background:var(--red);border:1px solid var(--red);color:#fff;border-radius:4px;font-family:'Rajdhani';font-weight:700;cursor:pointer;letter-spacing:1px;}#overlay button:hover{filter:brightness(1.2);}
+#btnBack{position:absolute;top:8px;left:8px;z-index:25;background:rgba(255,42,42,.15);border:1px solid var(--red);color:var(--red);font-family:'Rajdhani',sans-serif;font-size:.73rem;letter-spacing:2px;padding:3px 8px;cursor:pointer;border-radius:3px;text-decoration:none;}#btnBack:hover{background:var(--red);color:#fff;}
 </style>
 </head>
 <body>
-<div class="page">
-  <h1>ONLINE 1v1</h1>
-  <p class="sub">PeerJS &mdash; funciona entre redes diferentes, sem servidor</p>
-
-  <!-- Paineis de criar / entrar -->
-  <div class="modes" id="lobby-area">
-    <!-- Criar sala (HOST) -->
-    <div class="mode-panel host">
-      <div class="pt c">CRIAR SALA (HOST)</div>
-      <input id="nickCreate" placeholder="Seu nickname" maxlength="16"/>
-      <button class="btn btn-host" id="btnCreate" onclick="createRoom()">CRIAR SALA &amp; AGUARDAR</button>
-      <div class="room-code-box" id="roomCodeBox">
-        <div class="room-code" id="roomCode">-----</div>
-        <div class="room-hint">Compartilhe este c&oacute;digo com seu oponente</div>
-      </div>
-    </div>
-    <!-- Entrar (GUEST) -->
-    <div class="mode-panel guest">
-      <div class="pt g">ENTRAR EM SALA (GUEST)</div>
-      <input id="nickJoin" placeholder="Seu nickname" maxlength="16"/>
-      <input id="roomInput" placeholder="Codigo da sala (5 letras)" maxlength="5" oninput="this.value=this.value.toUpperCase()"/>
-      <button class="btn btn-guest" id="btnJoin" onclick="joinRoom()">ENTRAR NA SALA</button>
-    </div>
+<div id="shell">
+  <div id="hud">
+    <a href="../index.html" class="hlogo">CAP RUSH ONLINE</a>
+    <div class="pi"><div class="pd" style="background:var(--acc);box-shadow:0 0 7px var(--acc)"></div><span class="pn" style="color:var(--acc)">YUKI</span><span class="ps" id="p0-time">00:00.0</span><span class="ps" id="p0-lap" style="color:var(--acc)">V1/2 CP0/3</span></div>
+    <span class="vs">VS</span>
+    <div class="pi"><span class="ps" id="p1-lap" style="color:var(--p2)">V1/2 CP0/3</span><span class="ps" id="p1-time">00:00.0</span><span class="pn" style="color:var(--p2)">KENTA</span><div class="pd" style="background:var(--p2);box-shadow:0 0 7px var(--p2)"></div></div>
   </div>
-
-  <!-- Status -->
-  <div id="status-box">
-    <div class="status-txt" id="statusTxt">Aguardando acao...</div>
-  </div>
-
-  <!-- Area do jogo (mostrada quando match inicia) -->
-  <div id="game-area">
-    <div id="game-hud">
-      <span class="hlogo">CAP RUSH</span>
-      <div class="pi">
-        <div class="pd" id="dot0" style="background:var(--acc);box-shadow:0 0 6px var(--acc)"></div>
-        <span class="pn" id="pname0" style="color:var(--acc)">-</span>
-        <span class="ps" id="pinfo0">V1/2 CP0/3</span>
-      </div>
-      <span class="vs">VS</span>
-      <div class="pi">
-        <span class="ps" id="pinfo1">V1/2 CP0/3</span>
-        <span class="pn" id="pname1" style="color:var(--p2)">-</span>
-        <div class="pd" id="dot1" style="background:var(--p2);box-shadow:0 0 6px var(--p2)"></div>
-      </div>
-      <div class="audio-btns">
-        <button class="audio-btn" id="btn-bgm" title="Musica" onclick="SoundEngine&&SoundEngine.toggleBGM()">&#9836;</button>
-        <button class="audio-btn" id="btn-sfx" title="Sons" onclick="SoundEngine&&SoundEngine.toggleSFX()">&#9654;&#9654;</button>
-      </div>
+  <div id="wrap">
+    <canvas id="gameCanvas"></canvas>
+    <div id="panel">
+      <div class="pt"><span>CONEXAO</span><div class="audio-btns"><button class="audio-btn" id="btn-bgm" onclick="toggleBGM()" title="Musica">&#9836;</button><button class="audio-btn" id="btn-sfx" onclick="toggleSFX()" title="Efeitos">&#9654;&#9654;</button></div></div>
+      <div id="mp-turn">DESCONECTADO</div>
+      <div class="pt" style="margin-top:4px">FORCA</div><div id="flbl">Potencia</div><div id="fbg"><div id="force-bar-fill"></div></div><div id="force-value">0%</div>
+      <div class="pt">PLACAR</div><div id="mp-p1-info" style="color:var(--acc)">YUKI: V1 CP0</div><div id="mp-p2-info" style="color:var(--p2)">KENTA: V1 CP0</div>
+      <div class="pt">PISTA</div><div id="surf-legend"><div class="sl-row"><div class="sl-dot" style="background:#5C4530;"></div><span>Asfalto</span></div><div class="sl-row"><div class="sl-dot" style="background:#00A0FF;border:1px solid #00E5FF;"></div><span>Agua</span></div><div class="sl-row"><div class="sl-dot" style="background:#38B838;border:1px solid #60E060;"></div><span>Grama</span></div></div>
+      <div class="pt">EVENTOS</div><div id="log-box"></div>
     </div>
-    <div id="game-wrap">
-      <canvas id="gameCanvas"></canvas>
-      <div id="turn-banner">TURNO -</div>
-      <div id="g-overlay">
-        <h2 id="g-overlay-title">1v1 ONLINE</h2>
-        <p id="g-overlay-sub">Aguardando oponente...</p>
-        <p style="font-size:.75rem;color:#555;margin-top:.4rem">Clique e arraste a tampinha para mirar</p>
-        <br><p class="pulse-t">&#9654; CLIQUE PARA COME&Ccedil;AR</p>
-      </div>
+    <div id="overlay">
+      <h2>1V1 ONLINE</h2>
+      <p id="ov-status">Crie uma sala ou entre com ID</p>
+      <button id="btnHost">CRIAR SALA</button>
+      <div style="display:flex;gap:6px;margin-top:4px"><input id="roomId" placeholder="ID da sala"/><button id="btnJoin">ENTRAR</button></div>
+      <p style="font-size:.7rem;color:#666;margin-top:.5rem">Use duas janelas no localhost para testar</p>
     </div>
+    <a href="game-multi.html" id="btnBack">&larr; MODOS</a>
   </div>
-
-  <!-- Guia de como usar -->
-  <div class="guide">
-    <h3>COMO JOGAR ONLINE</h3>
-    <div class="step"><span class="step-n">1</span><span class="step-t"><b>HOST</b>: Digite seu nickname e clique em <span class="highlight">CRIAR SALA</span>. Um c&oacute;digo de 5 letras ser&aacute; gerado.</span></div>
-    <div class="step"><span class="step-n">2</span><span class="step-t">Compartilhe o c&oacute;digo com o oponente via mensagem, WhatsApp, Discord etc.</span></div>
-    <div class="step"><span class="step-n">3</span><span class="step-t"><b>GUEST</b>: Digite seu nickname, cole o c&oacute;digo recebido e clique em <span class="highlight">ENTRAR NA SALA</span>.</span></div>
-    <div class="step"><span class="step-n">4</span><span class="step-t">A conex&atilde;o &eacute; <b>peer-to-peer via PeerJS</b> &mdash; funciona entre redes Wi-Fi diferentes, 4G, sem configurar nada.</span></div>
-    <div class="step"><span class="step-n">5</span><span class="step-t">Quando os dois estiverem conectados, o jogo inicia automaticamente em turnos alternados.</span></div>
-    <div class="step" style="opacity:.6"><span class="step-n">!</span><span class="step-t">Em redes corporativas muito restritivas (bloqueio de WebRTC), pode ser necess&aacute;rio usar outra rede.</span></div>
-  </div>
-
-  <a href="game-multi.html" class="back-link">&larr; Voltar aos Modos</a>
 </div>
-
-<!-- Scripts do jogo (carregados na hora certa) -->
 <script src="src/core/Vector2D.js"></script>
 <script src="src/core/SoundEngine.js"></script>
 <script src="src/core/CapSprite.js"></script>
 <script src="src/scenes/TrackV3.js"></script>
 <script>
-// ════════════════════════════════════════════════════════════════
-// CapRush Online 1v1 — PeerJS Edition
-// Coneccao peer-to-peer, sem servidor proprio
-// Funciona entre redes diferentes (NAT traversal via STUN/TURN gratuito)
-// ════════════════════════════════════════════════════════════════
-
-var peer    = null;
-var conn    = null;
-var myRole  = null; // 'host' | 'guest'
-var myNick  = 'P1';
-var oppNick = 'P2';
-var roomCode= null;
-var gameStarted = false;
-
-// ── Utilidades ────────────────────────────────────────────
-function genCode(){
-  var chars='ABCDEFGHJKLMNPQRSTUVWXYZ'; // sem I e O
-  var code='';
-  for(var i=0;i<5;i++) code+=chars[Math.floor(Math.random()*chars.length)];
-  return code;
-}
-function setStatus(msg, cls){
-  var el=document.getElementById('statusTxt');
-  el.textContent=msg;
-  el.className='status-txt'+(cls?' '+cls:'');
-}
-function setLoading(msg){
-  var el=document.getElementById('statusTxt');
-  el.className='status-txt warn';
-  el.innerHTML=msg+'<span class="dot-loader"><span></span><span></span><span></span></span>';
-}
-function disableButtons(){
-  document.getElementById('btnCreate').disabled=true;
-  document.getElementById('btnJoin').disabled=true;
-}
-
-// ── Criar sala (HOST) ─────────────────────────────────────
-function createRoom(){
-  myNick=(document.getElementById('nickCreate').value.trim()||'HOST').toUpperCase();
-  roomCode=genCode();
-  myRole='host';
-  disableButtons();
-  setLoading('Inicializando conexao PeerJS');
-
-  peer=new Peer('CAPRUSH-'+roomCode, {
-    // Usa servidores STUN/TURN publicos para NAT traversal
-    config:{
-      iceServers:[
-        {urls:'stun:stun.l.google.com:19302'},
-        {urls:'stun:stun1.l.google.com:19302'},
-        {urls:'stun:stun.stunprotocol.org:3478'}
-      ]
-    }
-  });
-
-  peer.on('open', function(id){
-    // Mostra o codigo
-    document.getElementById('roomCode').textContent=roomCode;
-    document.getElementById('roomCodeBox').style.display='block';
-    setStatus('Sala criada! Aguardando oponente... (codigo: '+roomCode+')', 'ok');
-  });
-
-  peer.on('connection', function(c){
-    conn=c;
-    conn.on('open', function(){
-      setStatus('Oponente conectado! Iniciando partida...', 'ok');
-      // Envia dados do host e inicia
-      conn.send({type:'handshake', nick:myNick, role:'host'});
-      setTimeout(function(){
-        conn.send({type:'start', first:'host'});
-        startGame('host');
-      }, 600);
-    });
-    conn.on('data', handleData);
-    conn.on('close', handleDisconnect);
-    conn.on('error', function(e){ setStatus('Erro de conexao: '+e,'err'); });
-  });
-
-  peer.on('error', function(err){
-    var msg=err.message||String(err);
-    if(msg.indexOf('unavailable')>-1||msg.indexOf('taken')>-1){
-      // Codigo ja em uso - tentar outro
-      roomCode=genCode();
-      peer.destroy();
-      setTimeout(createRoom, 300);
-    } else {
-      setStatus('Erro PeerJS: '+msg,'err');
-    }
-  });
-}
-
-// ── Entrar em sala (GUEST) ────────────────────────────────
-function joinRoom(){
-  myNick=(document.getElementById('nickJoin').value.trim()||'GUEST').toUpperCase();
-  var code=(document.getElementById('roomInput').value||'').toUpperCase().trim();
-  if(!code||code.length<3){ setStatus('Digite um codigo valido.','err'); return; }
-  roomCode=code;
-  myRole='guest';
-  disableButtons();
-  setLoading('Conectando ao host ('+code+')');
-
-  peer=new Peer(undefined, {
-    config:{
-      iceServers:[
-        {urls:'stun:stun.l.google.com:19302'},
-        {urls:'stun:stun1.l.google.com:19302'},
-        {urls:'stun:stun.stunprotocol.org:3478'}
-      ]
-    }
-  });
-
-  peer.on('open', function(id){
-    conn=peer.connect('CAPRUSH-'+code, {reliable:true});
-
-    conn.on('open', function(){
-      conn.send({type:'handshake', nick:myNick, role:'guest'});
-      setStatus('Conectado ao host! Aguardando inicio...','ok');
-    });
-    conn.on('data', handleData);
-    conn.on('close', handleDisconnect);
-    conn.on('error', function(e){ setStatus('Erro ao conectar: '+e,'err'); });
-  });
-
-  peer.on('error', function(err){
-    var msg=String(err.message||err);
-    if(msg.indexOf('Could not connect')>-1||msg.indexOf('not found')>-1||msg.indexOf('peer-unavailable')>-1){
-      setStatus('Sala nao encontrada ou host desconectado. Verifique o codigo.','err');
-    } else {
-      setStatus('Erro PeerJS: '+msg,'err');
-    }
-  });
-
-  // Timeout se nao conectar em 15s
-  setTimeout(function(){
-    if(!gameStarted) setStatus('Nao foi possivel conectar. Verifique o codigo e tente novamente.','err');
-  }, 15000);
-}
-
-// ── Recebe mensagem do oponente ───────────────────────────
-function handleData(data){
-  if(data.type==='handshake'){
-    oppNick=data.nick||'OPP';
-    setStatus('Oponente: '+oppNick,'ok');
-  }
-  else if(data.type==='start'){
-    startGame(data.first);
-  }
-  else if(data.type==='launch'){
-    // Oponente lancou - aplica na tampinha adversaria
-    if(typeof _onOppLaunch==='function') _onOppLaunch(data);
-  }
-  else if(data.type==='pos'){
-    if(typeof _onOppPos==='function') _onOppPos(data);
-  }
-  else if(data.type==='cp'){
-    if(typeof _onOppCP==='function') _onOppCP(data);
-  }
-  else if(data.type==='opponent_disconnected'||data.type==='disconnect'){
-    setStatus('Oponente desconectou.','err');
-  }
-}
-function handleDisconnect(){
-  setStatus('Conexao encerrada.','err');
-  if(typeof sendToOpp==='function') sendToOpp=function(){};
-}
-function sendToOpp(data){
-  if(conn&&conn.open) try{ conn.send(data); }catch(e){}
-}
-
-// ══════════════════════════════════════════════════════════
-// JOGO ONLINE — mesma logica do 1v1 Local adaptada para P2P
-// ══════════════════════════════════════════════════════════
-var canvas, ctx, overlay, tb;
-var LAPS=2, NCPS=3, CAP_R=16;
-var animT=0, lt=0;
-var sndT={water:0,grass:0};
-var phase='WAIT', ds=null, dc=null;
-
-function makePhysics(){
-  var BASE_DRAG=1.8,MAX_PX=165,MAX_SPD=620,REST=0.65,MIN=6;
-  var DRAG_MULT={asfalto:1.0,agua:1.95,grama:0.42};
-  var s={pos:new Vector2D(0,0),vel:new Vector2D(0,0),moving:false,surf:'asfalto'};
-  return {
-    reset:function(x,y,sf){s.pos=new Vector2D(x,y);s.vel=new Vector2D(0,0);s.moving=false;s.surf=sf||'asfalto';},
-    setSurface:function(sf){s.surf=sf||'asfalto';},
-    bounce:function(nx,ny,r2){
-      var r=r2||REST,dot=s.vel.x*nx+s.vel.y*ny;
-      if(dot>=0)return;
-      s.vel.x=(s.vel.x-2*dot*nx)*r;s.vel.y=(s.vel.y-2*dot*ny)*r;
-      s.moving=s.vel.magnitude()>MIN;
-    },
-    flick:function(from,to,mult){
-      var d=from.sub(to),len=Math.min(d.magnitude(),MAX_PX),t=len/MAX_PX;
-      s.vel=d.normalize().scale(t*MAX_SPD*(mult||1));s.moving=true;
-      return{forcePct:Math.round(t*100),fromX:from.x,fromY:from.y,toX:to.x,toY:to.y};
-    },
-    applyVel:function(vx,vy){s.vel=new Vector2D(vx,vy);s.moving=s.vel.magnitude()>MIN;},
-    step:function(dt,b){
-      if(!s.moving)return this.snap();
-      var dc2=BASE_DRAG*(DRAG_MULT[s.surf]||1),spd=s.vel.magnitude();
-      var ns=Math.max(0,spd-dc2*spd*dt);
-      if(ns<MIN){s.vel=new Vector2D(0,0);s.moving=false;return this.snap();}
-      s.vel=s.vel.normalize().scale(ns);s.pos=s.pos.add(s.vel.scale(dt));
-      var r2=14;
-      if(s.pos.x-r2<b.x){s.pos.x=b.x+r2;s.vel.x=Math.abs(s.vel.x)*REST;}
-      if(s.pos.x+r2>b.x+b.w){s.pos.x=b.x+b.w-r2;s.vel.x=-Math.abs(s.vel.x)*REST;}
-      if(s.pos.y-r2<b.y){s.pos.y=b.y+r2;s.vel.y=Math.abs(s.vel.y)*REST;}
-      if(s.pos.y+r2>b.y+b.h){s.pos.y=b.y+b.h-r2;s.vel.y=-Math.abs(s.vel.y)*REST;}
-      return this.snap();
-    },
-    snap:function(){return{pos:s.pos.clone(),vel:s.vel.clone(),speed:s.vel.magnitude(),moving:s.moving};},
-    get pos(){return s.pos.clone();},get vel(){return s.vel.clone();},
-    MAX_PX:MAX_PX,REST:REST
-  };
-}
-function cloneCPs(master){return master.map(function(c){return{x:c.x,y:c.y,r:c.r,lbl:c.lbl,ok:false};});}
-
-// Jogadores: P[0]=meu, P[1]=oponente
-var P=null, myIdx=0, cur=0;
-
-function startGame(firstRole){
-  gameStarted=true;
-  myIdx=(myRole==='host'&&firstRole==='host')?0:(myRole==='guest'&&firstRole==='host')?1:0;
-  // Re-atribui indices: host sempre idx0, guest idx1
-  myIdx = myRole==='host'?0:1;
-  cur = 0; // host comeca sempre
-
-  // Monta jogadores
-  P=[
-    {id:0,name:myRole==='host'?myNick:oppNick,color:'#00E5FF',accent:'#00A5C8',
-     phys:makePhysics(),cps:null,lap:1,cp:0,t0:0,elapsed:0,finished:false,respawn:null,
-     anim:{rot:0,trail:[]}},
-    {id:1,name:myRole==='guest'?myNick:oppNick,color:'#FF9900',accent:'#CC7700',
-     phys:makePhysics(),cps:null,lap:1,cp:0,t0:0,elapsed:0,finished:false,respawn:null,
-     anim:{rot:0,trail:[]}},
-  ];
-
-  // Atualiza HUD
-  document.getElementById('pname0').textContent=P[0].name;
-  document.getElementById('pname1').textContent=P[1].name;
-
-  // Mostra area de jogo
-  document.getElementById('lobby-area').style.display='none';
-  document.getElementById('game-area').style.display='flex';
-
-  canvas=document.getElementById('gameCanvas');
-  ctx=canvas.getContext('2d');
-  overlay=document.getElementById('g-overlay');
-  tb=document.getElementById('turn-banner');
-
-  // Atualiza overlay
-  document.getElementById('g-overlay-title').textContent='1v1 ONLINE';
-  document.getElementById('g-overlay-sub').textContent=
-    P[0].name+' (Azul) vs '+P[1].name+' (Laranja)';
-
-  function resize(){
-    canvas.width=canvas.parentElement.offsetWidth;
-    canvas.height=Math.round(canvas.width*0.55);
-    TrackV3.init(canvas.width,canvas.height);
-    var sp=TrackV3.getStartPos();
-    P.forEach(function(p,i){
-      var off=(i===0?-14:14);
-      p.phys.reset(sp.x,sp.y+off,'asfalto');
-      p.respawn={x:sp.x,y:sp.y+off};
-      p.cps=cloneCPs(TrackV3.checkpoints);
-    });
-  }
-  window.addEventListener('resize',resize);
-  setTimeout(resize,80);
-
-  if(typeof SoundEngine!=='undefined'){SoundEngine.init();}
-
-  overlay.addEventListener('click',startMatch);
-  overlay.addEventListener('touchend',function(e){e.preventDefault();startMatch();},{passive:false});
-
-  // Input handlers
-  canvas.addEventListener('mousedown',function(e){
-    if(phase!=='AIM'||cur!==myIdx)return;
-    if(typeof SoundEngine!=='undefined')SoundEngine.resume();
-    var pt=cpos(e);
-    if(pt.distanceTo(P[myIdx].phys.snap().pos)<52){ds=pt;dc=pt;}
-  });
-  canvas.addEventListener('mousemove',function(e){if(!ds)return;dc=cpos(e);});
-  canvas.addEventListener('mouseup',function(e){
-    if(!ds||phase!=='AIM'||cur!==myIdx)return;
-    doFlick(cpos(e));ds=null;dc=null;
-  });
-  canvas.addEventListener('touchstart',function(e){
-    if(phase!=='AIM'||cur!==myIdx)return;
-    if(typeof SoundEngine!=='undefined')SoundEngine.resume();
-    var pt=cpos(e.touches[0]);
-    if(pt.distanceTo(P[myIdx].phys.snap().pos)<52){ds=pt;dc=pt;}
-  },{passive:true});
-  canvas.addEventListener('touchmove',function(e){
-    e.preventDefault();if(!ds)return;dc=cpos(e.touches[0]);
-  },{passive:false});
-  canvas.addEventListener('touchend',function(e){
-    if(!ds||phase!=='AIM'||cur!==myIdx)return;
-    doFlick(cpos(e.changedTouches[0]));ds=null;dc=null;
-  },{passive:true});
-
-  requestAnimationFrame(function(t){lt=t;requestAnimationFrame(loop);});
-}
-
-function startMatch(){
-  if(typeof SoundEngine!=='undefined'){SoundEngine.resume();SoundEngine.startBGM();}
-  overlay.style.display='none';
-  phase='AIM';
-  showTurn();
-}
-
-function cpos(e){var r=canvas.getBoundingClientRect();return new Vector2D(e.clientX-r.left,e.clientY-r.top);}
-function bnd(){return{x:0,y:0,w:canvas.width,h:canvas.height};}
-
-function doFlick(to){
-  if(!P||cur!==myIdx||phase!=='AIM')return;
-  var p=P[myIdx];
-  var info=p.phys.flick(ds,to,1.0);
-  if(!p.t0)p.t0=performance.now();
-  // Envia para oponente
-  sendToOpp({type:'launch',fromX:ds.x,fromY:ds.y,toX:to.x,toY:to.y,idx:myIdx});
-  phase='MOVING';
-}
-
-_onOppLaunch=function(data){
-  // Aplica lancamento do oponente
-  var oppIdx=1-myIdx;
-  if(!P)return;
-  var p=P[oppIdx];
-  var from=new Vector2D(data.fromX,data.fromY);
-  var to=new Vector2D(data.toX,data.toY);
-  p.phys.flick(from,to,1.0);
-  if(!p.t0)p.t0=performance.now();
-  phase='MOVING';
-};
-
-function showTurn(){
-  var p=P[cur];
-  tb.textContent='TURNO '+p.name+(cur===myIdx?' (VOCE)':'');
-  tb.style.color=p.color;tb.style.opacity='1';
-  setTimeout(function(){tb.style.opacity='0';},1200);
-  setStatus(cur===myIdx?'SUA VEZ de lancar!':'Aguardando '+p.name+'...', cur===myIdx?'ok':'');
-}
-
-function loop(now){
-  if(!canvas||!P)return;
-  var dt=Math.min((now-lt)/1000,0.05);lt=now;animT+=dt;
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  TrackV3.render(ctx,canvas.width,canvas.height,animT);
-
-  var moved=false;
-  P.forEach(function(p){
-    if(p.finished)return;
-    var ph=p.phys.step(dt,bnd());
-    if(ph.moving){
-      // Colisoes
-      var obs=TrackV3.checkObstacles(ph.pos,CAP_R);
-      if(obs){p.phys.bounce(obs.nx,obs.ny,0.72);if(typeof SoundEngine!=='undefined')SoundEngine.hit();}
-      var stand=TrackV3.checkStands(ph.pos,CAP_R);
-      if(stand){p.phys.bounce(stand.nx,stand.ny,0.72);if(typeof SoundEngine!=='undefined')SoundEngine.hit();}
-      // Superficie
-      if(TrackV3.isOnTrack(ph.pos)){
-        var now2=Date.now();
-        if(TrackV3.detectPuddle(ph.pos)){
-          p.phys.setSurface('agua');
-          if(now2-sndT.water>700&&typeof SoundEngine!=='undefined'){SoundEngine.splash();sndT.water=now2;}
-        }else if(TrackV3.detectGrassOnTrack(ph.pos)){
-          p.phys.setSurface('grama');
-          if(now2-sndT.grass>900&&typeof SoundEngine!=='undefined'){SoundEngine.grass();sndT.grass=now2;}
-        }else{p.phys.setSurface('asfalto');}
-      }else{
-        var inner=TrackV3.detectInner(ph.pos);
-        if(inner){var rp=p.respawn||TrackV3.getStartPos();p.phys.reset(rp.x,rp.y,'asfalto');}
-      }
-      moved=true;
-    }
-  });
-
-  // Desenha tampinhas
-  P.forEach(function(p){
-    var ph=p.phys.snap();
-    p.anim.rot+=0.04;
-    p.anim.trail=p.anim.trail||[];
-    p.anim.trail.push({x:ph.pos.x,y:ph.pos.y});
-    if(p.anim.trail.length>8)p.anim.trail.shift();
-    p.anim.trail.forEach(function(tr,ti){
-      ctx.save();ctx.globalAlpha=.3*(ti/8);ctx.fillStyle=p.color;
-      ctx.beginPath();ctx.arc(tr.x,tr.y,CAP_R*.55,0,Math.PI*2);ctx.fill();ctx.restore();
-    });
-    ctx.save();ctx.globalAlpha=.18;ctx.fillStyle='#000';
-    ctx.beginPath();ctx.ellipse(ph.pos.x+3,ph.pos.y+4,CAP_R+2,CAP_R*.5,0,0,Math.PI*2);ctx.fill();ctx.restore();
-    if(typeof CapSprite!=='undefined'){
-      CapSprite.drawCap(ctx,ph.pos.x,ph.pos.y,CAP_R,p.color,p.accent,p.id===0?'\u96EA':'\u9B54',animT,p.anim.rot,0.5);
-    } else {
-      ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(ph.pos.x,ph.pos.y,CAP_R,0,Math.PI*2);ctx.fill();
-    }
-    // Anel ativo
-    if(cur===p.id&&phase==='AIM'){
-      ctx.save();ctx.strokeStyle=p.color;ctx.lineWidth=2;ctx.globalAlpha=0.5+Math.sin(animT*4)*.3;
-      ctx.beginPath();ctx.arc(ph.pos.x,ph.pos.y,CAP_R+8,0,Math.PI*2);ctx.stroke();ctx.restore();
-    }
-  });
-
-  // Linha de mira (so para minha tampinha quando e minha vez)
-  if(ds&&dc&&cur===myIdx){
-    var ap=P[myIdx].phys.snap();
-    var dir=ap.pos.sub(dc).normalize();
-    var dist=Math.min(ap.pos.distanceTo(dc),165);
-    var end=ap.pos.add(dir.scale(dist*1.8));
-    var pct=dist/165;
-    ctx.save();
-    var g2=ctx.createLinearGradient(ap.pos.x,ap.pos.y,end.x,end.y);
-    g2.addColorStop(0,P[myIdx].color);g2.addColorStop(1,'rgba(0,0,0,0)');
-    ctx.strokeStyle=g2;ctx.lineWidth=2+pct*2;ctx.setLineDash([7,5]);
-    ctx.beginPath();ctx.moveTo(ap.pos.x,ap.pos.y);ctx.lineTo(end.x,end.y);ctx.stroke();
-    ctx.setLineDash([]);ctx.restore();
-  }
-
-  // Checkpoints (apenas para minha tampinha - simplificado)
-  if(phase==='MOVING'&&P){
-    P.forEach(function(p){
-      if(p.finished)return;
-      var ph=p.phys.step(0,bnd());
-      for(var i=0;i<p.cps.length;i++){
-        var c=p.cps[i];if(c.ok)continue;
-        var dx=ph.pos.x-c.x,dy=ph.pos.y-c.y;
-        if(Math.sqrt(dx*dx+dy*dy)<c.r){
-          c.ok=true;p.cp++;p.respawn={x:c.x,y:c.y};
-          if(typeof SoundEngine!=='undefined')SoundEngine.checkpoint();
-          // Se for minha tampinha, avisa oponente
-          if(p.id===myIdx) sendToOpp({type:'cp',cp:p.cp,lap:p.lap});
-          break;
-        }
-      }
-      // Verifica volta
-      if(p.cp>=NCPS&&TrackV3.checkLap(ph.pos)){
-        p.cp=0;p.cps.forEach(function(c2){c2.ok=false;});
-        if(p.lap>=LAPS){p.finished=true;if(p.id===myIdx)onWin(p);}
-        else{p.lap++;}
-      }
-    });
-  }
-
-  // HUD update
-  if(P){
-    P.forEach(function(p,i){
-      var el=document.getElementById('pinfo'+i);
-      if(el)el.textContent='V'+p.lap+'/'+LAPS+' CP'+p.cp+'/'+NCPS;
-    });
-  }
-
-  // Verifica fim do turno
-  if(phase==='MOVING'){
-    var allStopped=P&&P.every(function(p){return!p.phys.snap().moving||p.finished;});
-    if(allStopped){
-      phase='AIM';
-      cur=(cur+1)%2;
-      showTurn();
-    }
-  }
-
-  requestAnimationFrame(loop);
-}
-
-function onWin(p){
-  setTimeout(function(){
-    overlay.querySelector('#g-overlay-title').style.color=p.color;
-    overlay.querySelector('#g-overlay-title').textContent=p.name+' VENCEU!';
-    overlay.querySelector('#g-overlay-sub').textContent='Parabens! Clique para jogar novamente.';
-    overlay.style.display='flex';
-    overlay.onclick=function(){location.reload();};
-  },1400);
-}
-
-var _onOppLaunch=null, _onOppPos=null, _onOppCP=null;
+function toggleBGM(){var on=SoundEngine.toggleBGM();document.getElementById('btn-bgm').classList.toggle('off',!on);}
+function toggleSFX(){var on=SoundEngine.toggleSFX();document.getElementById('btn-sfx').classList.toggle('off',!on);}
+function logEv(m){var b=document.getElementById('log-box');var p=document.createElement('p');p.className='ev';p.textContent=m;b.insertBefore(p,b.firstChild);if(b.children.length>14)b.removeChild(b.lastChild);}
+function updPanel(){document.getElementById('mp-p1-info').textContent='YUKI: V'+P[0].lap+' CP'+P[0].cp;document.getElementById('mp-p2-info').textContent='KENTA: V'+P[1].lap+' CP'+P[1].cp;}
+function makePhysics(){var BASE=1.8,MAX=165,SPD=620,REST=0.72,MIN=6,DR={asfalto:1,agua:1.95,grama:0.42};var s={p:new Vector2D(0,0),v:new Vector2D(0,0),m:false,sf:'asfalto'};return{reset:function(x,y,f){s.p=new Vector2D(x,y);s.v=new Vector2D(0,0);s.m=false;s.sf=f||'asfalto'},setSurface:function(f){s.sf=f||'asfalto'},setVel:function(x,y){s.v=new Vector2D(x,y);s.m=s.v.magnitude()>MIN},flick:function(a,b,mult){var d=a.sub(b),l=Math.min(d.magnitude(),MAX),t=l/MAX;s.v=d.normalize().scale(t*SPD*(mult||1));s.m=true;var pct=Math.round(t*100);document.getElementById('force-value').textContent=pct+'%';document.getElementById('force-bar-fill').style.height=pct+'%';return pct},bounce:function(nx,ny){if(nx==null||ny==null)return;var d=s.v.x*nx+s.v.y*ny;if(d>=0)return;s.v.x=(s.v.x-2*d*nx)*REST;s.v.y=(s.v.y-2*d*ny)*REST;s.m=s.v.magnitude()>MIN},step:function(dt,b){if(!s.m)return this.snap();var drag=BASE*(DR[s.sf]||1),sp=s.v.magnitude(),ns=Math.max(0,sp-drag*sp*dt);if(ns<MIN){s.v=new Vector2D(0,0);s.m=false;return this.snap()}s.v=s.v.normalize().scale(ns);s.p=s.p.add(s.v.scale(dt));if(s.m&&window.SoundEngine)SoundEngine.drag(s.sf,sp);var r=14;if(s.p.x-r<b.x){s.p.x=b.x+r;s.v.x=Math.abs(s.v.x)*REST}if(s.p.x+r>b.x+b.w){s.p.x=b.x+b.w-r;s.v.x=-Math.abs(s.v.x)*REST}if(s.p.y-r<b.y){s.p.y=b.y+r;s.v.y=Math.abs(s.v.y)*REST}if(s.p.y+r>b.y+b.h){s.p.y=b.y+b.h-r;s.v.y=-Math.abs(s.v.y)*REST}return this.snap()},snap:function(){return{pos:s.p.clone(),vel:s.v.clone(),speed:s.v.magnitude(),moving:s.m}},get pos(){return s.p.clone()}}}
+function cloneCPs(m){return m.map(function(c){return{x:c.x,y:c.y,r:c.r,lbl:c.lbl,ok:false}})}
+SoundEngine.init();var canvas=document.getElementById('gameCanvas'),ctx=canvas.getContext('2d'),overlay=document.getElementById('overlay');var LAPS=2,NCPS=3,CAP_R=16;
+var P=[{id:0,name:'YUKI',color:'#00E5FF',accent:'#00A5C8',kanji:'雪',phys:makePhysics(),cps:null,lap:1,cp:0,t0:0,elapsed:0,finished:false,respawn:null,anim:{rot:0,glow:0,gdir:1,trail:[]}},{id:1,name:'KENTA',color:'#FF9900',accent:'#CC7700',kanji:'魔',phys:makePhysics(),cps:null,lap:1,cp:0,t0:0,elapsed:0,finished:false,respawn:null,anim:{rot:0,glow:0,gdir:1,trail:[]}}];
+var myId=0,peer=null,conn=null,phase='WAIT',cur=0,ds=null,dc=null,lt=0,animT=0,sndT={water:0,grass:0};
+function resize(){var w=canvas.parentElement;canvas.width=w.offsetWidth-155;canvas.height=w.offsetHeight||400;TrackV3.init(canvas.width,canvas.height);var s=TrackV3.getStartPos();P.forEach(function(p,i){var o=i===0?-14:14;p.phys.reset(s.x,s.y+o,'asfalto');p.respawn={x:s.x,y:s.y+o};p.cps=cloneCPs(TrackV3.checkpoints)})}
+window.addEventListener('resize',resize);setTimeout(resize,80);
+function setStatus(t){document.getElementById('mp-turn').textContent=t;document.getElementById('ov-status').textContent=t;logEv(t)}
+document.getElementById('btnHost').onclick=function(){setStatus('Conectando PeerServer...');peer=new Peer({debug:2});peer.on('open',function(id){setStatus('SALA: '+id);myId=0;cur=0;logEv('Host pronto');startGame()});peer.on('error',function(e){setStatus('ERRO: '+e.type);logEv('Host erro '+e.type)});peer.on('connection',function(c){conn=c;setupConn();logEv('Guest conectou')})};
+document.getElementById('btnJoin').onclick=function(){var id=document.getElementById('roomId').value.trim();if(!id){setStatus('Digite ID');return}setStatus('Conectando...');peer=new Peer({debug:2});peer.on('open',function(){conn=peer.connect(id,{reliable:true});conn.on('open',function(){myId=1;cur=0;setStatus('CONECTADO');logEv('Entrou na sala');setupConn();startGame()});conn.on('error',function(e){setStatus('Erro conn');logEv('Conn erro')})});peer.on('error',function(e){setStatus('ERRO: '+e.type);logEv('Join erro '+e.type)})};
+function setupConn(){conn.on('data',function(d){if(d.t==='flick'){var p=P[d.p];p.phys.flick(new Vector2D(d.fx,d.fy),new Vector2D(d.tx,d.ty),1);if(!p.t0)p.t0=performance.now()}});conn.on('close',function(){setStatus('Desconectado')})}
+function startGame(){overlay.style.display='none';SoundEngine.resume();SoundEngine.startBGM();phase='AIM';if(!P[myId].t0)P[myId].t0=performance.now();showTurn();requestAnimationFrame(function(t){lt=t;loop(t)})}
+function showTurn(){var p=P[cur];updPanel()}
+function cpos(e){var r=canvas.getBoundingClientRect();var pt=e.touches?e.touches[0]:e;return new Vector2D(pt.clientX-r.left,pt.clientY-r.top)}
+function bnd(){return{x:0,y:0,w:canvas.width,h:canvas.height}}
+function nearActive(pt){return pt.distanceTo(P[myId].phys.snap().pos)<52}
+canvas.addEventListener('mousedown',function(e){if(phase!=='AIM'||myId!==cur)return;if(nearActive(cpos(e))){ds=cpos(e);dc=cpos(e)}});
+canvas.addEventListener('mousemove',function(e){if(ds)dc=cpos(e)});
+canvas.addEventListener('mouseup',function(e){if(!ds||myId!==cur)return;doFlick(cpos(e))});
+canvas.addEventListener('touchstart',function(e){if(phase!=='AIM'||myId!==cur)return;if(nearActive(cpos(e))){ds=cpos(e);dc=cpos(e)}},{passive:true});
+canvas.addEventListener('touchmove',function(e){if(ds)dc=cpos(e.touches[0])},{passive:false});
+canvas.addEventListener('touchend',function(e){if(!ds||myId!==cur)return;doFlick(cpos({touches:e.changedTouches}))});
+function doFlick(to){var p=P[myId];p.phys.flick(ds,to,1);if(!p.t0)p.t0=performance.now();if(conn&&conn.open)conn.send({t:'flick',p:myId,fx:ds.x,fy:ds.y,tx:to.x,ty:to.y});ds=null;dc=null;phase='MOVING'}
+function loop(now){var dt=Math.min((now-lt)/1000,.05);lt=now;animT+=dt;ctx.clearRect(0,0,canvas.width,canvas.height);TrackV3.render(ctx,canvas.width,canvas.height,animT);if(phase==='MOVING'){P[0].phys.step(dt,bnd());P[1].phys.step(dt,bnd());var a=P[0],b=P[1],pa=a.phys.snap(),pb=b.phys.snap(),d=Math.hypot(pb.pos.x-pa.pos.x,pb.pos.y-pa.pos.y);if(d<28&&d>0.1){var nx=(pb.pos.x-pa.pos.x)/d,ny=(pb.pos.y-pa.pos.y)/d,va=(pb.vel.x-pa.vel.x)*nx+(pb.vel.y-pa.vel.y)*ny;if(va<0){var j=-(1.72)*va/2;a.phys.setVel(pa.vel.x-j*nx,pa.vel.y-j*ny);b.phys.setVel(pb.vel.x+j*nx,pb.vel.y+j*ny);SoundEngine.hit()}}P.forEach(function(p){var ph=p.phys.snap();var o=TrackV3.checkObstacles(ph.pos,CAP_R);if(o&&o.nx!=null){p.phys.bounce(o.nx,o.ny);SoundEngine.hit()}if(TrackV3.isOnTrack(ph.pos)){var t=Date.now();if(TrackV3.detectPuddle(ph.pos)){p.phys.setSurface('agua');if(t-sndT.water>700){SoundEngine.splash();sndT.water=t}}else if(TrackV3.detectGrassOnTrack(ph.pos)){p.phys.setSurface('grama');if(t-sndT.grass>900){SoundEngine.grass();sndT.grass=t}}else p.phys.setSurface('asfalto')}else if(TrackV3.detectInner(ph.pos)){var rp=p.respawn||TrackV3.getStartPos();p.phys.reset(rp.x,rp.y,'asfalto')}for(var i=0;i<p.cps.length;i++){var c=p.cps[i];if(c.ok)continue;if(Math.hypot(ph.pos.x-c.x,ph.pos.y-c.y)<c.r){c.ok=true;p.cp++;p.respawn={x:c.x,y:c.y};SoundEngine.checkpoint();logEv(p.name+' CP'+p.cp);updPanel()}}if(p.cp>=NCPS&&TrackV3.checkLap(ph.pos)){p.cp=0;p.cps=cloneCPs(TrackV3.checkpoints);if(p.lap>=LAPS){p.finished=true;p.elapsed=(performance.now()-p.t0)/1000;SoundEngine.victory();logEv(p.name+' VENCEU')}else{p.lap++;logEv(p.name+' V'+p.lap);updPanel()}}if(p.t0)p.elapsed=(performance.now()-p.t0)/1000;document.getElementById('p'+p.id+'-time').textContent=((p.elapsed/60|0).toString().padStart(2,'0'))+':'+((p.elapsed%60).toFixed(1).padStart(4,'0'));document.getElementById('p'+p.id+'-lap').textContent='V'+p.lap+'/'+LAPS+' CP'+p.cp+'/'+NCPS});var stop=!P[0].phys.snap().moving&&!P[1].phys.snap().moving;if(stop){phase='AIM';cur=1-cur;document.getElementById('mp-turn').textContent='VEZ DE '+P[cur].name;document.getElementById('force-value').textContent='0%';document.getElementById('force-bar-fill').style.height='0%'}}P.forEach(function(p){var ph=p.phys.snap(),s=ph.speed;p.anim.rot+=s*dt*.006;p.anim.glow+=.03*p.anim.gdir;if(p.anim.glow>=1||p.anim.glow<=0)p.anim.gdir*=-1;p.anim.trail.push({x:ph.pos.x,y:ph.pos.y});if(p.anim.trail.length>20)p.anim.trail.shift();CapSprite.drawTrail(ctx,p.anim.trail,p.color,s);CapSprite.drawCap(ctx,ph.pos.x,ph.pos.y,16,p.color,p.accent,p.kanji,p.anim.rot,s,p.anim.glow)});requestAnimationFrame(loop)}
 </script>
-<script src="../i18n.js"></script>
 </body>
 </html>
