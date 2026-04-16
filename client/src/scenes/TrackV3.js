@@ -63,7 +63,7 @@ var TrackV3 = (function(){
     // FIX v4: CP1 movido para CIMA - fora da agua, no topo do chicane
     // CP2 na reta direita, CP3 na base
     cps = [
-      { x: CW*0.50, y: CH*0.18, r: TW*0.62, lbl:'CP 1', ok:false },
+      { x: CW*0.50, y: CH*0.33, r: TW*0.62, lbl:'CP 1', ok:false },
       { x: CW-m,    y: CH*0.30, r: TW*0.62, lbl:'CP 2', ok:false },
       { x: CW*0.50, y: CH-m,    r: TW*0.62, lbl:'CP 3', ok:false },
     ];
@@ -78,14 +78,14 @@ var TrackV3 = (function(){
 
     // FIX v4: Poca 1 no chicane central, Poca 2 na RETA DIREITA (dentro da pista)
     puddleZones = [
-      { x: CW*0.50, y: CH*0.52, r: TW*0.60 },  // poca 1: curva do chicane
-      { x: CW*0.78, y: CH*0.50, r: TW*0.55 },  // poca 2: RETA DIREITA - CORRIGIDA
+      { x: CW*0.16, y: CH*0.66, r: TW*0.70 },  // esquerda - na pista
+      { x: CW*0.91, y: CH*0.09, r: TW*0.70 },  // direita - na pista
     ];
 
     // FIX v4: Grama on-track em formato ORGANICO (blob) - colisao via elipse
     grassOnTrack = [
       { type:'blob', cx:CW*0.30, cy:CH*0.80, rx:TW*0.50, ry:TW*0.34, rot:0.28 },
-      { type:'blob', cx:CW*0.66, cy:CH*0.80, rx:TW*0.46, ry:TW*0.30, rot:-0.22 },
+      { type:'blob', cx:CW*0.73, cy:CH*0.75, rx:TW*0.69, ry:TW*0.30, rot:-0.22 },
     ];
 
     var innerX = m + TW + 5;

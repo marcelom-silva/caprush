@@ -57,7 +57,8 @@ var Physics = (function(){
     var t    = len / MAX_PX;
     s.vel    = drag.normalize().scale(t * MAX_SPD * (charMult || 1));
     s.moving = true;
-    return { forcePct: Math.round(t*100),
+    function collide(aPos,aVel,bPos,bVel){var dx=bPos.x-aPos.x,dy=bPos.y-aPos.y,d=Math.sqrt(dx*dx+dy*dy);if(d>28||d<0.1)return null;var nx=dx/d,ny=dy/d,rvx=bVel.x-aVel.x,rvy=bVel.y-aVel.y,va=rvx*nx+rvy*ny;if(va>0)return null;var j=-(1+REST)*va/2;return{ax:aVel.x-j*nx,ay:aVel.y-j*ny,bx:bVel.x+j*nx,by:bVel.y+j*ny};}
+ return { collide:collide, forcePct: Math.round(t*100),
              angle: Math.atan2(drag.y, drag.x) * 180 / Math.PI };
   }
 
@@ -88,7 +89,8 @@ var Physics = (function(){
   }
 
   function snap(){
-    return {
+    function collide(aPos,aVel,bPos,bVel){var dx=bPos.x-aPos.x,dy=bPos.y-aPos.y,d=Math.sqrt(dx*dx+dy*dy);if(d>28||d<0.1)return null;var nx=dx/d,ny=dy/d,rvx=bVel.x-aVel.x,rvy=bVel.y-aVel.y,va=rvx*nx+rvy*ny;if(va>0)return null;var j=-(1+REST)*va/2;return{ax:aVel.x-j*nx,ay:aVel.y-j*ny,bx:bVel.x+j*nx,by:bVel.y+j*ny};}
+ return { collide:collide,
       pos:    s.pos.clone(),
       vel:    s.vel.clone(),
       speed:  s.vel.magnitude(),
@@ -97,7 +99,8 @@ var Physics = (function(){
     };
   }
 
-  return {
+  function collide(aPos,aVel,bPos,bVel){var dx=bPos.x-aPos.x,dy=bPos.y-aPos.y,d=Math.sqrt(dx*dx+dy*dy);if(d>28||d<0.1)return null;var nx=dx/d,ny=dy/d,rvx=bVel.x-aVel.x,rvy=bVel.y-aVel.y,va=rvx*nx+rvy*ny;if(va>0)return null;var j=-(1+REST)*va/2;return{ax:aVel.x-j*nx,ay:aVel.y-j*ny,bx:bVel.x+j*nx,by:bVel.y+j*ny};}
+ return { collide:collide,
     reset:reset, flick:flick, step:step,
     setSurface:setSurface, setVel:setVel, bounce:bounce,
     MAX_PX:MAX_PX, MAX_SPD:MAX_SPD, REST:REST,

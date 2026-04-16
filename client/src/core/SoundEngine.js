@@ -55,7 +55,8 @@ var SoundEngine = (function(){
     f.type='bandpass'; f.frequency.value=1800; g.gain.value=.7;
     s.buffer=buf; s.connect(f); f.connect(g); g.connect(_masterGain||ctx.destination); s.start();
   }
-  function grass(){
+  function drag(surf,spd){if(!ctx||!_sfxOn||spd<30)return;var b=ctx.createBuffer(1,ctx.sampleRate*.05,ctx.sampleRate),d=b.getChannelData(0),v=surf==='agua'?0.15:surf==='grama'?0.22:0.18;for(var i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*v*(spd/400);var s=ctx.createBufferSource(),f=ctx.createBiquadFilter(),g=ctx.createGain();f.type='highpass';f.frequency.value=surf==='agua'?1200:800;g.gain.value=.4;s.buffer=b;s.connect(f);f.connect(g);g.connect(_master||ctx.destination);s.start();}
+ function grass(){
     if(!ctx||!_sfxOn) return;
     var buf=ctx.createBuffer(1,ctx.sampleRate*.15,ctx.sampleRate);
     var d=buf.getChannelData(0);
