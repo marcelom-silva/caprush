@@ -15,6 +15,7 @@ var Physics = (function(){
     asfalto: 1.0,
     agua:    1.95,  // +95% de arrasto — freia significativamente
     grama:   0.42,  // -58% de arrasto — desliza e ganha velocidade
+    areia:   1.55,  // +55% de arrasto — mais resistente que asfalto, menos que água
   };
 
   var s = {
@@ -48,6 +49,14 @@ var Physics = (function(){
     if(dot >= 0) return;  // ja se afastando, nao ricocheta
     s.vel.x = (s.vel.x - 2 * dot * nx) * r;
     s.vel.y = (s.vel.y - 2 * dot * ny) * r;
+
+    // 💥 impacto forte
+    if(Math.abs(dot) > 80){
+      if(window.onImpact){
+        window.onImpact(s.pos.x, s.pos.y, Math.abs(dot));
+      }
+    }
+
     s.moving = s.vel.magnitude() > MIN_SPD;
   }
 
@@ -57,9 +66,12 @@ var Physics = (function(){
     var t    = len / MAX_PX;
     s.vel    = drag.normalize().scale(t * MAX_SPD * (charMult || 1));
     s.moving = true;
+
+    //SoundEngine.launch(len);
+
     function collide(aPos,aVel,bPos,bVel){var dx=bPos.x-aPos.x,dy=bPos.y-aPos.y,d=Math.sqrt(dx*dx+dy*dy);if(d>28||d<0.1)return null;var nx=dx/d,ny=dy/d,rvx=bVel.x-aVel.x,rvy=bVel.y-aVel.y,va=rvx*nx+rvy*ny;if(va>0)return null;var j=-(1+REST)*va/2;return{ax:aVel.x-j*nx,ay:aVel.y-j*ny,bx:bVel.x+j*nx,by:bVel.y+j*ny};}
- return { collide:collide, forcePct: Math.round(t*100),
-             angle: Math.atan2(drag.y, drag.x) * 180 / Math.PI };
+    return { collide:collide, forcePct: Math.round(t*100),
+                angle: Math.atan2(drag.y, drag.x) * 180 / Math.PI };
   }
 
   function step(dt, bounds){

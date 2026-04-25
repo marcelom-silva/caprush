@@ -7,87 +7,282 @@
 <title>CapRush - Manual</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
 <style>
-:root{--red:#FF2A2A;--gold:#FFD700;--dark:#0A0A0F;--acc:#00E5FF;}
-*{margin:0;padding:0;box-sizing:border-box;}
-html,body{background:var(--dark);color:#E8E8F0;font-family:'Rajdhani',sans-serif;min-height:100%;}
-nav{display:flex;align-items:center;padding:12px 24px;background:rgba(5,5,12,.95);border-bottom:1px solid rgba(255,42,42,.25);gap:1.4rem;position:sticky;top:0;z-index:50;}
-.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:1.35rem;letter-spacing:4px;background:linear-gradient(135deg,var(--red),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-decoration:none;white-space:nowrap;margin-right:.4rem;}
-.nav-link{color:#AAA;text-decoration:none;font-size:.9rem;letter-spacing:2px;text-transform:uppercase;transition:color.2s;white-space:nowrap;}
-.nav-link:hover,.nav-link.active{color:var(--gold);}
-#flag-container{display:flex;gap:6px;margin-left:auto;}
-.flag-btn{width:24px;height:16px;border:1px solid rgba(255,255,255,.2);border-radius:3px;cursor:pointer;opacity:.6;background-size:cover;background-position:center;transition:opacity.2s}
-.flag-btn:hover,.flag-btn.flag-active{opacity:1;border-color:var(--gold)}
+  html, body {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+  position: relative;
+}
+:root{--red:#FF2A2A;--gold:#FFD700;--dark:#05050A;--acc:#00E5FF;}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:var(--dark);
+  color:#E8E8F0;
+  font-family:'Rajdhani',sans-serif;
+  overflow-x:hidden;
+}
+/* FUNDO ANIMADO */
+body::before{
+  content:"";position:fixed;inset:0;z-index:-2;
+  background:
+    radial-gradient(1200px 800px at 80% -20%, rgba(255,42,.15), transparent 60%),
+    radial-gradient(900px 600px at 10% 120%, rgba(0,229,255,.12), transparent 60%),
+    #05050A;
+}
+body::after{
+  content:"";position:fixed;inset:0;z-index:-1;opacity:.04;
+  background-image:linear-gradient(rgba(255,255,255,.1) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.1) 1px,transparent 1px);
+  background-size:44px 44px;
+  animation:gridMove 20s linear infinite;
+}
+@keyframes gridMove{to{background-position:44px 44px}}
+
+/* NAV */
+nav{display:flex;align-items:center;padding:12px 24px;background:rgba(5,5,12,.7);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,42,42,.25);gap:1.4rem;position:sticky;top:0;z-index:50;}
+.nav-logo{font-family:'Bebas Neue';font-size:1.35rem;letter-spacing:4px;background:linear-gradient(135deg,var(--red),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none}
+.nav-link{color:#AAA;text-decoration:none;font-size:.9rem;letter-spacing:2px;text-transform:uppercase;transition:.2s}
+.nav-link.active,.nav-link:hover{color:var(--gold);text-shadow:0 0 12px rgba(255,215,0,.4)}
+#flag-container{display:flex;gap:6px}
+.flag-btn{width:24px;height:16px;border:1px solid rgba(255,255,255,.2);border-radius:3px;cursor:pointer;opacity:.6;background-size:cover;transition:.2s}
+.flag-btn:hover,.flag-btn.flag-active{opacity:1;border-color:var(--gold);box-shadow:0 0 8px rgba(255,215,0,.5)}
 .flag-pt{background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23009b3a"/><polygon points="1.5,0.2 2.7,1 1.5,1.8 0.3,1" fill="%23ffdf00"/><circle cx="1.5" cy="1" r="0.35" fill="%23002776"/></svg>')}
 .flag-us{background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23b22234"/><g fill="%23fff"><rect y="0.15" width="3" height="0.15"/><rect y="0.45" width="3" height="0.15"/><rect y="0.75" width="3" height="0.15"/><rect y="1.05" width="3" height="0.15"/><rect y="1.35" width="3" height="0.15"/><rect y="1.65" width="3" height="0.15"/></g><rect width="1.2" height="1.05" fill="%233c3b6e"/></svg>')}
 .flag-es{background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23c60b1e"/><rect y="0.5" width="3" height="1" fill="%23ffc400"/></svg>')}
-.content{max-width:780px;margin:0 auto;padding:40px 24px 80px;}
-h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,6vw,3.5rem);letter-spacing:5px;background:linear-gradient(135deg,var(--red),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px;}
-h2{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:3px;color:var(--gold);border-bottom:1px solid rgba(255,215,0,.2);padding-bottom:4px;margin:32px 0 12px;}
-h3{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:2px;color:var(--acc);margin:18px 0 8px;}
-p{font-size:.95rem;line-height:1.7;color:#C8C8D8;margin-bottom:10px;}
-.tip{background:rgba(0,229,255,.06);border-left:3px solid var(--acc);padding:10px 14px;border-radius:0 6px 6px 0;margin:14px 0;font-size:.88rem;color:#A0C8D8;}
-.warn{background:rgba(255,42,42,.06);border-left:3px solid var(--red);padding:10px 14px;border-radius:0 6px 6px 0;margin:14px 0;font-size:.88rem;color:#D8A0A0;}
-.step{display:flex;gap:14px;margin:10px 0;align-items:flex-start;}
-.step-num{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--gold);min-width:32px;line-height:1;}
-.step-txt{font-size:.92rem;line-height:1.6;color:#C8C8D8;padding-top:4px;}
-.surf-table{width:100%;border-collapse:collapse;margin:14px 0;font-size:.88rem;}
-.surf-table th{background:rgba(255,42,42,.1);padding:6px 10px;text-align:left;letter-spacing:1px;color:var(--red);}
-.surf-table td{padding:6px 10px;border-bottom:1px solid rgba(255,255,255,.05);color:#C0C0D0;}
-.surf-table tr:last-child td{border:none;}
-.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+
+/* LAYOUT */
+.wrap{
+  display:grid;
+  grid-template-columns:220px 1fr;
+  gap:40px;
+  max-width:1100px;
+  margin:0 auto;
+  padding:40px 24px 80px;
+}
+@media(max-width:900px){.wrap{grid-template-columns:1fr}}
+.sidebar {
+  position: sticky;
+  top: 100px;
+
+  background: rgba(5,5,15,0.75);
+  backdrop-filter: blur(14px);
+
+  border-radius: 14px;
+  padding: 18px 14px;
+
+  border: 1px solid rgba(255,180,0,0.2);
+
+  box-shadow:
+    0 0 25px rgba(255,140,0,0.2),
+    inset 0 0 20px rgba(255,140,0,0.05);
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  transform: perspective(800px) rotateY(4deg);
+}
+.sidebar a {
+  color: #999;
+  text-decoration: none;
+  font-size: 0.85rem;
+  letter-spacing: 1.5px;
+  padding: 10px 12px;
+
+  border-radius: 8px;
+  position: relative;
+
+  transition: all 0.25s ease;
+}
+
+.sidebar a.active {
+  color: #FFD700;
+
+  background: rgba(255,180,0,0.12);
+
+  border-left: 3px solid #FFD700;
+
+  box-shadow:
+    0 0 15px rgba(255,180,0,0.4),
+    inset 0 0 10px rgba(255,180,0,0.2);
+}
+.sidebar a:hover {
+  color: #FFD700;
+
+  background: rgba(255,180,0,0.08);
+
+  box-shadow:
+    0 0 12px rgba(255,180,0,0.25),
+    inset 0 0 8px rgba(255,180,0,0.15);
+
+  transform: translateX(4px);
+}
+
+.sidebar a::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #FFD700, transparent);
+  transition: 0.3s;
+}
+
+.sidebar a:hover::before {
+  width: 20px;
+  top: 50%;
+}
+
+.content{position:relative}
+h1{font-family:'Bebas Neue';font-size:clamp(2.8rem,6vw,4.2rem);letter-spacing:5px;background:linear-gradient(135deg,var(--red),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;filter:drop-shadow(0 0 20px rgba(255,42,42,.3));animation:pulse 3s ease-in-out infinite}
+@keyframes pulse{0%,100%{filter:drop-shadow(0 0 20px rgba(255,42,42,.3))}50%{filter:drop-shadow(0 0 30px rgba(255,215,0,.5))}}
+.subtitle{color:#777;letter-spacing:2px;text-transform:uppercase;font-size:.8rem;margin-bottom:32px}
+
+h2{display:flex;align-items:center;gap:10px;font-family:'Bebas Neue';font-size:1.6rem;color:var(--gold);margin:40px 0 16px;letter-spacing:2px}
+h2 svg{width:22px;height:22px;opacity:.8}
+p{line-height:1.75;color:#C8C8D8;margin-bottom:14px;font-size:1.02rem}
+
+/* CARDS GLASS */
+.card {
+  background: rgba(10,10,20,0.6);
+  border: 1px solid rgba(255,180,0,0.15);
+  backdrop-filter: blur(12px);
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin: 20px 0;
+  position: relative;
+  overflow: hidden;
+
+  box-shadow:
+    0 0 20px rgba(255,120,0,0.15),
+    inset 0 0 20px rgba(255,120,0,0.05);
+}
+.card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--acc),transparent);opacity:.6}
+.tip{border-left:3px solid var(--acc);background:rgba(0,229,255,.06)}
+.warn{border-left:3px solid var(--red);background:rgba(255,42,42,.06)}
+.card strong{color:#fff}
+
+/* PROGRESS BAR */
+#progress{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--red),var(--gold));z-index:100;width:0%;transition:width.1s}
+.login-btn{
+  background:linear-gradient(135deg,var(--red),var(--gold));
+  border:none;
+  padding:8px 16px;
+  border-radius:20px;
+  font-family:'Bebas Neue';
+  letter-spacing:2px;
+  color:#000;
+  font-size:.9rem;
+  transition:.2s;
+  cursor:pointer;
+}
+.login-btn:hover{
+  filter:brightness(1.2);
+  transform:scale(1.05);
+}
+.nav-right{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-left:auto;
+}
+.center{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  min-height:100vh;
+}
+.content {
+  background: rgba(5,5,10,0.55);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 18px;
+  padding: 30px;
+  box-shadow: 0 0 40px rgba(0,0,0,0.6);
+}
 </style>
 </head>
 <body>
+<div id="progress"></div>
 <nav>
   <a href="index.html" class="nav-logo">CAP RUSH</a>
-  <a href="caprush-game.html" class="nav-link" data-i18n="play">JOGAR</a>
-  <a href="personagens.html" class="nav-link" data-i18n="pilots">PILOTOS</a>
   <a href="ranking.html" class="nav-link" data-i18n="ranking">RANKING</a>
   <a href="manual.html" class="nav-link active" data-i18n="manual">MANUAL</a>
-  <div id="flag-container"></div>
+  <div class="nav-right">
+
+    <button id="soundBtn" onclick="toggleAudio()" class="login-btn" style="
+      padding:0;
+      width:38px;
+      height:38px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:16px;
+    ">🔇</button>
+
+    <div id="flag-container">
+      <button class="flag-btn flag-pt" onclick="setLang('pt')"></button>
+      <button class="flag-btn flag-us" onclick="setLang('en')"></button>
+      <button class="flag-btn flag-es" onclick="setLang('es')"></button>
+    </div>
+
+  </div>
 </nav>
-<div class="content">
-  <h1 data-i18n="manual-title">MANUAL DO JOGADOR</h1>
-  <p data-i18n="manual-intro">Bem-vindo ao CapRush Overdrive! — o jogo de corrida de tampinhas mais eletrizante do universo digital.</p>
 
-  <h2 data-i18n="manual-how">COMO JOGAR</h2>
-  <p data-i18n="manual-how-desc">O controle é simples: clique e arraste para mirar, solte para lançar. A força depende de quanto você puxou.</p>
+<div class="wrap">
+  <aside class="sidebar">
+    <a href="#wallet" data-i18n="manual-menu-wallet">Carteira</a>
+    <a href="#jogar" data-i18n="manual-menu-how">Como Jogar</a>
+    <a href="#modos" data-i18n="manual-menu-modes">Modos</a>
+  </aside>
 
-  <div class="step"><span class="step-num">1</span><div class="step-txt" data-i18n="manual-step1"><strong>Clique sobre a sua tampinha</strong> — um círculo pulsante indica qual é a sua.</div></div>
-  <div class="step"><span class="step-num">2</span><div class="step-txt" data-i18n="manual-step2"><strong>Arraste para trás</strong> em relação ao destino. Quanto mais longe, mais força.</div></div>
-  <div class="step"><span class="step-num">3</span><div class="step-txt" data-i18n="manual-step3"><strong>Solte o mouse</strong> para disparar. A tampinha parte na direção oposta ao arrasto.</div></div>
-  <div class="step"><span class="step-num">4</span><div class="step-txt" data-i18n="manual-step4"><strong>Passe pelos Checkpoints</strong> em ordem (CP1 → CP2 → CP3) e cruze a linha para completar a volta.</div></div>
+  <div class="content">
+    <h1 data-i18n="manual-title">MANUAL DO JOGADOR</h1>
+    <div class="subtitle" data-i18n="manual-intro">Bem-vindo ao CapRush Overdrive! — o jogo de corrida de tampinhas mais eletrizante do universo digital.</div>
 
-  <div class="tip" data-i18n="manual-tip-force">ℹ A barra de Força no painel direito mostra a potência atual em tempo real.</div>
+    <div class="card warn" data-i18n="manual-wallet-w">⚠ Sua carteira é non-custodial: criada via Google, sem senha. Guarde o acesso ao Google — se perder, perde a wallet. Você pode exportar para Phantom a qualquer momento.</div>
 
-  <h2 data-i18n="manual-surfaces">SUPERFÍCIES DA PISTA</h2>
-  <table class="surf-table">
-    <tr><th data-i18n="manual-th-surface">Superfície</th><th data-i18n="manual-th-effect">Efeito</th><th data-i18n="manual-th-tip">Dica</th></tr>
-    <tr><td><span class="dot" style="background:#5C4530"></span><span data-i18n="manual-surf-asphalt">Asfalto</span></td><td data-i18n="manual-surf-asphalt-e">Normal, sem bônus</td><td data-i18n="manual-surf-asphalt-t">Linha ideal de corrida</td></tr>
-    <tr><td><span class="dot" style="background:#00A0FF;border:1px solid #00E5FF"></span><span data-i18n="manual-surf-water">Água</span></td><td data-i18n="manual-surf-water-e">Mais aderência</td><td data-i18n="manual-surf-water-t">Use para curvas fechadas</td></tr>
-    <tr><td><span class="dot" style="background:#38B838;border:1px solid #60E060"></span><span data-i18n="manual-surf-grass">Grama</span></td><td data-i18n="manual-surf-grass-e">Menos aderência</td><td data-i18n="manual-surf-grass-t">Evite ou use para desviar</td></tr>
-    <tr><td><span class="dot" style="background:#5C3A1A"></span><span data-i18n="manual-surf-obs">Obstáculos</span></td><td data-i18n="manual-surf-obs-e">Reflete a tampinha</td><td data-i18n="manual-surf-obs-t">Use estrategicamente</td></tr>
-  </table>
+    <h2 id="wallet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M16 14a2 2 0 1 0 0-4 2 2 0 0 4z"/></svg><span data-i18n="manual-wallet-title">CARTEIRA E LOGIN</span></h2>
+    <p data-i18n="manual-wallet-desc">O CapRush usa TipLink na Solana. Você entra com Google e uma wallet é criada automaticamente — sem extensão, sem seed phrase. Quem já tem Phantom pode conectar depois.</p>
+    <div class="card tip" data-i18n="manual-wallet-tip">Seu progresso, ranking e futuros prêmios em $CR ficam vinculados à sua wallet. Jogue logado para salvar recordes.</div>
 
-  <h2 data-i18n="manual-modes">MODOS DE JOGO</h2>
-  <h3 data-i18n="manual-mode-solo">SOLO</h3>
-  <p data-i18n="manual-mode-solo-d">Corra contra o tempo. Complete 2 voltas no menor tempo possível.</p>
-  <h3 data-i18n="manual-mode-1v1">1v1 LOCAL</h3>
-  <p data-i18n="manual-mode-1v1-d">Dois jogadores se alternam no mesmo PC. YUKI vs KENTA disputam 2 voltas.</p>
-  <h3 data-i18n="manual-mode-online">ONLINE (Beta)</h3>
-  <p data-i18n="manual-mode-online-d">Desafie amigos via WebRTC. Um cria a sala, o outro entra com o código.</p>
-  <div class="tip" data-i18n="manual-online-tip">ℹ Se o jogo estiver no Vercel ou GitHub Pages, qualquer pessoa com o link pode jogar.</div>
+    <h2 id="jogar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg><span data-i18n="manual-how">COMO JOGAR</span></h2>
+    <p data-i18n="manual-how-desc">Clique e arraste para mirar, solte para lançar. A força depende da distância.</p>
 
-  <h2 data-i18n="manual-audio">MÚSICA E EFEITOS</h2>
-  <p data-i18n="manual-audio-d">O botão ♬ liga/desliga a música. O botão ▶▶ controla os efeitos.</p>
-  <div class="warn" data-i18n="manual-audio-w">⚠ Alguns navegadores bloqueiam áudio automático. Clique no jogo para ativar.</div>
-
-  <h2 data-i18n="pilots">PILOTOS</h2>
-  <p><span data-i18n="manual-pilots-d">Cada piloto tem atributos que afetam a tampinha.</span> <a href="personagens.html" style="color:var(--acc)" data-i18n="pilots">PILOTOS</a></p>
-
-  <h2 data-i18n="manual-tips">DICAS AVANÇADAS</h2>
-  <p data-i18n="manual-tips-d">Use as bordas como guia. Tampinhas fora da pista voltam ao último checkpoint. Planeje a trajetória.</p>
+    <h2 id="modos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6-6"/></svg><span data-i18n="manual-modes">MODOS DE JOGO</span></h2>
+    <div class="card">
+      <p><strong data-i18n="manual-mode-solo">SOLO</strong> — <span data-i18n="manual-mode-solo-d">Corra contra o tempo. Complete 2 voltas no menor tempo possível.</span></p>
+      <p><strong>ONLINE</strong> — <span data-i18n="manual-ranking-info">Em breve: ranking global por temporada com recompensas em $CR.</span></p>
+    </div>
+  </div>
 </div>
+
 <script src="i18n.js"></script>
+<script>
+// barra de progresso
+window.addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  const p=(h.scrollTop/(h.scrollHeight-h.clientHeight))*100;
+  document.getElementById('progress').style.width=p+'%';
+});
+// sidebar ativa
+const links=document.querySelectorAll('.sidebar a');
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.remove('active'));document.querySelector(`.sidebar a[href="#${e.target.id}"]`)?.classList.add('active')}})},{rootMargin:'-40% 0px'});
+document.querySelectorAll('h2[id]').forEach(h=>obs.observe(h));
+</script>
+<script>
+window.addEventListener("pageshow", () => {
+  document.body.style.transform = "scale(1)";
+  document.body.style.opacity = "1";
+});
+</script>
+<script src="audio.js"></script>
+<script src="background.js"></script>
 </body>
 </html>

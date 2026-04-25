@@ -3,7 +3,30 @@ var CapSprite = (function(){
 
   // Desenha uma tampinha realista (coroa de garrafa)
   // color = cor principal, pilotKanji = kanji no centro
-  function drawCap(ctx, x, y, radius, color, accentColor, kanji, rotation, speed, glowAlpha){
+  function drawCap(ctx, x, y, radius, color, accentColor, kanji, rotation, speed, glowAlpha, isActive){
+    if(isActive){
+  var auraPulse = 0.7 + Math.sin(Date.now()*0.01)*0.3;
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.globalAlpha = 0.25 * auraPulse;
+  ctx.fillStyle = color;
+
+  ctx.beginPath();
+  ctx.arc(0,0,radius*2.2,0,Math.PI*2);
+  ctx.fill();
+
+  ctx.globalAlpha = 0.6;
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = accentColor;
+
+  ctx.beginPath();
+  ctx.arc(0,0,radius*1.6,0,Math.PI*2);
+  ctx.stroke();
+
+  ctx.restore();
+    }
+
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(rotation);
@@ -136,5 +159,45 @@ var CapSprite = (function(){
   }
   function lightenColor(hex,pct){ return shadeColor(hex,pct); }
 
-  return { drawCap:drawCap, drawTrail:drawTrail };
+  // 🌊 ripple simples (usar na render da água)
+  function drawWaterFX(ctx, x, y, radius, time){
+    ctx.save();
+
+    ctx.globalAlpha = 0.15;
+
+    for(let i=0;i<3;i++){
+      let r = radius + Math.sin(time*2 + i)*5 + i*6;
+
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI*2);
+      ctx.strokeStyle = "rgba(255,255,255,0.2)";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
+    ctx.restore();
+  }
+
+  function drawGrassFX(ctx, x, y, radius, time){
+  ctx.save();
+
+  ctx.globalAlpha = 0.2;
+
+  for(let i=0;i<6;i++){
+    let angle = (i/6)*Math.PI*2 + time;
+    let dx = Math.cos(angle)*radius*0.6;
+    let dy = Math.sin(angle)*radius*0.6;
+
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x+dx, y+dy);
+    ctx.strokeStyle = "rgba(0,255,100,0.3)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+  return { drawCap:drawCap, drawTrail:drawTrail, drawWaterFX:drawWaterFX, drawGrassFX:drawGrassFX };
 })();

@@ -55,7 +55,20 @@ var SoundEngine = (function(){
     f.type='bandpass'; f.frequency.value=1800; g.gain.value=.7;
     s.buffer=buf; s.connect(f); f.connect(g); g.connect(_masterGain||ctx.destination); s.start();
   }
-  function drag(surf,spd){if(!ctx||!_sfxOn||spd<30)return;var b=ctx.createBuffer(1,ctx.sampleRate*.05,ctx.sampleRate),d=b.getChannelData(0),v=surf==='agua'?0.15:surf==='grama'?0.22:0.18;for(var i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*v*(spd/400);var s=ctx.createBufferSource(),f=ctx.createBiquadFilter(),g=ctx.createGain();f.type='highpass';f.frequency.value=surf==='agua'?1200:800;g.gain.value=.35;s.buffer=b;s.connect(f);f.connect(g);g.connect(_masterGain||ctx.destination);s.start();}
+  function drag(surf,spd){
+    if(!ctx||!_sfxOn||spd<30) return;
+    // Throttle: no máximo 10x/segundo — evita acúmulo de AudioSources (som alto)
+    var _now = Date.now();
+    if(_now - drag._cd < 90) return;
+    drag._cd = _now;
+    var b=ctx.createBuffer(1,ctx.sampleRate*.04,ctx.sampleRate),d=b.getChannelData(0),v=surf==='agua'?0.10:surf==='grama'?0.14:0.10;
+    for(var i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*v*(spd/500);
+    var s=ctx.createBufferSource(),f=ctx.createBiquadFilter(),g=ctx.createGain();
+    f.type='highpass';f.frequency.value=surf==='agua'?1200:800;
+    g.gain.value=.22;
+    s.buffer=b;s.connect(f);f.connect(g);g.connect(_masterGain||ctx.destination);s.start();
+  }
+  drag._cd = 0;
  function grass(){
     if(!ctx||!_sfxOn) return;
     var buf=ctx.createBuffer(1,ctx.sampleRate*.15,ctx.sampleRate);
@@ -168,9 +181,15 @@ var SoundEngine = (function(){
     return _sfxOn;
   }
 
+  function launch(power){
+    if(!ctx||!_sfxOn) return;
+    beep(200 + power*2, .12, .4, 'sawtooth');
+  }
+
   return {
     init:init, resume:resume,
-    checkpoint:checkpoint, hit:hit, splash:splash, grass:grass, drag:drag,victory:victory,
+    checkpoint:checkpoint, hit:hit, splash:splash, grass:grass, drag:drag, victory:victory,
+    launch:launch, // 🔥 ADICIONE ISSO
     startBGM:startBGM, stopBGM:stopBGM, toggleBGM:toggleBGM, toggleSFX:toggleSFX,
     get bgmOn(){ return _bgmOn; },
     get sfxOn(){ return _sfxOn; }

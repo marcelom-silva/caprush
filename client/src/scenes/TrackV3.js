@@ -14,7 +14,7 @@ var TrackV3 = (function(){
   var CW=800, CH=500, TW=50;
   var pts=[], puddleZones=[], grassOnTrack=[], innerBounds=[], cps=[], obstacles=[];
   var startRect=null, startExtended=null;
-  var standZones=[], paddockZone=null;
+  var standZones=[], paddockZone=null, parkingZone=null, sandZones=[];
   var crowd=[], grassBlades=[], lakeSparkles=[];
 
   function init(cw, ch){
@@ -103,27 +103,54 @@ var TrackV3 = (function(){
     // Stands FINOS - apenas borda superior e inferior externas (nao bloqueiam pista)
     standZones = [
       // Topo (acima da reta topo da pista) - very thin
-      { x:CW*0.10, y:0, w:CW*0.55, h:Math.max(m-TW*0.6, 6),
-        nx:0, ny:1, label:'STANDS' },
+      { x:CW*0.08, y:0, w:CW*0.80, h:Math.max(m*0.55, 6), nx:0, ny:1, label:'STANDS' },
       // Borda inferior (abaixo da curva de baixo)
       { x:CW*0.28, y:CH-Math.max(m-TW*0.5, 6), w:CW*0.44, h:Math.max(m-TW*0.5, 6),
         nx:0, ny:-1, label:'STANDS' },
+        {
+  x: CW*0.70,
+  y: CH*0.35,
+  w: CW*0.22,
+  h: CH*0.18,
+  nx: -1,
+  ny: 0,
+  label:'STANDS'
+},
     ];
 
     // FIX v4: PADDOCK no CANTO INFERIOR DIREITO - completamente fora da pista
     // A pista curva de pts[8]=(CW-m, CH*0.60) para pts[9]=(CW*0.75, CH*0.72)
     // Paddock em x>CW*0.78, y>CH*0.72 e seguro
     paddockZone = {
-      x: CW*0.79, y: CH*0.72,
-      w: CW*0.19, h: CH*0.26,
-      nx: -1, ny: 0,
-      label: 'PADDOCK'
-    };
+  x: CW*0.107,
+y: CH*0.21,
+w: CW*0.16,
+h: CH*0.22,
+  nx: -1,
+  ny: 0,
+  label: 'PADDOCK'
+};
+
+parkingZone = {
+  x: CW*0.79,
+  y: CH*0.76,
+  w: CW*0.20,
+  h: CH*0.25
+};
+
+    // Zona de areia — faixa entre arquibancada direita e borda (visível sobre stands)
+    sandZones = [
+      { x:CW*0.893, y:CH*0.36, w:CW*0.08, h:CH*0.17 }
+    ];
 
     _initCrowd();
     _initGrassBlades();
     _initLakeSparkles();
   }
+
+function getCheckpoints(){
+  return cps;
+}
 
   function _initCrowd(){
     crowd = [];
@@ -157,6 +184,7 @@ var TrackV3 = (function(){
         gIdx:gi, angle:Math.random()*Math.PI*2, dist:Math.random(),
         h:3+Math.random()*4.5, phase:Math.random()*Math.PI*2, type:'track'
       });
+      
     });
   }
 
@@ -205,6 +233,14 @@ var TrackV3 = (function(){
     }
     return false;
   }
+  function detectSand(pos){
+    for(var i=0;i<sandZones.length;i++){
+      var s=sandZones[i];
+      if(pos.x>s.x&&pos.x<s.x+s.w&&pos.y>s.y&&pos.y<s.y+s.h) return true;
+    }
+    return false;
+  }
+
   function detectGrassOnTrack(pos){
     for(var i=0;i<grassOnTrack.length;i++){
       var g=grassOnTrack[i];
@@ -226,14 +262,20 @@ var TrackV3 = (function(){
     }
     return null;
   }
-  function checkPaddock(pos,r){
-    r=r||14;
-    if(!paddockZone) return null;
-    var p=paddockZone;
-    if(pos.x+r>p.x&&pos.x-r<p.x+p.w&&pos.y+r>p.y&&pos.y-r<p.y+p.h)
-      return{zone:p,nx:p.nx,ny:p.ny};
-    return null;
+  function checkPaddock(pos, r){
+  if(!paddockZone) return null;
+
+  if(
+    pos.x > paddockZone.x + r &&
+    pos.x < paddockZone.x + paddockZone.w - r &&
+    pos.y > paddockZone.y + r &&
+    pos.y < paddockZone.y + paddockZone.h - r
+  ){
+    return { nx:0, ny:0 };
   }
+
+  return null;
+}
   function resetCPs(){ cps.forEach(function(c){c.ok=false;}); }
   function checkCP(pos,onCp){
     for(var i=0;i<cps.length;i++){
@@ -276,40 +318,82 @@ var TrackV3 = (function(){
       var pg=ctx.createLinearGradient(pz.x,pz.y,pz.x+pz.w,pz.y+pz.h);
       pg.addColorStop(0,'#6B2800'); pg.addColorStop(1,'#C05000');
       ctx.fillStyle=pg; ctx.fillRect(pz.x,pz.y,pz.w,pz.h);
-      // Boxes
-      var bw=pz.w*0.82, bx=pz.x+pz.w*0.09;
-      var bh=Math.min(pz.h/5,28);
-      for(var bi=0;bi<4;bi++){
-        var by=pz.y+8+bi*(bh+7);
-        if(by+bh>pz.y+pz.h-8) break;
-        ctx.fillStyle='#180A00'; ctx.fillRect(bx,by,bw,bh);
-        ctx.strokeStyle='#FF7722'; ctx.lineWidth=1.2;
-        for(var gi=0;gi<4;gi++){
-          ctx.beginPath();ctx.moveTo(bx+bw*gi/4+2,by+2);ctx.lineTo(bx+bw*gi/4+2,by+bh-2);ctx.stroke();
-        }
-        ctx.strokeStyle='#FF5500'; ctx.lineWidth=2; ctx.strokeRect(bx-1,by-1,bw+2,bh+2);
-        ctx.fillStyle='#FF8800'; ctx.font='bold '+(Math.floor(bh*0.38))+'px Rajdhani,sans-serif';
-        ctx.textAlign='center'; ctx.fillText('BOX '+(bi+1),bx+bw/2,by+bh*0.68);
-      }
-      ctx.strokeStyle='#FF5500'; ctx.lineWidth=2.5; ctx.setLineDash([6,4]);
-      ctx.strokeRect(pz.x+1,pz.y+1,pz.w-2,pz.h-2); ctx.setLineDash([]);
-      ctx.fillStyle='rgba(255,90,0,.8)'; ctx.font='bold 11px Bebas Neue,sans-serif';
-      ctx.textAlign='center'; ctx.fillText('PADDOCK',pz.x+pz.w/2,pz.y+9);
+
+      // estacionamento de tampinhas
+for(var i=0;i<18;i++){
+  var px = pz.x + 20 + (i%6)*28;
+  var py = pz.y + 20 + Math.floor(i/6)*28;
+
+  // sombra
+  ctx.fillStyle='rgba(0,0,0,.4)';
+  ctx.beginPath();
+  ctx.arc(px+2,py+3,10,0,Math.PI*2);
+  ctx.fill();
+
+  // tampinha
+  ctx.fillStyle=['#FF4444','#44AAFF','#44FF88','#FFCC00'][i%4];
+  ctx.beginPath();
+  ctx.arc(px,py,10,0,Math.PI*2);
+  ctx.fill();
+
+  // borda
+  ctx.strokeStyle='#222';
+  ctx.lineWidth=1;
+  ctx.stroke();
+}
+
+ctx.globalAlpha=1;
     }
 
-    // ── Stands finos com torcida ──
+    // ── Stands finos com areia/cascalho e torcida ──
     standZones.forEach(function(sz){
-      if(sz.h < 4) return;
+      if(sz.h < 2) return;
+      // Fundo base
       var sg = ctx.createLinearGradient(sz.x,sz.y,sz.x,sz.y+sz.h);
-      sg.addColorStop(0,'#CCAA00'); sg.addColorStop(1,'#665500');
+      sg.addColorStop(0,'#C8A060'); sg.addColorStop(0.5,'#B08840'); sg.addColorStop(1,'#806020');
       ctx.fillStyle=sg; ctx.fillRect(sz.x,sz.y,sz.w,sz.h);
+      // Textura de areia/cascalho: pontilhado procedural com semente fixa
+      if(sz.h >= 4){
+        var seed = Math.round(sz.x + sz.y);
+        for(var gi=0; gi<Math.min(sz.w*sz.h*0.08, 600); gi++){
+          var gx = sz.x + ((seed*gi*179+17)%Math.max(sz.w,1));
+          var gy = sz.y + ((seed*gi*137+31)%Math.max(sz.h,1));
+          var gb = [['#E8C87A',1.5],['#705020',1],['#A07030',1.2],['#D4A850',1.3]][gi%4];
+          ctx.globalAlpha = 0.55;
+          ctx.fillStyle = gb[0];
+          ctx.beginPath();
+          ctx.arc(gx, gy, gb[1], 0, Math.PI*2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+      }
       // Torcida so se houver espaco suficiente
       if(sz.h>10){
         crowd.forEach(function(c){
           if(c.sz!==sz) return;
           var wave=Math.sin(t*2.5+c.phase)*3;
           ctx.fillStyle=c.color; ctx.fillRect(c.x-2,c.y-wave-2,4,6);
-          ctx.fillStyle='#FFD8A8'; ctx.beginPath();ctx.arc(c.x,c.y-wave-5,2.5,0,Math.PI*2);ctx.fill();
+          ctx.fillStyle='#FFD8A8'; ctx.beginPath();var pulse = 1 + Math.sin(t*4)*0.2;
+
+ctx.save();
+
+ctx.shadowColor = "#FFD700";
+ctx.shadowBlur = 20;
+
+ctx.strokeStyle = "#FFD700";
+ctx.lineWidth = 2;
+
+ctx.beginPath();
+ctx.arc(c.x, c.y, c.r * pulse, 0, Math.PI*2);
+ctx.stroke();
+
+ctx.globalAlpha = 0.15;
+ctx.beginPath();
+ctx.arc(c.x, c.y, c.r * 1.2, 0, Math.PI*2);
+ctx.fillStyle = "#FFD700";
+ctx.fill();
+
+ctx.restore();ctx.fill();
         });
       }
       ctx.strokeStyle='#FFD700'; ctx.lineWidth=2; ctx.setLineDash([8,4]);
@@ -409,9 +493,83 @@ var TrackV3 = (function(){
     ctx.save(); ctx.strokeStyle='rgba(255,215,0,.32)'; ctx.lineWidth=2; ctx.setLineDash([12,10]);
     _drawPathStroke(ctx); ctx.setLineDash([]); ctx.restore();
 
+// 🅿️ ESTACIONAMENTO REFORMULADO
+if(parkingZone){
+  var pz = parkingZone;
+  var pCols=5, pRows=2;
+  var pSpW=(pz.w-16)/pCols, pSpH=(pz.h-38)/pRows;
+
+  // Asfalto escuro com gradiente sutil
+  var pGrd=ctx.createLinearGradient(pz.x,pz.y,pz.x,pz.y+pz.h);
+  pGrd.addColorStop(0,'#1E1E24'); pGrd.addColorStop(1,'#161618');
+  ctx.fillStyle=pGrd;
+  ctx.fillRect(pz.x,pz.y,pz.w,pz.h);
+
+  // Borda com brilho
+  ctx.strokeStyle='rgba(255,215,0,.2)'; ctx.lineWidth=1.5;
+  ctx.strokeRect(pz.x+0.75,pz.y+0.75,pz.w-1.5,pz.h-1.5);
+
+  // Faixa de entrada
+  ctx.fillStyle='rgba(255,215,0,.12)';
+  ctx.fillRect(pz.x, pz.y, pz.w, 6);
+
+  // Placa 🅿
+  ctx.save();
+  ctx.font='bold '+Math.floor(pz.w*0.12)+'px Bebas Neue,Arial Black,Arial';
+  ctx.fillStyle='rgba(0,229,255,.7)';
+  ctx.textAlign='left'; ctx.textBaseline='top';
+  ctx.fillText('P', pz.x+6, pz.y+7);
+  // Linha separadora logo abaixo da placa
+  ctx.strokeStyle='rgba(255,255,255,.08)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(pz.x,pz.y+26); ctx.lineTo(pz.x+pz.w,pz.y+26); ctx.stroke();
+  ctx.restore();
+
+  // Vagas com marcação e tampinhas
+  var pColors=[
+    {c:'#00E5FF',a:'#00A5C8',k:'雪'},
+    {c:'#FF9900',a:'#CC7700',k:'魔'},
+    {c:'#FF2A2A',a:'#AA0000',k:'X'},
+    {c:'#44FF88',a:'#22AA55',k:'緑'},
+    {c:'#FFCC00',a:'#AA8800',k:'金'},
+    {c:'#CC44FF',a:'#882299',k:'紫'},
+    {c:'#FF44AA',a:'#AA2266',k:'桃'},
+    {c:'#44CCFF',a:'#2288AA',k:'水'},
+    {c:'#FF8844',a:'#AA5522',k:'橙'},
+    {c:'#88FF44',a:'#55AA22',k:'草'},
+  ];
+  for(var pr=0;pr<pRows;pr++){
+    for(var pc=0;pc<pCols;pc++){
+      var pi=pr*pCols+pc;
+      var psx=pz.x+8+pc*pSpW, psy=pz.y+28+pr*pSpH;
+      // Vaga
+      ctx.strokeStyle='rgba(255,255,255,.12)'; ctx.lineWidth=1;
+      ctx.strokeRect(psx+1,psy+1,pSpW-2,pSpH-2);
+      // Número da vaga (pequeno)
+      ctx.font='7px Arial'; ctx.fillStyle='rgba(255,255,255,.2)';
+      ctx.textAlign='left'; ctx.textBaseline='top';
+      ctx.fillText((pi+1).toString(), psx+3, psy+2);
+      // Tampinha estacionada com CapSprite se disponível
+      var pcx=psx+pSpW/2, pcy=psy+pSpH/2;
+      var col=pColors[pi%pColors.length];
+      if(typeof CapSprite!=='undefined'){
+        // Sombra sob a tampinha
+        ctx.save(); ctx.globalAlpha=0.25;
+        ctx.fillStyle='#000';
+        ctx.beginPath(); ctx.ellipse(pcx+2,pcy+3,9,4,0,0,Math.PI*2); ctx.fill();
+        ctx.restore();
+        CapSprite.drawCap(ctx,pcx,pcy,10,col.c,col.a,col.k,pi*0.52,0,0.4,false);
+      } else {
+        ctx.fillStyle=col.c;
+        ctx.beginPath(); ctx.arc(pcx,pcy,10,0,Math.PI*2); ctx.fill();
+      }
+    }
+  }
+}
+
     // ── Pocas organicas ──
     puddleZones.forEach(function(p){
       _drawOrganicPuddle(ctx,p.x,p.y,p.r,t);
+      CapSprite.drawWaterFX(ctx, p.x, p.y, p.r, t);
     });
 
     // ── Grama on-track ORGANICA ──
@@ -432,7 +590,7 @@ var TrackV3 = (function(){
         if(bi2===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
       }
       ctx.closePath(); ctx.fill();
-      ctx.strokeStyle='rgba(50,210,50,.75)'; ctx.lineWidth=2; ctx.stroke();
+      
       ctx.restore();
       // Hastes on-track
       grassBlades.forEach(function(b){
@@ -458,6 +616,30 @@ var TrackV3 = (function(){
     });
 
     // ── START/FINISH expandido (pit straight) ──
+
+    // ── Zona de areia (visível sobre arquibancada direita) ──
+    sandZones.forEach(function(sz){
+      ctx.save();
+      var sGrd=ctx.createLinearGradient(sz.x,sz.y,sz.x+sz.w,sz.y+sz.h);
+      sGrd.addColorStop(0,'#DDBA70');sGrd.addColorStop(.4,'#C8A055');sGrd.addColorStop(1,'#A07830');
+      ctx.fillStyle=sGrd;ctx.fillRect(sz.x,sz.y,sz.w,sz.h);
+      ctx.strokeStyle='rgba(120,80,20,.55)';ctx.lineWidth=2;
+      ctx.strokeRect(sz.x+1,sz.y+1,sz.w-2,sz.h-2);
+      var seed=Math.round(sz.x*31+sz.y*17);
+      for(var gi=0;gi<Math.min(sz.w*sz.h*0.16,950);gi++){
+        var gx2=sz.x+((seed*gi*179+17)%(sz.w|1));
+        var gy2=sz.y+((seed*gi*137+31)%(sz.h|1));
+        ctx.globalAlpha=0.62;
+        ctx.fillStyle=[['#F0D07A',1.5],['#604518',1.0],['#A07840',1.2],['#E0C060',1.3],['#FFE890',0.9]][gi%5][0];
+        ctx.beginPath();ctx.arc(gx2,gy2,[1.5,1.0,1.2,1.3,0.9][gi%5],0,Math.PI*2);ctx.fill();
+      }
+      ctx.globalAlpha=0.30;
+      ctx.font='bold '+Math.floor(sz.w*.22)+'px Bebas Neue,Arial Black';
+      ctx.fillStyle='#6B3A0A';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText('AREIA',sz.x+sz.w/2,sz.y+sz.h/2);
+      ctx.restore();
+    });
+
     if(startRect){
       var sl=startRect;
       var sq=8;
@@ -482,17 +664,28 @@ var TrackV3 = (function(){
     }
 
     // ── Checkpoints ──
-    cps.forEach(function(c){
-      ctx.save(); ctx.globalAlpha=c.ok?.25:.88;
-      ctx.fillStyle=c.ok?'rgba(40,40,40,.3)':'rgba(255,255,255,.14)';
-      ctx.beginPath();ctx.arc(c.x,c.y,c.r*.6,0,Math.PI*2);ctx.fill();
-      ctx.strokeStyle=c.ok?'#333':'#FFF'; ctx.lineWidth=3; ctx.setLineDash([5,3]);
-      ctx.beginPath();ctx.arc(c.x,c.y,c.r*.6,0,Math.PI*2);ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.fillStyle=c.ok?'#333':'#FFF'; ctx.font='bold 10px Rajdhani,sans-serif';
-      ctx.textAlign='center'; ctx.fillText(c.lbl,c.x,c.y-c.r*.6-5);
-      ctx.restore();
-    });
+cps.forEach(function(c){
+  var pulse = 1 + Math.sin(t*4)*0.12;
+
+  ctx.save();
+
+  // aura leve (bem sutil)
+  ctx.globalAlpha = 0.12;
+  ctx.fillStyle = "#FFD700";
+  ctx.beginPath();
+  ctx.arc(c.x, c.y, c.r * 0.9, 0, Math.PI*2);
+  ctx.fill();
+
+  // anel principal (mais fino)
+  ctx.globalAlpha = c.ok ? 0.3 : 1;
+  ctx.strokeStyle = "#FFD700";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(c.x, c.y, c.r * 0.7 * pulse, 0, Math.PI*2);
+  ctx.stroke();
+
+  ctx.restore();
+});
   }
 
   // Poca organica
@@ -549,13 +742,27 @@ var TrackV3 = (function(){
     ctx.closePath();
   }
 
+  function getRacingLine(){
+  return [
+    {x: 120, y: 300},
+    {x: 120, y: 150},
+    {x: 300, y: 120},
+    {x: 520, y: 120},
+    {x: 700, y: 180},
+    {x: 700, y: 400},
+    {x: 500, y: 500},
+    {x: 250, y: 500},
+    {x: 120, y: 400}
+  ];
+}
+
   return {
     META:META, init:init, render:render,
     isOnTrack:isOnTrack, detectInner:detectInner,
-    detectPuddle:detectPuddle, detectGrassOnTrack:detectGrassOnTrack,
+    detectPuddle:detectPuddle, detectSand:detectSand, detectGrassOnTrack:detectGrassOnTrack,
     checkCP:checkCP, checkLap:checkLap, resetCPs:resetCPs,
     checkObstacles:checkObstacles, lastCP:lastCP, getStartPos:getStartPos,
-    checkStands:checkStands, checkPaddock:checkPaddock,
+    checkStands:checkStands, checkPaddock:checkPaddock, getCheckpoints:getCheckpoints, getRacingLine: getRacingLine,
     get checkpoints(){ return cps; },
     get TW(){ return TW; },
   };

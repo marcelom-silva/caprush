@@ -17,8 +17,19 @@ var Yuki = (function(){
     if(anim.trail.length>20) anim.trail.shift();
 
     CapSprite.drawTrail(ctx, anim.trail, A.color, spd);
-    CapSprite.drawCap(ctx, ph.pos.x, ph.pos.y, 16, A.color, A.accentColor, A.kanji,
-                      anim.rot, spd, anim.glow);
+    CapSprite.drawCap(
+      ctx,
+      ph.pos.x,
+      ph.pos.y,
+      16,
+      A.color,
+      A.accentColor,
+      A.kanji,
+      anim.rot,
+      spd,
+      anim.glow,
+      true // 🔥 ativa aura
+    );
   }
   function resetAnim(){ anim.rot=0; anim.trail=[]; anim.glow=0; }
   return { A:A, M:M, render:render, resetAnim:resetAnim };

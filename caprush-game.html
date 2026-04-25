@@ -17,23 +17,652 @@ html,body{width:100%;height:100%;background:var(--dark);font-family:'Rajdhani',s
 .tlinks a:hover{color:var(--gold);}
 .tbadge{background:var(--red);color:#fff;font-size:.6rem;letter-spacing:2px;padding:2px 7px;border-radius:2px;text-transform:uppercase;}
 #gframe{width:100%;height:calc(100vh - 46px);border:none;display:block;}
+
+nav{
+  display:flex;
+  align-items:center;
+  padding:12px 24px;
+  background:rgba(5,5,12,.85);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(255,42,42,.3);
+  gap:1.4rem;
+  position:relative;
+  z-index:10;
+}
+
+.nav-logo{
+  font-family:'Bebas Neue';
+  font-size:1.35rem;
+  letter-spacing:4px;
+  background:linear-gradient(135deg,var(--red),var(--gold));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  text-decoration:none;
+}
+
+.nav-link{
+  color:#AAA;
+  text-decoration:none;
+  font-size:.8rem;
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+
+.nav-link:hover,
+.nav-link.active{
+  color:var(--gold);
+}
+
+.nav-right{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.flag-btn{
+  width:26px;
+  height:18px;
+  border:none;
+  cursor:pointer;
+  background-size:cover;
+  border-radius:2px;
+}
+
+.flag-pt{background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23009b3a"/><polygon points="1.5,0.2 2.7,1 1.5,1.8 0.3,1" fill="%23ffdf00"/><circle cx="1.5" cy="1" r="0.35" fill="%23002776"/></svg>')}
+.flag-us{background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23b22234"/><g fill="%23fff"><rect y="0.15" width="3" height="0.15"/><rect y="0.45" width="3" height="0.15"/><rect y="0.75" width="3" height="0.15"/><rect y="1.05" width="3" height="0.15"/><rect y="1.35" width="3" height="0.15"/><rect y="1.65" width="3" height="0.15"/></g><rect width="1.2" height="1.05" fill="%233c3b6e"/></svg>')}
+.flag-es{background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23c60b1e"/><rect y="0.5" width="3" height="1" fill="%23ffc400"/></svg>')}
+
+#cyberOverlay{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:999;
+
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,0.03) 0px,
+      rgba(255,255,255,0.03) 1px,
+      transparent 2px,
+      transparent 4px
+    );
+
+  mix-blend-mode: overlay;
+  animation: flicker 0.2s infinite;
+}
+
+@keyframes flicker{
+  0%{opacity:.9;}
+  50%{opacity:1;}
+  100%{opacity:.95;}
+}
+
+#game-root{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  background:#05050c;
+}
+
+#wrap{
+  display:flex;
+  width:100%;
+  height:100%;
+  position:relative;
+}
+
+#gameCanvas{
+  display:block;
+  flex:1;
+
+  /* 🔥 mantém proporção */
+  max-width:100%;
+  max-height:100%;
+
+  /* remove stretch */
+  width:auto;
+  height:auto;
+}
+
+#panel{
+  width:170px;
+  display:flex;
+  flex-direction:column;
+
+  background:linear-gradient(
+    180deg,
+    rgba(10,10,20,.95),
+    rgba(5,5,12,.98)
+  );
+
+  border-left:1px solid rgba(255,42,42,.2);
+
+  box-shadow:
+    -10px 0 30px rgba(0,0,0,.7),
+    inset 0 0 20px rgba(255,255,255,.02);
+
+  padding:12px;
+  gap:12px;
+}
+
+.pt{
+  font-family:'Bebas Neue';
+  font-size:.88rem;
+  letter-spacing:2px;
+  color:#FF2A2A;
+  border-bottom:1px solid rgba(255,42,42,.25);
+}
+
+#overlay{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  z-index:40;
+  text-align:center;
+
+  background:radial-gradient(
+    circle at center,
+    rgba(0,0,0,.7),
+    rgba(0,0,0,.95)
+  );
+}
+
+#overlay p{
+  margin-top:6px;
+}
+
+.audio-btn{
+  background:rgba(255,42,42,.15);
+  border:1px solid rgba(255,42,42,.4);
+  color:#aaa;
+
+  border-radius:4px;
+  font-size:.8rem;
+  padding:3px 6px;
+
+  transition:.2s;
+}
+
+.audio-btn:hover{
+  background:rgba(255,42,42,.4);
+  color:#fff;
+  box-shadow:0 0 8px rgba(255,42,42,.6);
+}
+
+.ar{
+  display:flex;
+  justify-content:space-between;
+  font-size:.65rem;
+  color:#AAA;
+}
+
+/* card do piloto */
+.pilot-card-rx{
+  background:linear-gradient(180deg,rgba(255,42,42,.06),rgba(255,42,42,.02));
+  border:1px solid rgba(255,42,42,.28);
+  border-radius:8px;
+  padding:10px;
+  margin-top:4px;
+}
+
+.av{
+  color:#FFD700;
+  font-weight:700;
+}
+
+.sl-row{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  font-size:.6rem;
+}
+
+.sl-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+}
+
+#hud{
+  position:absolute;
+  top:60px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:30;
+
+  background:linear-gradient(
+    180deg,
+    rgba(10,10,20,.55),
+    rgba(5,5,12,.35)
+  );
+
+  padding:10px 22px;
+  border-radius:12px;
+
+  border:1px solid rgba(255,255,255,.08);
+
+  box-shadow:
+    0 10px 30px rgba(0,0,0,.7),
+    inset 0 0 12px rgba(255,255,255,.04);
+
+  backdrop-filter:blur(10px);
+}
+
+.hrow{
+  display:flex;
+  gap:20px;
+}
+
+.hs{
+  text-align:center;
+}
+
+.hs label{
+  font-size:.6rem;
+  color:#666;
+}
+
+.hs span{
+  font-family:'Bebas Neue';
+  font-size:1.4rem;
+  color:#FFD700;
+  text-shadow:0 0 8px rgba(255,215,0,.4);
+}
+
+#fbg{
+  width:100%;
+  height:90px;
+  background:#1A1A28;
+  border:1px solid #333;
+  border-radius:4px;
+  position:relative;
+}
+
+#force-bar-fill{
+  position:absolute;
+  bottom:0;
+  left:0;
+  right:0;
+  height:0%;
+
+  background:linear-gradient(
+    to top,
+    #00E5FF 0%,
+    #FFD700 50%,
+    #FF2A2A 100%
+  );
+
+  box-shadow:
+    0 0 10px rgba(255,42,42,.4);
+
+  transition:height 0.12s cubic-bezier(.22,1,.36,1);
+}
+
+#force-value{
+  text-align:center;
+  font-family:'Bebas Neue';
+  font-size:1.5rem;
+  color:#FFD700;
+  text-shadow:0 0 10px rgba(255,215,0,.5);
+}
+
+#btnMulti{
+  text-decoration:none !important;
+
+  position:absolute;
+  top:60px;
+  right:calc(170px + 2px);
+
+  background:linear-gradient(135deg,#00E5FF,#00BFFF);
+  border:none;
+  color:#fff;
+
+  font-family:'Bebas Neue';
+  letter-spacing:2px;
+
+  padding:10px 20px;
+  border-radius:14px;
+
+  box-shadow:
+    0 6px 20px rgba(0,229,255,.35),
+    inset 0 0 10px rgba(255,255,255,.25);
+
+  backdrop-filter:blur(6px);
+
+  transition:.25s cubic-bezier(.22,1,.36,1);
+}
+
+#btnMulti:hover{
+  transform:translateY(-3px) scale(1.06);
+
+  box-shadow:
+    0 10px 30px rgba(0,229,255,.7),
+    0 0 20px rgba(0,229,255,.4);
+}
+
+#btnMulti:link,
+#btnMulti:visited,
+#btnMulti:hover,
+#btnMulti:active{
+  text-decoration:none !important;
+}
+
+.audio-btns{
+  display:flex;
+  gap:5px;
+  justify-content:flex-end;
+}
+
+.panel-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+#cc{
+  background:linear-gradient(
+    180deg,
+    rgba(255,255,255,.03),
+    rgba(255,255,255,.01)
+  );
+
+  border:1px solid rgba(255,42,42,.3);
+  border-radius:10px;
+
+  padding:15px;
+
+  box-shadow:0 0 10px rgba(0,0,0,.6);
+}
+
+#cc canvas{
+  overflow:visible;
+}
+
+#cc > div:first-child{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+}
+
+#cnm{
+  font-family:'Bebas Neue';
+  letter-spacing:2px;
+  color:#00E5FF;
+  margin-bottom:6px;
+}
+
+#log-box{
+  font-family:'Rajdhani', sans-serif;
+  font-size:.75rem;
+  line-height:1.6;
+
+  color:#A8FFB0;
+
+  background:rgba(0,0,0,.25);
+  border:1px solid rgba(0,255,100,.2);
+
+  padding:8px;
+  border-radius:6px;
+
+  max-height:200px;
+  min-height:120px;
+
+  overflow-y:auto;
+}
+
+#log-box p{
+  margin-bottom:4px;
+  opacity:.9;
+}
+
+#overlay h2{
+  font-family:'Bebas Neue';
+  letter-spacing:3px;
+  font-size:2rem;
+}
+
+#overlay{
+  cursor:pointer;
+}
+
+#overlay .pulse{
+  animation:pulseGlow 1.2s infinite;
+}
+
+@keyframes pulseGlow{
+  0%{opacity:.4;}
+  50%{opacity:1;}
+  100%{opacity:.4;}
+}
+
+/* ── CARD DE PILOTO PADRONIZADO ────────────────────────────────── */
+.pilot-card-std{
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:10px;
+  padding:8px 9px;
+  margin-bottom:5px;
+  transition:border-color .3s,box-shadow .3s;
+}
+.pilot-card-std.active-turn{border-color:var(--gold);box-shadow:0 0 12px rgba(255,215,0,.22);}
+.pilot-card-rx{
+  background:linear-gradient(180deg,rgba(255,42,42,.07),rgba(255,42,42,.02));
+  border:1px solid rgba(255,42,42,.25);
+  border-radius:10px;
+  padding:8px 9px;
+  margin-bottom:5px;
+}
+.pc-inner{display:flex;gap:8px;align-items:flex-start;}
+.pc-left{display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;}
+.pc-photo{width:54px;height:54px;border-radius:50%;object-fit:cover;object-position:50% 5%;border:2px solid rgba(255,255,255,.15);}
+.pc-right{flex:1;min-width:0;}
+.pc-name{font-family:'Bebas Neue';font-size:.88rem;letter-spacing:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:4px;}
+.ar{display:flex;justify-content:space-between;font-size:.62rem;color:#AAA;margin:2px 0;}
+.av{font-weight:700;}
 </style>
 <script src="/i18n.js"></script>
 </head>
 <body>
-  <div style="display:flex;flex-direction:column;height:100vh;">
-    <div id="topbar">
-      <a href="index.html" class="tlogo">CAP RUSH</a>
-      <div class="tlinks">
-        <a href="index.html" data-i18n="lobby">Lobby</a>
-        <a href="personagens.html">Pilotos</a>
-        <a href="ranking.html">Ranking</a>
-        <a href="manual.html">Manual</a>
-        <a href="arquitetura.html" data-i18n="arch">Arquitetura</a>
-        <span class="tbadge">v0.2</span>
+
+<div style="display:flex;flex-direction:column;height:100vh;">
+
+  <!-- 🔥 NAV PADRÃO (igual manual) -->
+  <nav>
+    <a href="index.html" class="nav-logo">CAP RUSH</a>
+
+    <a href="ranking.html" class="nav-link" data-i18n="ranking">RANKING</a>
+    <a href="manual.html" class="nav-link" data-i18n="manual">MANUAL</a>
+    
+    <div class="nav-right">
+
+      <!-- 🌍 FLAGS -->
+      <div id="flag-container">
+        <button class="flag-btn flag-pt" onclick="setLang('pt')"></button>
+        <button class="flag-btn flag-us" onclick="setLang('en')"></button>
+        <button class="flag-btn flag-es" onclick="setLang('es')"></button>
       </div>
     </div>
-    <iframe id="gframe" src="client/game.html" allow="autoplay" title="CapRush Game"></iframe>
+  </nav>
+
+  <!-- 🎮 GAME FULLSCREEN -->
+  <div id="game-root">
+    <div id="hud">
+      <div class="hrow">
+        <div class="hs"><label data-i18n="game_lap">Volta</label><span id="hud-lap">1/2</span></div>
+        <div class="hs"><label data-i18n="game_cp">Checkpoint</label><span id="hud-cp">0/3</span></div>
+        <div class="hs"><label data-i18n="game_time">Tempo</label><span id="hud-time">00:00.0</span></div>
+        <div class="hs"><label data-i18n="game_best">Melhor</label><span id="hud-best">--:--.--</span></div>
+      </div>
+    </div>
+
+    <div id="wrap">
+
+      <canvas id="gameCanvas"></canvas>
+      <div id="panel">
+        <!-- 🔥 PAINEL RESTAURADO -->
+        <div class="panel-top">
+          <div class="pt" data-i18n="game_force">FORÇA</div>
+
+          <div class="audio-btns">
+            <button class="audio-btn" onclick="toggleBGM()">♫</button>
+            <button class="audio-btn" onclick="toggleSFX()">▶▶</button>
+          </div>
+        </div>
+
+        <div id="flbl" data-i18n="game_potencia">Potencia</div>
+        <div id="fbg"><div id="force-bar-fill"></div></div>
+        <div id="force-value">0%</div>
+
+        <div class="pt" data-i18n="game_pilot">PILOTO</div>
+        <!-- Card Jogador — preenchido por JS via localStorage -->
+        <div class="pilot-card-std" id="player-card">
+          <div class="pc-inner">
+            <div class="pc-left">
+              <img id="player-photo" class="pc-photo" src="client/public/assets/images/yuki-piloto.png" alt=""/>
+              <canvas id="capPreview" width="46" height="46" style="border-radius:50%;"></canvas>
+            </div>
+            <div class="pc-right">
+              <div class="pc-name" id="player-name" style="color:#00E5FF">YUKI</div>
+              <div class="ar"><span data-i18n="stat-speed">Velocidade</span><span class="av" id="player-vel" style="color:#00E5FF">82</span></div>
+              <div class="ar"><span data-i18n="stat-control">Controle</span><span class="av" id="player-ctrl" style="color:#00E5FF">91</span></div>
+              <div class="ar"><span data-i18n="stat-aero">Aerodin.</span><span class="av" id="player-aero" style="color:#00E5FF">75</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Racer-D (Boss) -->
+        <div class="pilot-card-rx" id="boss-card">
+          <div class="pc-inner">
+            <div class="pc-left">
+              <img class="pc-photo" src="client/public/assets/images/racer-x-piloto.png" alt="Racer-D"
+                   onerror="this.style.opacity='.3'"/>
+              <canvas id="capPreviewRX" width="46" height="46" style="border-radius:50%;"></canvas>
+            </div>
+            <div class="pc-right">
+              <div class="pc-name" style="color:#FF2A2A">RACER-D</div>
+              <div class="ar"><span data-i18n="stat-speed">Velocidade</span><span class="av" style="color:#FF2A2A">???</span></div>
+              <div class="ar"><span data-i18n="stat-control">Controle</span><span class="av" style="color:#FF2A2A">???</span></div>
+              <div class="ar"><span data-i18n="stat-aero">Aerodin.</span><span class="av" style="color:#FF2A2A">???</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt" data-i18n="game_track">PISTA</div>
+        <div id="surf-legend">
+          <div class="sl-row"><div class="sl-dot" style="background:#5C4530;"></div><span data-i18n="game_surf_asfalto">Asfalto</span></div>
+          <div class="sl-row"><div class="sl-dot" style="background:#00A0FF;"></div><span data-i18n="game_surf_agua">Água</span></div>
+          <div class="sl-row"><div class="sl-dot" style="background:#38B838;"></div><span data-i18n="game_surf_grama">Grama</span></div>
+        </div>
+
+        <div class="pt" data-i18n="game_events">EVENTOS</div>
+        <div id="log-box"></div>
+
+      </div>
+
+      <div id="overlay">
+        <h2>PRONTO?</h2>
+        <p>Clique aqui para começar</p>
+        <p style="font-size:.78rem;color:#666;margin-top:.4rem">
+          Clique e arraste a tampinha para mirar
+        </p>
+        <br>
+        <p class="pulse">▶ CLIQUE PARA COMEÇAR</p>
+      </div>
+    </div>
+
+    <a href="client/game-multi.html" id="btnMulti">2P →</a>
   </div>
+
+</div>
+
+<script>
+function setLang(lang){
+  localStorage.setItem("lang", lang);
+  if(window.I18N) I18N.setLang(lang);   // i18n.js v1.4
+  if(window.GL)   GL(lang);             // GameLoop (legado)
+}
+
+function toggleBGM(){
+  if(typeof toggleAudio === 'function') toggleAudio();
+  else if(window.SoundEngine) SoundEngine.toggleBGM();
+}
+function toggleSFX(){
+  if(window.SoundEngine) SoundEngine.toggleSFX();
+}
+</script>
+
+<script src="client/src/core/Vector2D.js"></script>
+<script src="client/src/core/Physics.js"></script>
+<script src="client/src/core/SoundEngine.js"></script>
+<script src="client/src/core/CapSprite.js"></script>
+<script src="client/src/entities/Yuki.js"></script>
+<script src="client/src/entities/Kenta.js"></script>
+<script src="client/src/entities/RacerX.js"></script>
+<script src="client/src/scenes/TrackV3.js"></script>
+<script src="client/src/core/GameLoop.js"></script>
+
+<script src="audio.js"></script>
+
+<script>
+// ── Inicializa painel com piloto salvo em personagens.html ──
+(function(){
+  var PILOTS_DATA = {
+    YUKI:  {color:'#00E5FF',accent:'#00A5C8',kanji:'\u96EA',vel:82,ctrl:91,aero:75,img:'client/public/assets/images/yuki-piloto.png'},
+    KENTA: {color:'#FF9900',accent:'#CC6600',kanji:'\u9B54',vel:88,ctrl:76,aero:83,img:'client/public/assets/images/kenta-piloto.png'}
+  };
+  var pid = localStorage.getItem('caprush_pilot') || 'YUKI';
+  var spec = PILOTS_DATA[pid] || PILOTS_DATA.YUKI;
+
+  // Atualiza foto, nome e stats do card do jogador
+  var ph = document.getElementById('player-photo');
+  if(ph) ph.src = spec.img;
+  var pn = document.getElementById('player-name');
+  if(pn){ pn.textContent = pid; pn.style.color = spec.color; }
+  var pv = document.getElementById('player-vel');
+  if(pv){ pv.textContent = spec.vel; pv.style.color = spec.color; }
+  var pc2 = document.getElementById('player-ctrl');
+  if(pc2){ pc2.textContent = spec.ctrl; pc2.style.color = spec.color; }
+  var pa = document.getElementById('player-aero');
+  if(pa){ pa.textContent = spec.aero; pa.style.color = spec.color; }
+
+  // Preview cap do jogador
+  var cv=document.getElementById('capPreview');
+  if(!cv) return;
+  var cx=cv.getContext('2d');
+  function draw(){
+    cx.clearRect(0,0,46,46);
+    CapSprite.drawCap(cx,23,23,18,spec.color,spec.accent,spec.kanji,Date.now()*.001,0,.5,false);
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+
+<!-- Preview Racer-D -->
+<script>
+(function(){
+  var cv=document.getElementById('capPreviewRX');
+  if(!cv) return;
+  var cx=cv.getContext('2d');
+  function draw(){
+    cx.clearRect(0,0,46,46);
+    CapSprite.drawCap(cx,23,23,18,'#FF2A2A','#AA0000','?',Date.now()*.0015,0,.7,false);
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+<script>
+document.getElementById('overlay').addEventListener('click', function(){
+  this.style.display = 'none';
+});
+</script>
 </body>
 </html>

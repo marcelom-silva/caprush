@@ -6,60 +6,224 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>CapRush Overdrive!</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet"/>
+<!-- Google Sign-In SDK -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
+body{min-height:100vh;width:100%;overflow-x:hidden;overflow:hidden;position:relative;z-index:1;}
 :root{--red:#FF2A2A;--gold:#FFD700;--dark:#020208}
 *{margin:0;padding:0;box-sizing:border-box;cursor:none}
-html,body{height:100%;background:var(--dark);overflow:hidden;font-family:'Rajdhani',sans-serif}
-#bg{position:fixed;inset:0;z-index:0}
-nav{position:fixed;top:0;right:0;padding:18px 24px;z-index:20}
+html,body{height:100%;background:#020208;overflow-x:hidden;}
+nav{position:fixed;top:0;right:0;padding:18px 24px;z-index:3;display:flex;gap:12px;align-items:center}
 #flag-container{display:flex;gap:8px}
-.flag-btn{width:30px;height:20px;border:1px solid rgba(255,255,255,.25);border-radius:3px;background-size:cover;opacity:.85;transition:.2s}
+.flag-btn{width:30px;height:20px;border:1px solid rgba(255,255,255,.25);border-radius:3px;background-size:cover;opacity:.85;transition:.2s;cursor:none}
 .flag-btn:hover{opacity:1;transform:scale(1.12)}
 .flag-pt{background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23009b3a"/><polygon points="1.5,0.2 2.7,1 1.5,1.8 0.3,1" fill="%23ffdf00"/><circle cx="1.5" cy="1" r="0.35" fill="%23002776"/></svg>')}
 .flag-us{background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23b22234"/><g fill="%23fff"><rect y="0.15" width="3" height="0.15"/><rect y="0.45" width="3" height="0.15"/><rect y="0.75" width="3" height="0.15"/><rect y="1.05" width="3" height="0.15"/><rect y="1.35" width="3" height="0.15"/><rect y="1.65" width="3" height="0.15"/></g><rect width="1.2" height="1.05" fill="%233c3b6e"/></svg>')}
 .flag-es{background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23c60b1e"/><rect y="0.5" width="3" height="1" fill="%23ffc400"/></svg>')}
-.stage{position:relative;z-index:5;height:100vh;display:grid;place-items:center}
-.orbit{position:relative;width:1000px;height:1000px}
+.login-btn{background:linear-gradient(135deg,var(--red),var(--gold));border:none;padding:8px 16px;border-radius:20px;font-family:'Bebas Neue';letter-spacing:2px;color:#000;font-size:.9rem;cursor:none;transition:.2s}
+.login-btn:hover{filter:brightness(1.2);transform:scale(1.05)}
+.stage{position:relative;z-index:2;height:100vh;display:grid;place-items:center}
+.orbit{position:relative;width:min(90vw,1000px);height:min(90vw,1000px);}
 .center-logo{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:520px;height:auto;z-index:10;display:grid;place-items:center;cursor:none}
 .center-logo img{width:100%;height:auto;filter:drop-shadow(0 0 40px rgba(255,42,42,.35)) drop-shadow(0 0 80px rgba(255,215,0,.2));transition:filter .3s;pointer-events:none}
 .center-logo:hover img{filter:drop-shadow(0 0 60px rgba(255,42,42,.55)) drop-shadow(0 0 120px rgba(255,215,0,.35))}
-.cap{position:absolute;width:142px;height:142px;left:50%;top:50%;margin:-71px 0 0 -71px;border-radius:50%;text-decoration:none;z-index:5;transition:filter .2s}
+.cap{position:absolute;width:142px;height:142px;left:50%;top:50%;margin:-71px 0 0 -71px;border-radius:50%;text-decoration:none;z-index:5;transition:transform .15s ease,filter .2s ease}
 .cap::before{content:'';position:absolute;inset:-7px;border-radius:50%;background:repeating-conic-gradient(from 0deg,var(--gold) 0deg 9deg,#7a5a0f 9deg 18deg);-webkit-mask:radial-gradient(circle,transparent 63%,#000 64%);mask:radial-gradient(circle,transparent 63%,#000 64%)}
 .cap::after{content:'';position:absolute;inset:7px;border-radius:50%;background:radial-gradient(circle at 28% 22%,#ff3f3f,#9d0000 60%,#400000);box-shadow:inset 0 -12px 24px rgba(0,0,0,.8),inset 0 8px 16px rgba(255,255,255,.16)}
 .cap span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:'Bebas Neue';font-size:1.55rem;letter-spacing:3px;color:#fff;text-shadow:0 3px 0 #000,0 0 16px rgba(0,0,0,1);z-index:2}
-.cap:hover{filter:brightness(1.35) drop-shadow(0 0 32px var(--gold));z-index:15}
+.cap:hover{filter:brightness(1.35) drop-shadow(0 0 32px var(--gold));z-index:15;transform:scale(1.15)}
+.cap.locked{filter:grayscale(.8) brightness(.6);pointer-events:none}
 .cursor{position:fixed;width:40px;height:40px;pointer-events:none;z-index:100;transform:translate(-50%,-50%)}
 .cursor svg{width:100%;height:100%;animation:spin 2s linear infinite;filter:drop-shadow(0 0 14px var(--gold))}
 @keyframes spin{to{transform:rotate(360deg)}}
-.hint{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.28);font-size:.73rem;letter-spacing:2.2px}
+.hint{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.28);font-size:.73rem;letter-spacing:2.2px;transition:.3s}
+.user-info{display:flex;align-items:center;gap:8px}
+.user-avatar{width:30px;height:30px;border-radius:50%;border:2px solid var(--gold)}
+.user-nick{color:var(--gold);font-family:'Bebas Neue';letter-spacing:2px;font-size:.9rem}
+
+/* ── Modal Nickname ── */
+#nick-modal{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.88);backdrop-filter:blur(12px);display:none;align-items:center;justify-content:center}
+#nick-modal.open{display:flex}
+.nick-box{background:linear-gradient(180deg,rgba(10,10,25,.97),rgba(5,5,15,.99));border:1px solid rgba(255,215,0,.3);border-radius:16px;padding:40px 36px;text-align:center;max-width:380px;width:90%;box-shadow:0 0 60px rgba(255,42,42,.2)}
+.nick-box h2{font-family:'Bebas Neue';font-size:2rem;letter-spacing:4px;background:linear-gradient(135deg,var(--red),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.nick-box p{color:#888;font-size:.85rem;letter-spacing:1px;margin-bottom:20px}
+.nick-box input{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,215,0,.3);border-radius:8px;padding:12px 16px;color:#fff;font-family:'Bebas Neue';font-size:1.2rem;letter-spacing:3px;text-align:center;outline:none;cursor:auto;transition:border-color .2s}
+.nick-box input:focus{border-color:var(--gold)}
+.nick-box button{margin-top:16px;width:100%;padding:14px;background:linear-gradient(135deg,var(--red),var(--gold));border:none;border-radius:8px;font-family:'Bebas Neue';font-size:1.1rem;letter-spacing:3px;color:#000;cursor:auto;transition:.2s}
+.nick-box button:hover{filter:brightness(1.15)}
+.nick-error{color:var(--red);font-size:.75rem;margin-top:6px;display:none}
 </style>
 </head>
 <body>
-<canvas id="bg"></canvas>
-<div class="cursor" id="cur"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="none" stroke="#FFD700" stroke-width="5" stroke-dasharray="4 3"/><circle cx="50" cy="50" r="36" fill="#150000"/><text x="50" y="65" text-anchor="middle" font-family="Bebas Neue" font-size="38" fill="#FFD700">CR</text></svg></div>
-<nav><div id="flag-container">
-  <button class="flag-btn flag-pt" onclick="setLang('pt')"></button>
-  <button class="flag-btn flag-us" onclick="setLang('en')"></button>
-  <button class="flag-btn flag-es" onclick="setLang('es')"></button>
-</div></nav>
-<div class="stage">
-  <div class="orbit">
-    <div class="center-logo" id="center"><img src="Whisk_2_transparent.png" alt="CapRush Overdrive"></div>
-    <a href="caprush-game.html" class="cap"><span data-i18n="play">JOGAR</span></a>
-    <a href="personagens.html" class="cap"><span data-i18n="pilots">PILOTOS</span></a>
-    <a href="ranking.html" class="cap"><span data-i18n="ranking">RANKING</span></a>
-    <a href="manual.html" class="cap"><span data-i18n="manual">MANUAL</span></a>
+
+<div class="cursor" id="cur">
+  <svg viewBox="0 0 100 100">
+    <circle cx="50" cy="50" r="46" fill="none" stroke="#FFD700" stroke-width="5" stroke-dasharray="4 3"/>
+    <circle cx="50" cy="50" r="36" fill="#150000"/>
+    <text x="50" y="65" text-anchor="middle" font-family="Bebas Neue" font-size="38" fill="#FFD700">CR</text>
+  </svg>
+</div>
+
+<!-- Modal Nickname -->
+<div id="nick-modal">
+  <div class="nick-box">
+    <h2>ESCOLHA SEU NICKNAME</h2>
+    <p>Como você quer aparecer no ranking?<br>3-16 caracteres, sem espaços</p>
+    <input id="nick-input" maxlength="16" placeholder="PILOTO123" autocomplete="off"/>
+    <div class="nick-error" id="nick-error">Mínimo 3 caracteres, sem espaços</div>
+    <button id="nick-confirm">CONFIRMAR ▶</button>
   </div>
 </div>
-<div class="hint">passe o mouse no logo para girar</div>
-<script src="/i18n.js"></script>
+
+<nav>
+  <div id="user-display" style="display:none" class="user-info">
+    <img id="user-avatar" class="user-avatar" src="" alt="" onerror="this.style.display='none';document.getElementById('user-initials').style.display='flex'"/><div id="user-initials" style="display:none;width:30px;height:30px;border-radius:50%;border:2px solid var(--gold);background:#1A0505;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:.75rem;color:var(--gold);" id="user-initials"></div>
+    <span id="user-nick" class="user-nick"></span>
+    <button class="login-btn" onclick="logout()" style="font-size:.7rem;padding:5px 10px;margin-left:4px">SAIR</button>
+  </div>
+  <button id="loginBtn" class="login-btn">ENTRAR COM GOOGLE</button>
+  <button id="soundBtn" onclick="toggleAudio()" class="login-btn" style="padding:6px 10px;border-radius:50%;width:42px;height:42px;font-size:18px">🔇</button>
+  <div id="flag-container">
+    <button class="flag-btn flag-pt" onclick="setLang('pt')"></button>
+    <button class="flag-btn flag-us" onclick="setLang('en')"></button>
+    <button class="flag-btn flag-es" onclick="setLang('es')"></button>
+  </div>
+</nav>
+
+<div class="stage">
+  <div class="orbit">
+    <div class="center-logo" id="center">
+      <img src="Whisk_2_transparent.png" alt="CapRush Overdrive">
+    </div>
+    <a href="personagens.html" class="cap locked" id="playBtn"><span data-i18n="play">JOGAR</span></a>
+    <a href="personagens.html"  class="cap"><span data-i18n="pilots">PILOTOS</span></a>
+    <a href="ranking.html"      class="cap"><span data-i18n="ranking">RANKING</span></a>
+    <a href="manual.html"       class="cap"><span data-i18n="manual">MANUAL</span></a>
+    <span class="cap locked" title="Em breve!"><span data-i18n="garage">GARAGEM</span></span>
+    <a href="caprush-brand.html" class="cap"><span data-i18n="brand">SAIBA+</span></a>
+  </div>
+</div>
+
+<div class="hint" id="hint-txt">faça login para jogar</div>
+
+<script src="i18n.js"></script>
 <script>
-const cv=document.getElementById('bg'),x=cv.getContext('2d');function rs(){cv.width=innerWidth;cv.height=innerHeight}rs();addEventListener('resize',rs);const pts=Array(220).fill().map(()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,vx:(Math.random()-.5)*.45,vy:(Math.random()-.5)*.45}));let mx=innerWidth/2,my=innerHeight/2;addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY});(function a(){x.clearRect(0,0,cv.width,cv.height);pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>cv.width)p.vx*=-1;if(p.y<0||p.y>cv.height)p.vy*=-1;const d=Math.hypot(p.x-mx,p.y-my);if(d<180){p.vx+=(p.x-mx)*0.00035;p.vy+=(p.y-my)*0.00035}x.beginPath();x.arc(p.x,p.y,1.4,0,7);x.fillStyle=d<180?'rgba(255,50,50,.85)':'rgba(255,30,30,.14)';x.fill()});requestAnimationFrame(a)})();
-const cur=document.getElementById('cur');addEventListener('mousemove',e=>{cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px'});
-const caps=[...document.querySelectorAll('.cap')],cent=document.getElementById('center'),R=340;let ang=0,hover=false,vel=0;
-function pos(){caps.forEach((el,i)=>{const a=ang+i*Math.PI/2;const tx=Math.cos(a)*R,ty=Math.sin(a)*R;const sc=el.matches(':hover')?1.08:1;el.style.transform=`translate(${tx}px,${ty}px) scale(${sc})`;});}
-pos();cent.addEventListener('mouseenter',()=>hover=true);cent.addEventListener('mouseleave',()=>hover=false);
-(function loop(){if(hover){vel=Math.min(vel+0.0007,0.012)}else{vel=Math.max(vel-0.0015,0)}ang+=vel;if(vel>0)pos();requestAnimationFrame(loop)})();
+// ── Cursor ────────────────────────────────────────────────────────────────
+var cur=document.getElementById('cur');
+addEventListener('mousemove',function(e){cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px'});
+
+// ── Órbita ────────────────────────────────────────────────────────────────
+var caps=[].slice.call(document.querySelectorAll('.cap'));
+var cent=document.getElementById('center'),R=340,ang=0,hover=false,vel=0;
+function posOr(){var n=caps.length;caps.forEach(function(el,i){var a=ang+i*(Math.PI*2/n);el.style.transform='translate('+(Math.cos(a)*R)+'px,'+(Math.sin(a)*R)+'px)';});}
+posOr();
+cent.addEventListener('mouseenter',function(){hover=true;});
+cent.addEventListener('mouseleave',function(){hover=false;});
+(function loop(){hover?vel=Math.min(vel+0.0007,0.012):vel=Math.max(vel-0.0015,0);ang+=vel;if(vel>0)posOr();requestAnimationFrame(loop);})();
+caps.forEach(function(el){
+  el.addEventListener('click',function(e){
+    if(el.classList.contains('locked')){e.preventDefault();return;}
+    var link=el.getAttribute('href');
+    document.body.style.transition='transform 0.5s ease-in,opacity 0.5s';
+    document.body.style.transform='scale(1.6)';document.body.style.opacity='0.4';
+    setTimeout(function(){window.location.href=link;},300);
+  });
+});
+
+// ── Sessão localStorage ───────────────────────────────────────────────────
+function getSession(){try{return JSON.parse(localStorage.getItem('caprush_user')||'null');}catch(e){return null;}}
+function saveSession(s){localStorage.setItem('caprush_user',JSON.stringify(s));}
+function clearSession(){localStorage.removeItem('caprush_user');}
+
+function applySession(s){
+  if(!s) return;
+  document.getElementById('loginBtn').style.display='none';
+  document.getElementById('user-display').style.display='flex';
+  var av=document.getElementById('user-avatar');
+  if(s.picture) av.src=s.picture; else av.style.display='none';
+  document.getElementById('user-nick').textContent=s.nickname||s.name||'PILOTO';
+  var ini=document.getElementById('user-initials');if(ini)ini.textContent=(s.nickname||s.name||'P').charAt(0);
+  document.getElementById('playBtn').classList.remove('locked');
+  document.getElementById('hint-txt').textContent='Clique em JOGAR para começar';
+  // Salva nickname globalmente para o GameLoop usar ao salvar scores
+  window.CAPRUSH_NICKNAME = s.nickname || s.name;
+}
+
+function logout(){clearSession();location.reload();}
+
+// ── Google Sign-In callback ───────────────────────────────────────────────
+var _pendingPayload=null;
+window.onGoogleLogin=function(response){
+  // Decodifica JWT (payload — sem verificar assinatura, só para UI)
+  var parts=response.credential.split('.');
+  var payload=JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
+  var existing=getSession();
+  if(existing && existing.google_id===payload.sub){
+    // Já logado com esta conta
+    applySession(existing);
+    return;
+  }
+  // Novo usuário → pede nickname
+  _pendingPayload=payload;
+  document.getElementById('nick-modal').classList.add('open');
+  setTimeout(function(){document.getElementById('nick-input').focus();},100);
+};
+
+document.getElementById('nick-confirm').onclick=function(){
+  var raw=document.getElementById('nick-input').value.trim().replace(/\s/g,'').toUpperCase();
+  var err=document.getElementById('nick-error');
+  if(raw.length<3){err.style.display='block';return;}
+  err.style.display='none';
+  if(!_pendingPayload) return;
+  var session={
+    google_id: _pendingPayload.sub,
+    nickname:  raw,
+    name:      _pendingPayload.name,
+    picture:   _pendingPayload.picture,
+    email:     _pendingPayload.email
+  };
+  saveSession(session);
+  _pendingPayload=null;
+  document.getElementById('nick-modal').classList.remove('open');
+  applySession(session);
+};
+
+document.getElementById('nick-input').addEventListener('keydown',function(e){
+  if(e.key==='Enter') document.getElementById('nick-confirm').click();
+});
+
+// Botão ENTRAR dispara Google One Tap
+var GOOGLE_CLIENT_ID='260195350476-no0mcp0ak3mmc3gag9v83lighvjov85e.apps.googleusercontent.com'; // ← substituir depois de criar no Google Cloud
+document.getElementById('loginBtn').onclick=function(){
+  if(typeof google!=='undefined'&&google.accounts){
+    google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:window.onGoogleLogin});
+    google.accounts.id.prompt(function(notification){
+      if(notification.isNotDisplayed()||notification.isSkippedMoment()){
+        // Fallback: popup
+        google.accounts.id.renderButton(document.createElement('div'),{});
+      }
+    });
+  } else {
+    alert('Google Sign-In não carregou. Verifique sua conexão e tente novamente.');
+  }
+};
+
+// Verifica sessão existente ao carregar
+window.addEventListener('load',function(){
+  var s=getSession();
+  if(s) applySession(s);
+  // Inicializa Google silenciosamente para auto-login
+  if(typeof google!=='undefined'&&google.accounts){
+    google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:window.onGoogleLogin,auto_select:true});
+  }
+});
+
+window.addEventListener('pageshow',function(){
+  document.body.style.transform='scale(1)';
+  document.body.style.opacity='1';
+});
 </script>
+<script src="audio.js"></script>
+<script src="background.js"></script>
 </body>
 </html>
