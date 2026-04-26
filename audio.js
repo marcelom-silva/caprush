@@ -8,9 +8,8 @@
   var BASE = '/game/assets/audio/music/';
 
   var TRACK_MAP = {
-    'caprush-game':      'watertide.ogg',
-    'game-multi-online': 'watertide.ogg',
-    'game-multi-local':  'martini.ogg',
+    'caprush-game': 'watertide.ogg',   // Solo vs IA
+    'game-multi':   'martini.ogg',     // 1v1 Local AND Online (ambos usam martini)
   };
 
   function getTrackSrc(){

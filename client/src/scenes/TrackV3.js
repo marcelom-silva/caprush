@@ -633,10 +633,7 @@ if(parkingZone){
         ctx.fillStyle=[['#F0D07A',1.5],['#604518',1.0],['#A07840',1.2],['#E0C060',1.3],['#FFE890',0.9]][gi%5][0];
         ctx.beginPath();ctx.arc(gx2,gy2,[1.5,1.0,1.2,1.3,0.9][gi%5],0,Math.PI*2);ctx.fill();
       }
-      ctx.globalAlpha=0.30;
-      ctx.font='bold '+Math.floor(sz.w*.22)+'px Bebas Neue,Arial Black';
-      ctx.fillStyle='#6B3A0A';ctx.textAlign='center';ctx.textBaseline='middle';
-      ctx.fillText('AREIA',sz.x+sz.w/2,sz.y+sz.h/2);
+      // label removido
       ctx.restore();
     });
 

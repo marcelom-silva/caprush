@@ -399,28 +399,21 @@ nav{
 }
 
 #log-box{
-  font-family:'Rajdhani', sans-serif;
-  font-size:.75rem;
-  line-height:1.6;
-
-  color:#A8FFB0;
-
-  background:rgba(0,0,0,.25);
-  border:1px solid rgba(0,255,100,.2);
-
-  padding:8px;
-  border-radius:6px;
-
-  max-height:200px;
-  min-height:120px;
-
+  flex:1;
   overflow-y:auto;
+  font-size:.6rem;
+  color:#555570;
+  min-height:80px;
 }
-
 #log-box p{
-  margin-bottom:4px;
-  opacity:.9;
+  padding:2px 0;
+  border-bottom:1px solid #1A1A28;
+  line-height:1.5;
 }
+#log-box p.ev{color:var(--gold);}
+#log-box p.ev2{color:var(--acc);}
+#log-box p.win{color:#44FF88;font-weight:700;}
+#log-box p.bad{color:#FF6B6B;}
 
 #overlay h2{
   font-family:'Bebas Neue';
@@ -591,7 +584,7 @@ function setLang(lang){
 
 function toggleBGM(){
   if(typeof toggleAudio === 'function') toggleAudio();
-  else if(window.SoundEngine) SoundEngine.toggleBGM();
+  if(typeof toggleAudio==='function') toggleAudio();
 }
 function toggleSFX(){
   if(window.SoundEngine) SoundEngine.toggleSFX();
@@ -606,6 +599,7 @@ function toggleSFX(){
 <script src="client/src/entities/Kenta.js"></script>
 <script src="client/src/entities/RacerX.js"></script>
 <script src="client/src/scenes/TrackV3.js"></script>
+<script src="pregame-anim.js"></script>
 <script src="client/src/core/GameLoop.js"></script>
 
 <script src="audio.js"></script>
@@ -659,10 +653,6 @@ function toggleSFX(){
   draw();
 })();
 </script>
-<script>
-document.getElementById('overlay').addEventListener('click', function(){
-  this.style.display = 'none';
-});
-</script>
+
 </body>
 </html>

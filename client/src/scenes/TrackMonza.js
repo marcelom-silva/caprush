@@ -158,13 +158,13 @@ var TrackMonza = (function(){
       if(!a||!b) return;
       var dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy)||1;
       var nx=-dy/len,ny=dx/len;
-      var hw=TW*0.50;
+      var hw=TW*0.48; // curb line closer to track edge
       // Curb center point and normal
       curbs.push({
         x1:a.x+nx*hw*side,y1:a.y+ny*hw*side,
         x2:b.x+nx*hw*side,y2:b.y+ny*hw*side,
         nx:-nx*side, ny:-ny*side, // normal pointing inward
-        w:TW*0.18 // curb width
+        w:TW*0.10 // curb width — reduced to match visual strip only
       });
     });
     return curbs;
@@ -182,16 +182,36 @@ var TrackMonza = (function(){
     for(var i=0;i<pts.length;i++){var a=pts[i],b=pts[(i+1)%pts.length];var d=_distSeg(pos.x,pos.y,a.x,a.y,b.x,b.y);if(d<best)best=d;}
     return best;
   }
-  function isOnTrack(pos){return _nearSeg(pos)<TW*0.55;}
+  function isOnTrack(pos){return _nearSeg(pos)<TW*0.72;}
   function detectInner(pos){
-    if(isOnTrack(pos))return false;
-    var cx=CW*0.50,cy=CH*0.50,rx=CW*0.40,ry=CH*0.35;
+    if(isOnTrack(pos)) return false;
+    // Guard bands — always on-track (prevents false off-track after chicane bounce)
+    if(pos.y > CH*0.76 && pos.y < CH*0.91) return false; // main straight
+    if(pos.y < CH*0.23 && pos.y > CH*0.07) return false; // top straight
+    if(pos.x > CW*0.82)                    return false; // right side (PV/Curva Grande)
+    if(pos.x < CW*0.10)                    return false; // left side (Parabolica/Ascari)
+    var cx=CW*0.50,cy=CH*0.50,rx=CW*0.43,ry=CH*0.38;
     return ((pos.x-cx)/rx)**2+((pos.y-cy)/ry)**2<1.0;
   }
   function detectPuddle(pos){for(var i=0;i<puddles.length;i++){var p=puddles[i];if(Math.hypot(pos.x-p.x,pos.y-p.y)<p.r)return true;}return false;}
   function detectSand(pos){return false;}
   function detectGrassOnTrack(pos){for(var i=0;i<grassInner.length;i++){var g=grassInner[i];if(((pos.x-g.x)/g.rx)**2+((pos.y-g.y)/g.ry)**2<1)return true;}return false;}
-  function checkPothole(pos,r){for(var i=0;i<potholes.length;i++){var h=potholes[i];if(Math.hypot(pos.x-h.x,pos.y-h.y)<h.r+r*0.5)return h;}return null;}
+  function checkPothole(pos,r,moving){
+    // Only trigger when cap is actively moving — prevents re-trigger after falling in
+    if(!moving) return null;
+    for(var i=0;i<potholes.length;i++){
+      var h=potholes[i];
+      if(Math.hypot(pos.x-h.x,pos.y-h.y)<h.r*0.82) return h;
+    }
+    return null;
+  }
+  // Cap stays in hole — no escape position helper needed
+  // (kept for API compatibility, returns center of hole)
+  function potholeEscapePos(pot){
+    // Reset cap to just outside trigger radius so it doesn't re-trigger on first move
+    // 0.82 is the trigger threshold, 0.86 puts cap just outside — visually still in hole
+    return {x:pot.x + pot.r*0.86, y:pot.y};
+  }
   function checkObstacles(pos,r){
     for(var i=0;i<obstacles.length;i++){var o=obstacles[i],dx=pos.x-o.x,dy=pos.y-o.y,d=Math.hypot(dx,dy);if(d<r+o.r)return{obs:o,nx:dx/d,ny:dy/d};}
     // Chicane curb check (extra elastic bounce)
@@ -418,7 +438,7 @@ var TrackMonza = (function(){
   return {
     init,render,isOnTrack,detectInner,detectPuddle,detectSand,detectGrassOnTrack,
     checkObstacles,checkStands,checkPaddock,checkCP,checkLap,resetCPs,getStartPos,
-    checkPothole,META,
+    checkPothole,potholeEscapePos,META,
     get TW(){return TW;},
     get checkpoints(){return _checkpoints;}
   };

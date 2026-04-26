@@ -154,6 +154,23 @@
   // ── START ─────────────────────────────────────────────────────────────────
   function startGame(){
     SoundEngine.resume(); RacerX.initSound();
+    // ── Pregame animation (if available) ──
+    if(typeof PregameAnim !== 'undefined' && !window._pregameShown){
+      window._pregameShown = true;
+      var pid = localStorage.getItem('caprush_pilot')||'YUKI';
+      var _pm = {YUKI:{color:'#00E5FF',kanji:'\u96EA'},KENTA:{color:'#FF9900',kanji:'\u9B54'}};
+      var ps  = _pm[pid]||_pm.YUKI;
+      PregameAnim.show({
+        track:'CAPRUSH — PISTA ORIGINAL',
+        p1name:pid, p1color:ps.color, p1kanji:ps.kanji,
+        p2name:'RACER-D', p2color:'#FF2A2A', p2kanji:'?',
+        mode:'SOLO vs IA'
+      }, function(){
+        overlay.style.display='none'; gs.phase='AIM';
+        if(gs.t0===0) gs.t0=performance.now();
+      });
+      return; // wait for animation callback
+    }
     overlay.style.display='none'; gs.phase='AIM';
     if(canvas.width<50) resize();
     var gp=gridPlayer();

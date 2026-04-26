@@ -121,7 +121,7 @@
 <script src="src/scenes/TrackV3.js"></script>
 <script src="src/scenes/TrackMonza.js"></script>
 <script>
-function toggleBGM(){var on=SoundEngine.toggleBGM();document.getElementById('btn-bgm').classList.toggle('off',!on);}
+function toggleBGM(){if(typeof toggleAudio==='function')toggleAudio();}
 function toggleSFX(){var on=SoundEngine.toggleSFX();document.getElementById('btn-sfx').classList.toggle('off',!on);}
 function logEv(m){var b=document.getElementById('log-box');var p=document.createElement('p');p.className='ev';p.textContent=m;b.insertBefore(p,b.firstChild);if(b.children.length>14)b.removeChild(b.lastChild);}
 function updPanel(){document.getElementById('mp-p1-info').textContent='YUKI: V'+P[0].lap+' CP'+P[0].cp;document.getElementById('mp-p2-info').textContent='KENTA: V'+P[1].lap+' CP'+P[1].cp;}
@@ -179,7 +179,7 @@ function setStatus(t){document.getElementById('mp-turn').textContent=t;document.
 document.getElementById('btnHost').onclick=function(){setStatus('Conectando PeerServer...');peer=new Peer({debug:2});peer.on('open',function(id){setStatus('SALA: '+id);myId=0;cur=0;logEv('Host pronto');startGame()});peer.on('error',function(e){setStatus('ERRO: '+e.type);logEv('Host erro '+e.type)});peer.on('connection',function(c){conn=c;setupConn();logEv('Guest conectou');if(conn&&conn.open)conn.send({t:'pilot_id',id:_myPilot});})};
 document.getElementById('btnJoin').onclick=function(){var id=document.getElementById('roomId').value.trim();if(!id){setStatus('Digite ID');return}setStatus('Conectando...');peer=new Peer({debug:2});peer.on('open',function(){conn=peer.connect(id,{reliable:true});conn.on('open',function(){myId=1;cur=0;setStatus('CONECTADO');logEv('Entrou na sala');setupConn();if(conn&&conn.open)conn.send({t:'pilot_id',id:_myPilot});startGame()});conn.on('error',function(e){setStatus('Erro conn');logEv('Conn erro')})});peer.on('error',function(e){setStatus('ERRO: '+e.type);logEv('Join erro '+e.type)})};
 function setupConn(){conn.on('data',function(d){if(d.t==='pilot_id'){var oppSpec=PILOTS_O[d.id]||PILOTS_O.YUKI;P[1].name=d.id;P[1].color=oppSpec.color;P[1].accent=oppSpec.accent;P[1].kanji=oppSpec.kanji;applyPilotToCard(d.id,'opp');var p1nm=document.getElementById('p1-name');if(p1nm){p1nm.textContent=d.id;p1nm.style.color=oppSpec.color;}}if(d.t==='flick'){var p=P[d.p];p.phys.flick(new Vector2D(d.fx,d.fy),new Vector2D(d.tx,d.ty),1);if(!p.t0)p.t0=performance.now();}});conn.on('close',function(){setStatus('Desconectado')})}
-function startGame(){overlay.style.display='none';SoundEngine.resume();SoundEngine.startBGM();phase='AIM';if(!P[myId].t0)P[myId].t0=performance.now();showTurn();requestAnimationFrame(function(t){lt=t;loop(t)})}
+function startGame(){overlay.style.display='none';SoundEngine.resume();phase='AIM';if(!P[myId].t0)P[myId].t0=performance.now();showTurn();requestAnimationFrame(function(t){lt=t;loop(t)})}
 function showTurn(){var p=P[cur];updPanel()}
 function cpos(e){var r=canvas.getBoundingClientRect();var pt=e.touches?e.touches[0]:e;return new Vector2D(pt.clientX-r.left,pt.clientY-r.top)}
 function bnd(){return{x:0,y:0,w:canvas.width,h:canvas.height}}
@@ -200,10 +200,28 @@ setTimeout(()=>{const h=document.getElementById('hud');if(h){const a=document.cr
 <script>
 (function(){
   var bgm=null,_playing=false;
-  function _initBgm(){if(bgm)return;bgm=new Audio('/game/assets/audio/music/watertide.ogg');bgm.loop=true;bgm.volume=0.35;}
+  function _initBgm(){if(bgm)return;bgm=new Audio('/game/assets/audio/music/martini.ogg');bgm.loop=true;bgm.volume=0.35;}
   window.toggleAudio=function(){_initBgm();if(_playing){bgm.pause();_playing=false;localStorage.setItem('audioEnabled','false');}else{bgm.play();_playing=true;localStorage.setItem('audioEnabled','true');}};
   window.addEventListener('load',function(){if(localStorage.getItem('audioEnabled')!=='false'){_initBgm();bgm.play().then(function(){_playing=true;}).catch(function(){});}});
   document.addEventListener('click',function once(){if(!_playing&&localStorage.getItem('audioEnabled')!=='false'){_initBgm();bgm.play().then(function(){_playing=true;}).catch(function(){});}},{once:true});
+})();
+</script>
+<script>
+// BGM via OGG (martini.ogg para modo multi)
+(function(){
+  var _bgm=null,_on=localStorage.getItem('audioEnabled')!=='false';
+  function _init(){if(_bgm)return;_bgm=new Audio('/game/assets/audio/music/martini.ogg');_bgm.loop=true;_bgm.volume=0.38;}
+  window.toggleAudio=window.toggleAudio||function(){
+    _init();
+    if(_bgm.paused){_bgm.play();_on=true;localStorage.setItem('audioEnabled','true');}
+    else{_bgm.pause();_on=false;localStorage.setItem('audioEnabled','false');}
+    var b=document.getElementById('btn-bgm');if(b)b.classList.toggle('off',!_bgm.paused===false);
+  };
+  window.addEventListener('load',function(){
+    if(_on){_init();_bgm.play().catch(function(){
+      document.addEventListener('click',function once(){if(_on&&_bgm&&_bgm.paused)_bgm.play().catch(function(){});},{once:true});
+    });}
+  });
 })();
 </script>
 </body>

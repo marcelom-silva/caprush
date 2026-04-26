@@ -151,6 +151,77 @@ footer{text-align:center;padding:48px 20px;border-top:1px solid rgba(255,255,255
   color:#444;font-size:.82rem;letter-spacing:1px}
 footer a{color:var(--gold);text-decoration:none}
 footer a:hover{text-decoration:underline}
+
+/* ── ANIMATIONS ─────────────────────────────────────────────── */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeInLeft{from{opacity:0;transform:translateX(-32px)}to{opacity:1;transform:translateX(0)}}
+@keyframes shimmer{0%{background-position:200% center}100%{background-position:-200% center}}
+@keyframes borderPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,42,42,.4)}70%{box-shadow:0 0 0 12px rgba(255,42,42,0)}}
+@keyframes floatCap{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-12px) rotate(8deg)}}
+@keyframes countUp{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+@keyframes gradShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+
+.hero h1{
+  background-size:300% auto;
+  animation:gradShift 4s ease infinite;
+}
+.hero-badge{animation:borderPulse 2s ease-in-out infinite;}
+
+/* Scroll-reveal (JS-driven via .revealed class) */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease;}
+.reveal.revealed{opacity:1;transform:none;}
+.reveal-left{opacity:0;transform:translateX(-28px);transition:opacity .7s ease,transform .7s ease;}
+.reveal-left.revealed{opacity:1;transform:none;}
+
+/* Feat cards hover */
+.feat{transition:transform .25s,box-shadow .25s,border-color .25s;}
+.feat:hover{transform:translateY(-6px) scale(1.015);
+  box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 30px rgba(255,100,0,.18);}
+
+/* Pilot cards */
+.pilot-card{transition:transform .25s,box-shadow .25s;}
+.pilot-card:hover{transform:translateY(-6px);
+  box-shadow:0 20px 50px rgba(0,0,0,.5),0 0 28px rgba(255,215,0,.22);}
+
+/* Stack items */
+.stack-item{transition:transform .22s,background .22s,border-color .22s;}
+.stack-item:hover{transform:translateX(6px);background:rgba(255,100,0,.07);
+  border-color:rgba(255,100,0,.25);}
+
+/* Stats hover */
+.stat{transition:background .2s;}
+.stat:hover{background:rgba(255,215,0,.07);}
+.stat-num{
+  background:linear-gradient(135deg,var(--gold),var(--red),var(--gold));
+  background-size:200% auto;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  animation:shimmer 3s linear infinite;
+}
+
+/* Token boxes */
+.token-box{transition:transform .22s,border-color .22s,box-shadow .22s;}
+.token-box:hover{transform:scale(1.04);border-color:rgba(255,215,0,.4);
+  box-shadow:0 0 24px rgba(255,215,0,.22);}
+.token-pct{
+  background:linear-gradient(135deg,var(--gold),var(--red));
+  background-size:200% auto;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  animation:shimmer 2.5s linear infinite;
+}
+
+/* Timeline dot pulse for active item */
+.tl-item.active .tl-dot{animation:borderPulse 1.5s ease-in-out infinite;}
+
+/* CTA hover glow */
+.btn-primary{transition:transform .2s,box-shadow .2s,filter .2s;}
+.btn-primary:hover{transform:translateY(-3px) scale(1.04);
+  filter:brightness(1.15);
+  box-shadow:0 12px 50px rgba(255,100,0,.5);}
+.btn-sec:hover{background:rgba(255,215,0,.1);border-color:rgba(255,215,0,.7);}
+
+/* Hero floating caps decoration */
+.deco-cap{position:absolute;opacity:0.12;pointer-events:none;animation:floatCap 4s ease-in-out infinite;}
+
 </style>
 <script src="/i18n.js"></script>
 </head>
@@ -171,6 +242,11 @@ footer a:hover{text-decoration:underline}
 </nav>
 
 <!-- HERO -->
+  <!-- Floating decorative caps -->
+  <div class="deco-cap" style="top:8%;left:4%;font-size:2.5rem;animation-delay:0s">🪙</div>
+  <div class="deco-cap" style="top:15%;right:6%;font-size:3rem;animation-delay:1.2s">🪙</div>
+  <div class="deco-cap" style="top:60%;left:2%;font-size:2rem;animation-delay:2.1s">🪙</div>
+
 <div class="hero">
   <div class="hero-badge" data-i18n="brand_badge">🏎 WEB3 RACING · SOLANA · VIBE JAM 2026</div>
   <h1>CAP<br>RUSH</h1>
@@ -183,7 +259,7 @@ footer a:hover{text-decoration:underline}
     <a href="/caprush-game.html" class="btn-primary" data-i18n="brand_cta_play">▶ JOGAR AGORA</a>
     <a href="/arquitetura.html" class="btn-sec" data-i18n="brand_cta_arch">VER ARQUITETURA</a>
   </div>
-  <div class="stats-bar">
+  <div class="stats-bar reveal">
     <div class="stat"><span class="stat-num">2</span><div class="stat-lbl" data-i18n="brand_stat_tracks">Pistas</div></div>
     <div class="stat"><span class="stat-num">3</span><div class="stat-lbl" data-i18n="brand_stat_modes">Modos de Jogo</div></div>
     <div class="stat"><span class="stat-num">4</span><div class="stat-lbl" data-i18n="brand_stat_pilots">Pilotos NFT</div></div>
@@ -197,7 +273,7 @@ footer a:hover{text-decoration:underline}
 <section>
   <div class="sec-label" data-i18n="brand_sec_game">Gameplay</div>
   <h2 class="sec-title" data-i18n="brand_game_title">FÍSICA REAL, <span>ADRENALINA DIGITAL</span></h2>
-  <div class="features">
+  <div class="features reveal">
     <div class="feat"><div class="feat-icon">🎯</div>
       <h3 data-i18n="brand_feat1_t">Turn-Based Physics</h3>
       <p data-i18n="brand_feat1_d">Mecânica de tiro e mira com física procedural completa — colisão, ricochete, drag por superfície, faíscas e efeito de buracos.</p>
@@ -229,7 +305,7 @@ footer a:hover{text-decoration:underline}
 <section>
   <div class="sec-label" data-i18n="brand_sec_pilots">Pilotos NFT</div>
   <h2 class="sec-title" data-i18n="brand_pilots_title">COLECIONÁVEIS COM <span>ATRIBUTOS REAIS</span></h2>
-  <div class="pilots-grid">
+  <div class="pilots-grid reveal">
     <div class="pilot-card">
       <div class="pilot-rarity" style="background:rgba(255,215,0,.12);color:#FFD700;border:1px solid rgba(255,215,0,.3)" data-i18n="pilot-legendary">◆ LENDÁRIO</div>
       <div class="pilot-name" style="color:#00E5FF">YUKI</div>
@@ -271,7 +347,7 @@ footer a:hover{text-decoration:underline}
 <section>
   <div class="sec-label" data-i18n="brand_sec_tech">Tecnologia</div>
   <h2 class="sec-title" data-i18n="brand_tech_title">STACK <span>100% WEB-NATIVE</span></h2>
-  <div class="stack-grid">
+  <div class="stack-grid reveal">
     <div class="stack-item"><div class="stack-icon">⚡</div><div class="stack-info"><h4>Canvas 2D + Vanilla JS</h4><p>Zero framework, zero dependência pesada. Motor de física próprio — Vector2D, Physics, GameLoop, SoundEngine.</p></div></div>
     <div class="stack-item"><div class="stack-icon">🔐</div><div class="stack-info"><h4>Google + TipLink</h4><p>Login com Google cria automaticamente uma wallet Solana via TipLink. Onboarding sem fricção.</p></div></div>
     <div class="stack-item"><div class="stack-icon">⛓️</div><div class="stack-info"><h4>Solana + Fogo SVM</h4><p>NFT pilotos com metadata on-chain. Deploy no Fogo (EVM-compatível) para roadmap Q4 2026.</p></div></div>
@@ -285,7 +361,7 @@ footer a:hover{text-decoration:underline}
 <section>
   <div class="sec-label" data-i18n="brand_sec_road">Roadmap</div>
   <h2 class="sec-title" data-i18n="brand_road_title">VISÃO <span>ESTRATÉGICA</span></h2>
-  <div class="timeline">
+  <div class="timeline reveal-left">
     <div class="tl-item done">
       <div class="tl-dot"></div>
       <div class="tl-label">Q1–Q2 2026 · CONCLUÍDO</div>
@@ -318,11 +394,95 @@ footer a:hover{text-decoration:underline}
   <div class="sec-label" data-i18n="brand_sec_token">Tokenomics</div>
   <h2 class="sec-title" data-i18n="brand_token_title">TOKEN <span>$CR</span></h2>
   <div style="margin-bottom:24px;color:#AAA;max-width:640px" data-i18n="brand_token_desc">O $CR é o token utilitário do ecossistema CapRush — usado para entrar em corridas com aposta, comprar/vender pilotos NFT e participar da governança.</div>
-  <div class="token-grid">
+  <div class="token-grid reveal">
     <div class="token-box"><span class="token-pct">40%</span><div class="token-name" data-i18n="brand_tok1">Recompensas de Jogo</div><div class="token-desc" data-i18n="brand_tok1d">Prize pools de torneios e ranking por temporada</div></div>
     <div class="token-box"><span class="token-pct">20%</span><div class="token-name" data-i18n="brand_tok2">Equipe & Dev</div><div class="token-desc" data-i18n="brand_tok2d">Vesting 2 anos, cliff 6 meses</div></div>
     <div class="token-box"><span class="token-pct">20%</span><div class="token-name" data-i18n="brand_tok3">Ecossistema</div><div class="token-desc" data-i18n="brand_tok3d">Liquidez, grants, parcerias estratégicas</div></div>
     <div class="token-box"><span class="token-pct">20%</span><div class="token-name" data-i18n="brand_tok4">Investidores</div><div class="token-desc" data-i18n="brand_tok4d">Seed + Private round, vesting 18 meses</div></div>
+  </div>
+</section>
+
+
+<!-- ECONOMY -->
+<section>
+  <div class="sec-label" data-i18n="tok_util_title">Utilidade do $CR</div>
+  <h2 class="sec-title" data-i18n="tok_title_full">ECONOMIA DO $CR — MODELO JUSTO E SUSTENTÁVEL</h2>
+
+  <!-- Princípio central -->
+  <div style="background:rgba(255,42,42,.07);border:1px solid rgba(255,42,42,.25);border-left:4px solid var(--red);border-radius:12px;padding:18px 22px;margin-bottom:32px;" class="reveal">
+    <div style="font-family:'Bebas Neue';font-size:1rem;letter-spacing:2px;color:var(--red);margin-bottom:6px" data-i18n="tok_principle">Princípio central: mérito antes de dinheiro</div>
+    <p style="color:#AAA;font-size:.9rem;line-height:1.7" data-i18n="tok_principle_d">No CapRush, dinheiro sem conquista não te leva longe. Upgrades premium exigem corridas ganhas, conquistas e tempo de jogo — além dos tokens.</p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;margin-bottom:36px">
+
+    <!-- Utilidade -->
+    <div class="feat reveal" style="--delay:.1s">
+      <div class="feat-icon">⚡</div>
+      <h3 data-i18n="tok_util_title">UTILIDADE DO $CR</h3>
+      <ul style="list-style:none;margin:0">
+        <li style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.84rem;color:#AAA">🏎 <span data-i18n="tok_util_1">Entrar em corridas com aposta</span></li>
+        <li style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.84rem;color:#AAA">🖼 <span data-i18n="tok_util_2">Mint e upgrade de tampinha NFT</span></li>
+        <li style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.84rem;color:#AAA">🏪 <span data-i18n="tok_util_3">Marketplace entre jogadores</span></li>
+        <li style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.84rem;color:#AAA">🔧 <span data-i18n="tok_util_4">Acesso à Garagem — upgrades</span></li>
+        <li style="padding:6px 0;font-size:.84rem;color:#AAA">📈 <span data-i18n="tok_util_5">Staking por temporada (1.2x–2x)</span></li>
+      </ul>
+    </div>
+
+    <!-- Como ganhar -->
+    <div class="feat reveal" style="--delay:.2s">
+      <div class="feat-icon">🏆</div>
+      <h3 data-i18n="tok_earn_title">COMO GANHAR $CR</h3>
+      <div style="display:grid;gap:6px">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+          <span style="font-size:.82rem;color:#AAA" data-i18n="tok_earn_1">Vitória Solo vs IA</span>
+          <span style="font-family:'Bebas Neue';color:var(--gold);letter-spacing:1px">1 $CR</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+          <span style="font-size:.82rem;color:#AAA" data-i18n="tok_earn_2">Vitória 1v1</span>
+          <span style="font-family:'Bebas Neue';color:var(--gold);letter-spacing:1px">3 $CR</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+          <span style="font-size:.82rem;color:#AAA" data-i18n="tok_earn_3">Recorde pessoal</span>
+          <span style="font-family:'Bebas Neue';color:var(--gold);letter-spacing:1px">0.5 $CR</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+          <span style="font-size:.82rem;color:#AAA" data-i18n="tok_earn_4">Conquista desbloqueada</span>
+          <span style="font-family:'Bebas Neue';color:var(--gold);letter-spacing:1px">5–20 $CR</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0">
+          <span style="font-size:.82rem;color:#AAA" data-i18n="tok_earn_5">Top 10 da Temporada</span>
+          <span style="font-family:'Bebas Neue';color:var(--gold);letter-spacing:1px">50–500 $CR</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Anti-inflação -->
+    <div class="feat reveal" style="--delay:.3s;border-color:rgba(255,215,0,.15)">
+      <div class="feat-icon">🔥</div>
+      <h3 style="color:var(--gold)" data-i18n="tok_burn_title">MECANISMO ANTI-INFLAÇÃO</h3>
+      <p style="font-size:.86rem;color:#AAA;line-height:1.65;margin-bottom:14px" data-i18n="tok_burn_d">10% de toda corrida com aposta é queimado (burn). Quanto mais o jogo é jogado, menos supply existe.</p>
+      <div style="background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.18);border-radius:8px;padding:12px;text-align:center">
+        <div style="font-family:'Bebas Neue';font-size:1.6rem;color:var(--gold)" data-i18n="tok_supply">100 Milhões de $CR</div>
+        <div style="font-size:.68rem;letter-spacing:2px;color:#666;text-transform:uppercase;margin-top:2px">Supply Total · Deflacionário</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fluxo visual da economia -->
+  <div style="background:var(--panel);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:24px;text-align:center" class="reveal">
+    <div style="font-family:'Bebas Neue';font-size:.95rem;letter-spacing:3px;color:#666;margin-bottom:16px">FLUXO DO TOKEN $CR</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;font-size:.82rem">
+      <div style="background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.3);border-radius:8px;padding:10px 16px;color:var(--acc)">🎮 JOGAR</div>
+      <div style="color:#555;font-family:'Bebas Neue'">→</div>
+      <div style="background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.3);border-radius:8px;padding:10px 16px;color:var(--gold)">🏆 GANHAR $CR</div>
+      <div style="color:#555;font-family:'Bebas Neue'">→</div>
+      <div style="background:rgba(255,42,42,.1);border:1px solid rgba(255,42,42,.3);border-radius:8px;padding:10px 16px;color:var(--red)">⚡ USAR $CR</div>
+      <div style="color:#555;font-family:'Bebas Neue'">→</div>
+      <div style="background:rgba(100,100,100,.1);border:1px solid rgba(100,100,100,.3);border-radius:8px;padding:10px 16px;color:#888">🔥 10% BURN</div>
+      <div style="color:#555;font-family:'Bebas Neue'">→</div>
+      <div style="background:rgba(200,100,255,.1);border:1px solid rgba(200,100,255,.3);border-radius:8px;padding:10px 16px;color:#CC66FF">📈 VALORIZAÇÃO</div>
+    </div>
   </div>
 </section>
 
@@ -344,5 +504,44 @@ function setLang(l){ if(window.I18N) I18N.setLang(l); localStorage.setItem('lang
 </script>
 <script src="audio.js"></script>
 <script src="background.js"></script>
+
+<script>
+// ── Scroll reveal ─────────────────────────────────────────────────
+(function(){
+  var els = document.querySelectorAll('.reveal,.reveal-left');
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('revealed'); obs.unobserve(e.target); }
+    });
+  },{threshold:0.12});
+  els.forEach(function(el){ obs.observe(el); });
+})();
+
+// ── Animated stat counters ─────────────────────────────────────────
+function animCount(el, target, suffix){
+  var start = 0, dur = 1200, step = 16;
+  var timer = setInterval(function(){
+    start += Math.ceil(target/((dur/step)));
+    if(start >= target){ start=target; clearInterval(timer); }
+    el.textContent = start + (suffix||'');
+  }, step);
+}
+
+var statsObs = new IntersectionObserver(function(entries){
+  entries.forEach(function(e){
+    if(!e.isIntersecting) return;
+    statsObs.unobserve(e.target);
+    var nums = e.target.querySelectorAll('.stat-num');
+    nums.forEach(function(n){
+      var raw = n.textContent.trim();
+      var num = parseInt(raw);
+      if(!isNaN(num) && num > 0){ n.textContent='0'; animCount(n, num, ''); }
+    });
+  });
+},{threshold:0.3});
+var sb = document.querySelector('.stats-bar');
+if(sb) statsObs.observe(sb);
+</script>
+
 </body>
 </html>

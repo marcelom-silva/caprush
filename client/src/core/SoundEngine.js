@@ -147,32 +147,18 @@ var SoundEngine = (function(){
   }
 
   function startBGM(){
-    if(!_bgmOn) return;
-    init(); resume();
-    _session++;
-    var s = _session;
-    // Fade in suave
-    if(_bgmGain){
-      _bgmGain.gain.cancelScheduledValues(ctx.currentTime);
-      _bgmGain.gain.setValueAtTime(0, ctx.currentTime);
-      _bgmGain.gain.linearRampToValueAtTime(.22, ctx.currentTime+.5);
-    }
-    setTimeout(function(){ _scheduleBeat(s); }, 10);
+    // BGM agora gerenciado pelo audio.js (arquivos OGG)
+    // Esta função é no-op — não iniciar sintetizador
   }
 
   function stopBGM(){
-    _session++; // invalida todos os loops ativos
-    if(_bgmGain && ctx){
-      _bgmGain.gain.cancelScheduledValues(ctx.currentTime);
-      _bgmGain.gain.setValueAtTime(_bgmGain.gain.value, ctx.currentTime);
-      _bgmGain.gain.linearRampToValueAtTime(0, ctx.currentTime+.3);
-    }
+    // No-op — BGM controlado pelo audio.js
+    _session++; // Invalida beats pendentes
   }
 
   function toggleBGM(){
-    _bgmOn = !_bgmOn;
-    if(_bgmOn){ startBGM(); }
-    else{ stopBGM(); }
+    // Delega ao audio.js que controla o OGG
+    if(typeof toggleAudio === 'function') toggleAudio();
     return _bgmOn;
   }
 

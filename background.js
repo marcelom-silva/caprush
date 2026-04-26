@@ -1,5 +1,5 @@
-// background.js — CapRush Overdrive! Animated Background
-// Tampinhas deslizando com rastros estilo Tron — tons laranja/vermelho
+// background.js v3 — CapRush Overdrive!
+// Tampinhas estilo Tron: Legacy — rastros somem ao parar, performance otimizada
 (function(){
   'use strict';
 
@@ -10,7 +10,6 @@
     'z-index:-1','pointer-events:none','opacity:0.55'
   ].join(';');
 
-  // Insert as first child of body
   document.addEventListener('DOMContentLoaded', function(){
     document.body.insertBefore(canvas, document.body.firstChild);
     resize();
@@ -20,188 +19,235 @@
   var ctx = canvas.getContext('2d');
   var W, H;
   var caps = [];
-  var trails = [];
-  var NUM_CAPS = 22;
+  var NUM_CAPS = 10;          // menos caps → menos CPU
   var t = 0;
+  var lastTime = 0;
 
+  // Orange/red neon — no blue
   var PALETTE = [
-    '#FF4400','#FF6600','#FF8800','#FFAA00','#FFD700',
-    '#FF2200','#DD3300','#FF5500','#CC4400','#FF9900'
+    '#FF4400','#FF6200','#FF8800','#FFAA00','#FFD700',
+    '#FF2200','#FF5500','#CC3300','#FF9900','#FFCC00'
   ];
 
   function resize(){
-    W = canvas.width = window.innerWidth;
+    W = canvas.width  = window.innerWidth;
     H = canvas.height = window.innerHeight;
     caps = [];
-    for(var i = 0; i < NUM_CAPS; i++) caps.push(makeCap());
+    for(var i = 0; i < NUM_CAPS; i++) caps.push(makeCap(false));
   }
-  window.addEventListener('resize', resize);
+  window.addEventListener('resize', function(){
+    clearTimeout(resize._t);
+    resize._t = setTimeout(resize, 200); // debounce
+  });
 
-  function rand(a, b){ return a + Math.random() * (b - a); }
-  function pick(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
+  function rand(a,b){ return a + Math.random()*(b-a); }
+  function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 
-  function makeCap(forced){
-    var r = rand(8, 20);
+  // Grid-aligned angles (Tron feel)
+  function randAngle(){
+    var angles = [0, Math.PI*.25, Math.PI*.5, Math.PI*.75,
+                  Math.PI, Math.PI*1.25, Math.PI*1.5, Math.PI*1.75];
+    return pick(angles) + rand(-0.15, 0.15);
+  }
+
+  function makeCap(fromEdge){
+    var r   = rand(6, 16);
+    var spd = rand(0.5, 1.2);
+    var ang = randAngle();
+    var x, y;
+    if(fromEdge){
+      var edge = Math.floor(rand(0,4));
+      if(edge===0){ x=rand(0,W); y=-r-5; }
+      else if(edge===1){ x=W+r+5; y=rand(0,H); }
+      else if(edge===2){ x=rand(0,W); y=H+r+5; }
+      else{ x=-r-5; y=rand(0,H); }
+    } else {
+      x = rand(0,W); y = rand(0,H);
+    }
     return {
-      x: forced ? (Math.random() < 0.5 ? -r : W + r) : rand(0, W),
-      y: forced ? rand(0, H) : rand(0, H),
-      r: r,
-      vx: rand(-0.4, 0.4),
-      vy: rand(-0.4, 0.4),
+      x:x, y:y, r:r,
+      vx: Math.cos(ang)*spd,
+      vy: Math.sin(ang)*spd,
       color: pick(PALETTE),
-      rot: Math.random() * Math.PI * 2,
-      rotV: rand(-0.005, 0.005),
+      rot: Math.random()*Math.PI*2,
+      rotV: rand(-0.006, 0.006),
+      // Trail state
       trailOn: false,
+      trailCooldown: Math.floor(rand(60, 240)),
+      trailLen: Math.floor(rand(300, 700)),
       trailTimer: 0,
-      trailCooldown: Math.floor(rand(120, 400)),
-      trailLen: Math.floor(rand(80, 220)),
-      opacity: rand(0.35, 0.90),
-      pulse: Math.random() * Math.PI * 2,
-      pulseV: rand(0.02, 0.06)
+      trailBoostSpd: rand(2.0, 4.5),
+      trailPoints: [],     // trail owned by cap, not global array
+      pulse: Math.random()*Math.PI*2,
+      pulseV: rand(0.02, 0.045)
     };
   }
 
+  // Draw cap outline (no shadowBlur on idle caps — expensive)
   function drawCap(c){
-    var glow = 0.5 + 0.5 * Math.sin(c.pulse);
     ctx.save();
     ctx.translate(c.x, c.y);
     ctx.rotate(c.rot);
-    ctx.globalAlpha = c.opacity;
+    ctx.globalAlpha = 0.65;
 
-    // Shadow glow
-    ctx.shadowColor = c.color;
-    ctx.shadowBlur = 8 + glow * 12;
+    if(c.trailOn){
+      ctx.shadowColor = c.color;
+      ctx.shadowBlur  = 10;
+    }
 
-    // Outer ring (serrated edge — 21 teeth)
+    // Teeth (21)
     var TEETH = 21;
     ctx.strokeStyle = c.color;
-    ctx.lineWidth = 1.4;
+    ctx.lineWidth   = 1.4;
     ctx.beginPath();
-    for(var k = 0; k <= TEETH * 2; k++){
-      var a = (k / (TEETH * 2)) * Math.PI * 2;
-      var rr = (k % 2 === 0) ? c.r : c.r - 2.2;
-      var px = Math.cos(a) * rr, py = Math.sin(a) * rr;
-      k === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    for(var k=0; k<=TEETH*2; k++){
+      var a  = (k/(TEETH*2))*Math.PI*2;
+      var rr = (k%2===0) ? c.r : c.r-2.2;
+      k===0 ? ctx.moveTo(Math.cos(a)*rr,Math.sin(a)*rr)
+            : ctx.lineTo(Math.cos(a)*rr,Math.sin(a)*rr);
     }
     ctx.closePath();
     ctx.stroke();
 
-    // Inner circle
+    // Inner ring
     ctx.beginPath();
-    ctx.arc(0, 0, c.r * 0.70, 0, Math.PI * 2);
-    ctx.strokeStyle = c.color;
-    ctx.lineWidth = 1;
+    ctx.arc(0,0,c.r*0.62,0,Math.PI*2);
+    ctx.lineWidth = 0.9;
     ctx.stroke();
 
-    // Center dot
+    // Center dot (bright when trailing)
     ctx.beginPath();
-    ctx.arc(0, 0, c.r * 0.22, 0, Math.PI * 2);
-    ctx.fillStyle = c.color;
+    ctx.arc(0,0,c.r*0.16,0,Math.PI*2);
+    ctx.fillStyle = c.trailOn ? '#FFFFFF' : c.color;
     ctx.fill();
 
-    // Radial spokes (3)
-    ctx.lineWidth = 0.8;
-    for(var s = 0; s < 3; s++){
-      var sa = (s / 3) * Math.PI * 2;
-      ctx.beginPath();
-      ctx.moveTo(Math.cos(sa) * c.r * 0.28, Math.sin(sa) * c.r * 0.28);
-      ctx.lineTo(Math.cos(sa) * c.r * 0.65, Math.sin(sa) * c.r * 0.65);
-      ctx.stroke();
-    }
-
     ctx.shadowBlur = 0;
     ctx.restore();
   }
 
-  function drawTrail(trail){
-    if(trail.points.length < 2) return;
+  // Draw trail directly from cap's point array — no object allocation
+  // RULE: only draw if cap is currently trailing (trailOn=true)
+  // When trail turns off, points are cleared immediately
+  function drawTrail(c){
+    var pts = c.trailPoints;
+    var n   = pts.length;
+    if(n < 2) return;
+
     ctx.save();
+    ctx.lineCap  = 'round';
     ctx.lineJoin = 'round';
-    ctx.lineCap = 'round';
-    var n = trail.points.length;
+
+    var hw = c.r * 0.38;
+
+    // Single pass — 2 layers only (glow wide + thin bright)
     for(var i = 1; i < n; i++){
-      var prog = i / n;
-      var alpha = prog * trail.alpha * 0.85;
-      if(alpha < 0.01) continue;
+      var prog = i / n; // 0=tail, 1=head
+
+      // Wide soft glow
       ctx.beginPath();
-      ctx.moveTo(trail.points[i-1].x, trail.points[i-1].y);
-      ctx.lineTo(trail.points[i].x, trail.points[i].y);
-      ctx.strokeStyle = trail.color;
-      ctx.lineWidth = trail.w * prog;
-      ctx.globalAlpha = alpha;
-      ctx.shadowColor = trail.color;
-      ctx.shadowBlur = 8 * prog;
+      ctx.moveTo(pts[i-1].x, pts[i-1].y);
+      ctx.lineTo(pts[i].x,   pts[i].y);
+      ctx.strokeStyle = c.color;
+      ctx.lineWidth   = hw*2.2;
+      ctx.globalAlpha = prog * 0.12;
+      ctx.stroke();
+
+      // Thin bright core
+      ctx.beginPath();
+      ctx.moveTo(pts[i-1].x, pts[i-1].y);
+      ctx.lineTo(pts[i].x,   pts[i].y);
+      ctx.lineWidth   = hw*0.5;
+      ctx.globalAlpha = prog * 0.90;
       ctx.stroke();
     }
+
+    // Head flash (small bright dot)
+    var head = pts[n-1];
+    ctx.globalAlpha = 0.9;
+    ctx.shadowColor = '#FFFFFF';
+    ctx.shadowBlur  = 14;
+    ctx.fillStyle   = '#FFFFFF';
+    ctx.beginPath();
+    ctx.arc(head.x, head.y, hw*0.55, 0, Math.PI*2);
+    ctx.fill();
     ctx.shadowBlur = 0;
+
     ctx.restore();
   }
 
-  function loop(){
+  // Background fade — one fillRect per frame (cheap)
+  function fadeBg(){
+    ctx.fillStyle = 'rgba(2,2,8,0.28)';
+    ctx.fillRect(0,0,W,H);
+  }
+
+  function loop(now){
     requestAnimationFrame(loop);
+
+    // Throttle to ~40 fps on background tab, full speed on active
+    if(now - lastTime < 20){ return; }  // skip frame if < 20ms
+    lastTime = now;
     t++;
 
-    // Fade background
-    ctx.fillStyle = 'rgba(2,2,8,0.30)';
-    ctx.fillRect(0, 0, W, H);
+    fadeBg();
 
-    // Update trails
-    for(var i = trails.length - 1; i >= 0; i--){
-      trails[i].alpha -= 0.012;
-      if(trails[i].alpha <= 0) trails.splice(i, 1);
-      else drawTrail(trails[i]);
-    }
-
-    // Update caps
-    for(var j = 0; j < caps.length; j++){
+    for(var j=0; j<caps.length; j++){
       var c = caps[j];
+
+      // Move
       c.x += c.vx;
       c.y += c.vy;
       c.rot += c.rotV;
       c.pulse += c.pulseV;
 
-      // Trail logic
+      // Trail state machine
       if(!c.trailOn){
+        // Idle drift
         c.trailCooldown--;
         if(c.trailCooldown <= 0){
-          c.trailOn = true;
+          // Activate — pick clean direction
+          c.trailOn    = true;
           c.trailTimer = c.trailLen;
-          // Boost speed for trail
-          var spd = rand(1.8, 3.5);
-          var ang = Math.atan2(c.vy, c.vx) + rand(-0.5, 0.5);
-          c.vx = Math.cos(ang) * spd;
-          c.vy = Math.sin(ang) * spd;
-          // Start new trail
-          trails.push({
-            points: [{x: c.x, y: c.y}],
-            color: c.color,
-            alpha: rand(0.7, 1.0),
-            w: c.r * 0.38,
-            cap: c
-          });
+          c.trailPoints = [];
+          var ang2 = randAngle();
+          c.vx = Math.cos(ang2)*c.trailBoostSpd;
+          c.vy = Math.sin(ang2)*c.trailBoostSpd;
         }
       } else {
+        // Build trail
         c.trailTimer--;
-        // Add point to current trail
-        var tr = trails[trails.length - 1];
-        if(tr && tr.cap === c) tr.points.push({x: c.x, y: c.y});
+
+        // Add point every 2 frames
+        if(t % 2 === 0){
+          c.trailPoints.push({x:c.x, y:c.y});
+          // Keep max 350 points (trail length)
+          if(c.trailPoints.length > 350) c.trailPoints.shift();
+        }
+
+        // Draw active trail
+        drawTrail(c);
+
         if(c.trailTimer <= 0){
-          c.trailOn = false;
-          c.trailCooldown = Math.floor(rand(150, 450));
-          c.trailLen = Math.floor(rand(80, 240));
-          // Reset to normal speed
-          var nspd = rand(0.2, 0.5);
-          var nang = Math.random() * Math.PI * 2;
-          c.vx = Math.cos(nang) * nspd;
-          c.vy = Math.sin(nang) * nspd;
+          // STOP: clear trail immediately — Tron style (trail vanishes when bike stops)
+          c.trailOn     = false;
+          c.trailPoints = [];           // ← instant erase
+          c.trailCooldown = Math.floor(rand(90, 360));
+          c.trailLen      = Math.floor(rand(300, 700));
+          c.trailBoostSpd = rand(2.0, 4.5);
+          // Back to slow drift
+          var driftAng = Math.random()*Math.PI*2;
+          var driftSpd = rand(0.3, 0.9);
+          c.vx = Math.cos(driftAng)*driftSpd;
+          c.vy = Math.sin(driftAng)*driftSpd;
         }
       }
 
-      // Wrap / respawn
-      var pad = c.r + 10;
-      if(c.x < -pad || c.x > W + pad || c.y < -pad || c.y > H + pad){
-        var fresh = makeCap(true);
-        caps[j] = fresh;
+      // Out of bounds → respawn from edge
+      var pad = c.r + 8;
+      if(c.x < -pad || c.x > W+pad || c.y < -pad || c.y > H+pad){
+        c.trailOn     = false;
+        c.trailPoints = [];
+        caps[j] = makeCap(true);
         continue;
       }
 

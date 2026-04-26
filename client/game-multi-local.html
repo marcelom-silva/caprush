@@ -194,6 +194,7 @@ html,body{width:100%;height:100%;background:var(--dark);font-family:'Rajdhani',s
 <script src="src/core/CapSprite.js"></script>
 <script src="src/entities/Yuki.js"></script>
 <script src="src/entities/Kenta.js"></script>
+<script src="../pregame-anim.js"></script>
 <script src="src/scenes/TrackV3.js"></script>
 <script src="src/scenes/TrackMonza.js"></script>
 
@@ -289,8 +290,20 @@ function startGame(){
   if(!P[0].t0)P[0].t0=performance.now();
   showTurn();
 }
-overlay.onclick=startGame;
-overlay.addEventListener('touchend',function(e){e.preventDefault();startGame();},{passive:false});
+function startWithAnim(){
+  if(typeof PregameAnim!=='undefined'){
+    overlay.style.display='none';
+    SoundEngine.resume();
+    PregameAnim.show({
+      track:'CIRCUITO MONZA',
+      p1name:P[0].name,p1color:P[0].spec.color,p1kanji:P[0].spec.kanji,
+      p2name:P[1].name,p2color:P[1].spec.color,p2kanji:P[1].spec.kanji,
+      mode:'1v1 LOCAL'
+    },startGame);
+  } else { startGame(); }
+}
+overlay.onclick=startWithAnim;
+overlay.addEventListener('touchend',function(e){e.preventDefault();startWithAnim();},{passive:false});
 
 // ─── Helpers ─────────────────────────────────────────────────────────────
 function bnd(){return{x:0,y:0,w:canvas.width,h:canvas.height};}
@@ -372,7 +385,7 @@ function loop(now){
     var cdx=pb.pos.x-pa.pos.x,cdy=pb.pos.y-pa.pos.y,cdst=Math.hypot(cdx,cdy);
     if(cdst>0.1&&cdst<CAP_R*2){var cnx=cdx/cdst,cny=cdy/cdst,va=(pb.vel.x-pa.vel.x)*cnx+(pb.vel.y-pa.vel.y)*cny;if(va<0){var j=-(1.72)*va/2;P[0].phys.setVel(pa.vel.x-j*cnx,pa.vel.y-j*cny);P[1].phys.setVel(pb.vel.x+j*cnx,pb.vel.y+j*cny);SoundEngine.hit();spawnSparks((pa.pos.x+pb.pos.x)*.5,(pa.pos.y+pb.pos.y)*.5,pa.vel.x-pb.vel.x,pa.vel.y-pb.vel.y,12);}}
     // Pothole check (stop cap instantly)
-    if(TrackMonza.checkPothole){var ph3=P[cur].phys.snap();var pot=TrackMonza.checkPothole(ph3.pos,CAP_R);if(pot){P[cur].phys.reset(pot.x,pot.y,'asfalto');logEv('Buraco! Tampinha parada!','ev');SoundEngine.hit();spawnSparks(pot.x,pot.y,0,0,8);}}
+    if(TrackMonza.checkPothole){var ph3=P[cur].phys.snap();var pot=TrackMonza.checkPothole(ph3.pos,CAP_R,ph3.moving);if(pot){var _ep=TrackMonza.potholeEscapePos?TrackMonza.potholeEscapePos(pot):{x:pot.x+pot.r*0.86,y:pot.y};P[cur].phys.reset(_ep.x,_ep.y,'asfalto');logEv('Buraco! Jogue para sair!','ev');SoundEngine.hit();spawnSparks(pot.x,pot.y,0,0,8);}}
     // Elastic chicane bounce
     var obsR=TrackMonza.checkObstacles(ph.pos,CAP_R);
     if(obsR&&obsR.elastic){p.phys.bounce(obsR.nx,obsR.ny,1.15);SoundEngine.hit();logEv('Chicane! Ricochete!','ev');}
@@ -453,7 +466,7 @@ function loop(now){
 }
 
 function setLang(lang){ if(window.I18N)I18N.setLang(lang); }
-function toggleBGM(){ if(typeof toggleAudio==='function')toggleAudio(); else SoundEngine.toggleBGM(); }
+function toggleBGM(){ if(typeof toggleAudio==='function')toggleAudio(); }
 function toggleSFX(){ var on=SoundEngine.toggleSFX(); document.getElementById('btn-sfx').classList.toggle('off',!on); }
 
 // Inicializa BGM pelo mesmo mecanismo do Solo (audio.js)
@@ -473,7 +486,7 @@ requestAnimationFrame(function(t){lt=t;requestAnimationFrame(loop);});
   var bgm=null, _playing=false;
   function _initBgm(){
     if(bgm) return;
-    bgm=new Audio('/game/assets/audio/music/watertide.ogg');
+    bgm=new Audio('/game/assets/audio/music/martini.ogg');
     bgm.loop=true; bgm.volume=0.35;
   }
   function _tryPlay(){
