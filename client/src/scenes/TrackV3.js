@@ -14,7 +14,7 @@ var TrackV3 = (function(){
   var CW=800, CH=500, TW=50;
   var pts=[], puddleZones=[], grassOnTrack=[], innerBounds=[], cps=[], obstacles=[];
   var startRect=null, startExtended=null;
-  var standZones=[], paddockZone=null, parkingZone=null, sandZones=[];
+  var standZones=[], paddockZone=null, parkingZone=null, sandZones=[], cannonZones=[];
   var crowd=[], grassBlades=[], lakeSparkles=[];
 
   function init(cw, ch){
@@ -137,6 +137,15 @@ parkingZone = {
   w: CW*0.20,
   h: CH*0.25
 };
+
+    // ── CANNON POSITIONS (4 cannons fixed on track edges) ─────────────────
+    // angle = direction the projectile fires INTO the track
+    cannonZones = [
+      { x:CW*0.50, y:CH*0.08, angle:Math.PI*0.5,  r:12, cooldown:0 }, // top straight, fires down
+      { x:CW*0.82, y:CH*0.48, angle:Math.PI*1.15, r:12, cooldown:0 }, // right side, fires left-down
+      { x:CW*0.35, y:CH*0.92, angle:Math.PI*1.5,  r:12, cooldown:0 }, // bottom, fires up
+      { x:CW*0.18, y:CH*0.55, angle:Math.PI*0.0,  r:12, cooldown:0 }, // left side, fires right
+    ];
 
     // Zona de areia — faixa entre arquibancada direita e borda (visível sobre stands)
     sandZones = [
@@ -633,8 +642,7 @@ if(parkingZone){
         ctx.fillStyle=[['#F0D07A',1.5],['#604518',1.0],['#A07840',1.2],['#E0C060',1.3],['#FFE890',0.9]][gi%5][0];
         ctx.beginPath();ctx.arc(gx2,gy2,[1.5,1.0,1.2,1.3,0.9][gi%5],0,Math.PI*2);ctx.fill();
       }
-      // label removido
-      ctx.restore();
+      ctx.restore(); // sem label de texto
     });
 
     if(startRect){
@@ -753,10 +761,34 @@ cps.forEach(function(c){
   ];
 }
 
+
+    // ── CANNONS ──────────────────────────────────────────────────────────
+    if(typeof cannonZones !== 'undefined') cannonZones.forEach(function(c){
+      ctx.save();
+      ctx.translate(c.x, c.y);
+      // Base turret (dark metal)
+      ctx.shadowColor='#FF4400'; ctx.shadowBlur=c.firing ? 18 : 6;
+      var bg=ctx.createRadialGradient(-4,-4,2,0,0,c.r);
+      bg.addColorStop(0,'#554433'); bg.addColorStop(1,'#221108');
+      ctx.fillStyle=bg;
+      ctx.beginPath(); ctx.arc(0,0,c.r,0,Math.PI*2); ctx.fill();
+      // Barrel
+      ctx.rotate(c.angle);
+      ctx.fillStyle=c.firing ? '#FF8800' : '#443322';
+      ctx.shadowBlur = c.firing ? 22 : 4;
+      ctx.fillRect(c.r*0.3, -c.r*0.22, c.r*1.1, c.r*0.44);
+      // Muzzle
+      ctx.fillStyle= c.firing ? '#FFCC00' : '#332211';
+      ctx.beginPath(); ctx.arc(c.r*1.4,0,c.r*0.3,0,Math.PI*2); ctx.fill();
+      ctx.shadowBlur=0;
+      ctx.restore();
+    });
+
   return {
     META:META, init:init, render:render,
     isOnTrack:isOnTrack, detectInner:detectInner,
     detectPuddle:detectPuddle, detectSand:detectSand, detectGrassOnTrack:detectGrassOnTrack,
+    getCannons:function(){return cannonZones;},
     checkCP:checkCP, checkLap:checkLap, resetCPs:resetCPs,
     checkObstacles:checkObstacles, lastCP:lastCP, getStartPos:getStartPos,
     checkStands:checkStands, checkPaddock:checkPaddock, getCheckpoints:getCheckpoints, getRacingLine: getRacingLine,

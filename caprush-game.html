@@ -459,6 +459,17 @@ nav{
 .pc-name{font-family:'Bebas Neue';font-size:.88rem;letter-spacing:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:4px;}
 .ar{display:flex;justify-content:space-between;font-size:.62rem;color:#AAA;margin:2px 0;}
 .av{font-weight:700;}
+
+/* Difficulty selector */
+.diff-row{display:flex;gap:10px;justify-content:center;margin:10px 0;}
+.diff-btn{font-family:'Bebas Neue';font-size:.85rem;letter-spacing:2px;padding:7px 18px;
+  border-radius:6px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);
+  color:#AAA;cursor:pointer;transition:.2s;}
+.diff-btn:hover{border-color:var(--gold);color:var(--gold);}
+.diff-btn.diff-active{color:#000;font-weight:700;}
+.diff-btn.d1.diff-active{background:#44CC44;border-color:#44CC44;}
+.diff-btn.d2.diff-active{background:#FFD700;border-color:#FFD700;}
+.diff-btn.d3.diff-active{background:#FF2A2A;border-color:#FF2A2A;}
 </style>
 <script src="/i18n.js"></script>
 </head>
@@ -561,6 +572,12 @@ nav{
 
       <div id="overlay">
         <h2>PRONTO?</h2>
+      <div style="font-size:.7rem;letter-spacing:3px;color:#666;margin-bottom:6px">DIFICULDADE</div>
+      <div class="diff-row">
+        <button class="diff-btn d1" onclick="setDiff(1)">😊 FÁCIL</button>
+        <button class="diff-btn d2" onclick="setDiff(2)">⚡ MÉDIO</button>
+        <button class="diff-btn d3" onclick="setDiff(3)">💀 DIFÍCIL</button>
+      </div>
         <p>Clique aqui para começar</p>
         <p style="font-size:.78rem;color:#666;margin-top:.4rem">
           Clique e arraste a tampinha para mirar
@@ -599,8 +616,8 @@ function toggleSFX(){
 <script src="client/src/entities/Kenta.js"></script>
 <script src="client/src/entities/RacerX.js"></script>
 <script src="client/src/scenes/TrackV3.js"></script>
-<script src="pregame-anim.js"></script>
-<script src="client/src/core/GameLoop.js"></script>
+<script src="pregame-anim.js?v=1777216229"></script>
+<script src="client/src/core/GameLoop.js?v=1777216229"></script>
 
 <script src="audio.js"></script>
 
@@ -654,5 +671,19 @@ function toggleSFX(){
 })();
 </script>
 
+
+<script>
+function setDiff(d){
+  localStorage.setItem('caprush_difficulty',d);
+  document.querySelectorAll('.diff-btn').forEach(function(b){b.classList.remove('diff-active');});
+  var active=document.querySelector('.d'+d);
+  if(active) active.classList.add('diff-active');
+}
+// Init from storage
+(function(){
+  var saved=parseInt(localStorage.getItem('caprush_difficulty')||'2');
+  setDiff(saved);
+})();
+</script>
 </body>
 </html>

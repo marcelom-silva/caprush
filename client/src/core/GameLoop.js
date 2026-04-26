@@ -1,11 +1,11 @@
-// GameLoop.js v9 — CapRush Solo + Racer-X (Boss IA)
+// GameLoop.js v9 -- CapRush Solo + Racer-X (Boss IA)
 // v9: melhor volta por lap, cooldown anti-loop de respawn,
 //     Racer-X tracked independentemente (CP + voltas),
 //     tela de derrota quando Racer-X termina, mensagens i18n
 (function(){
   'use strict';
 
-  // ── DOM ──────────────────────────────────────────────────────────────────
+  // -- DOM ------------------------------------------------------------------
   var canvas  = document.getElementById('gameCanvas');
   var ctx     = canvas.getContext('2d');
   var overlay = document.getElementById('overlay');
@@ -21,10 +21,10 @@
   var NCPS  = 3;
   var CAP_R = 16;
 
-  // Helper i18n: usa sistema global se disponivel, senão retorna fallback
+  // Helper i18n: usa sistema global se disponivel, senao retorna fallback
   function t(key, fallback){ return (window.i18n && window.i18n.t) ? window.i18n.t(key) : (fallback || key); }
 
-  // ── ESTADO DO JOGADOR ────────────────────────────────────────────────────
+  // -- ESTADO DO JOGADOR ----------------------------------------------------
   var gs = {
     phase: 'WAIT', lap: 1, cp: 0,
     t0: 0, elapsed: 0,
@@ -32,11 +32,11 @@
     lapStart: 0,         // timestamp inicio da volta atual
     ds: null, dc: null,
     respawn: null, respawnPending: null,
-    respawnCooldown: 0   // timestamp — impede loop de respawn
+    respawnCooldown: 0   // timestamp -- impede loop de respawn
   };
   var skipTurn = false;
 
-  // ── ESTADO DA IA ─────────────────────────────────────────────────────────
+  // -- ESTADO DA IA ---------------------------------------------------------
   var enemyLastOnTrack      = null;
   var enemyRespawnPending   = null;
   var enemyRespawnCooldown  = 0;   // anti-loop para IA
@@ -48,15 +48,26 @@
     cpsHit:  [false, false, false]   // indexed igual TrackV3.checkpoints
   };
 
-  // ── EFEITOS ──────────────────────────────────────────────────────────────
+  // -- EFEITOS --------------------------------------------------------------
   var particles = [];
   var sparks = [];
+  var _projectiles = [];
+  var _cannonTimers = []; // one timer per cannon
+  var _CANNON_MIN = 5, _CANNON_MAX = 12;
+  function _randTimer(){ return _CANNON_MIN + Math.random()*(_CANNON_MAX-_CANNON_MIN); }
   var shake     = { power: 0, time: 0 };
+  var DIFFICULTY = parseInt(localStorage.getItem('caprush_difficulty')||'2');
+  var DIFF_CFG = {
+    1: { noise:0.28, lookahead:8,  speedMult:0.78, obsSkip:3  },
+    2: { noise:0.04, lookahead:20, speedMult:1.00, obsSkip:6  },
+    3: { noise:0.005,lookahead:32, speedMult:1.18, obsSkip:12 },
+  };
+  function getDiff(){ return DIFF_CFG[DIFFICULTY]||DIFF_CFG[2]; }
   var animT     = 0;
   var lt        = 0;
   var sndTimer  = { water: 0, grass: 0 };
 
-  // ── FISICA DA IA ─────────────────────────────────────────────────────────
+  // -- FISICA DA IA ---------------------------------------------------------
   var enemyPhys = (function(){
     var BASE_DRAG = 1.8, REST = 0.65, MIN = 6;
     var DRAG_MULT = { asfalto:1.0, agua:1.95, grama:0.42, areia:1.55 };
@@ -84,20 +95,38 @@
     };
   })();
 
-  // ── RACING LINE (nunca usa getRacingLine — hardcoded errado) ─────────────
+  // -- RACING LINE (nunca usa getRacingLine -- hardcoded errado) -------------
   var _racingPath = [];
   function buildRacingPath(){
     var CW=canvas.width, CH=canvas.height;
     var TW=Math.min(CW,CH)*0.095, m=TW*0.85;
+    // Racing path follows actual track dotted line (pts[] waypoints from TrackV3)
+    // Paddock is at x:0.107-0.267, y:0.21-0.43 -- track itself avoids it
+    // Paddock zone: x=CW*0.107-0.267, y=CH*0.21-0.43
+    // m = CW*0.095 -- track left wall stays at x=m which is LEFT of paddock (x<0.107)
     var raw=[
-      {x:m,         y:CH*0.46},{x:m,         y:m},
-      {x:CW*0.36,   y:m},      {x:CW*0.44,   y:CH*0.24},
-      {x:CW*0.50,   y:CH*0.33},{x:CW*0.56,   y:CH*0.24},
-      {x:CW*0.64,   y:m},      {x:CW-m,      y:m},
-      {x:CW-m,      y:CH*0.60},{x:CW*0.75,   y:CH*0.72},
-      {x:CW*0.62,   y:CH-m},   {x:CW*0.50,   y:CH-m},
-      {x:CW*0.38,   y:CH-m},   {x:CW*0.25,   y:CH*0.72},
-      {x:m,         y:CH*0.60},
+      // Left straight -- x=m=CW*0.095 stays OUTSIDE paddock left edge (0.107)
+      {x:m,         y:CH*0.54},   // bottom left straight
+      {x:m,         y:CH*0.40},   // mid left (y=0.40 inside paddock y-range but x=m<0.107 SAFE)
+      {x:m,         y:CH*0.16},   // above paddock top (y=0.21)
+      {x:m,         y:m},         // top-left corner
+      // Top V section
+      {x:CW*0.36,   y:m},         // top-left approach
+      {x:CW*0.44,   y:CH*0.24},   // V left descent
+      {x:CW*0.50,   y:CH*0.33},   // V bottom
+      {x:CW*0.56,   y:CH*0.24},   // V right ascent
+      {x:CW*0.64,   y:m},         // top-right approach
+      // Right section
+      {x:CW-m,      y:m},         // top-right corner
+      {x:CW-m,      y:CH*0.30},   // right straight top
+      {x:CW-m,      y:CH*0.60},   // right straight bottom
+      {x:CW*0.75,   y:CH*0.72},   // right curve exit
+      // Bottom section
+      {x:CW*0.62,   y:CH-m},      // bottom-right
+      {x:CW*0.50,   y:CH-m},      // bottom center
+      {x:CW*0.38,   y:CH-m},      // bottom-left
+      {x:CW*0.25,   y:CH*0.72},   // left curve
+      {x:m,         y:CH*0.62},   // rejoin left straight (y=0.62 > 0.43 = below paddock)
     ];
     var N=30; _racingPath=[];
     for(var i=0;i<raw.length;i++){
@@ -114,7 +143,7 @@
     return best;
   }
 
-  // ── PARTICULAS ───────────────────────────────────────────────────────────
+  // -- PARTICULAS -----------------------------------------------------------
   function spawnImpact(x,y,power){
     for(var i=0;i<12;i++) particles.push({x:x,y:y,vx:(Math.random()-0.5)*power*0.12,vy:(Math.random()-0.5)*power*0.12,life:20});
     shake.power=Math.min(power*0.15,12); shake.time=0.25;
@@ -128,14 +157,40 @@
         color:['#FFD700','#FF8800','#FFFFFF','#FF4400'][Math.floor(Math.random()*4)]});
     }
   }
+  function _tickCannons(dt){
+    var cannons = TrackV3.getCannons ? TrackV3.getCannons() : [];
+    if(!cannons.length) return;
+    // Init timers on first call
+    if(_cannonTimers.length !== cannons.length){
+      _cannonTimers = cannons.map(function(){ return _randTimer()*Math.random(); });
+    }
+    cannons.forEach(function(c, ci){
+      _cannonTimers[ci] -= dt;
+      if(_cannonTimers[ci] <= 0){
+        _cannonTimers[ci] = _randTimer();
+        c.firing = true;
+        setTimeout(function(){ c.firing=false; }, 400);
+        var PROJ_SPD = 520 + Math.random()*120;
+        _projectiles.push({
+          x: c.x + Math.cos(c.angle)*c.r*1.6,
+          y: c.y + Math.sin(c.angle)*c.r*1.6,
+          vx: Math.cos(c.angle)*PROJ_SPD,
+          vy: Math.sin(c.angle)*PROJ_SPD,
+          life: 5.5, r: 6,
+          trail: [],   // comet trail points
+          color: ['#FF6600','#FFAA00','#FF3300','#FFD700'][ci%4]
+        });
+      }
+    });
+  }
   window.onImpact=spawnImpact;
   SoundEngine.init();
 
-  // ── GRID DE LARGADA ───────────────────────────────────────────────────────
+  // -- GRID DE LARGADA -------------------------------------------------------
   function gridPlayer(){ var TW=TrackV3.TW, m=TW*0.85, CH=canvas.height; return{x:m+TW*0.25, y:CH*0.50}; }
   function gridEnemy() { var TW=TrackV3.TW, m=TW*0.85, CH=canvas.height; return{x:m+TW*0.60, y:CH*0.56}; }
 
-  // ── RESIZE ───────────────────────────────────────────────────────────────
+  // -- RESIZE ---------------------------------------------------------------
   function resize(){
     var wrap=canvas.parentElement;
     canvas.width =Math.max(wrap.offsetWidth-170,320);
@@ -151,10 +206,10 @@
   window.addEventListener('resize',resize);
   setTimeout(resize,80);
 
-  // ── START ─────────────────────────────────────────────────────────────────
+  // -- START -----------------------------------------------------------------
   function startGame(){
     SoundEngine.resume(); RacerX.initSound();
-    // ── Pregame animation (if available) ──
+    // -- Pregame animation (if available) --
     if(typeof PregameAnim !== 'undefined' && !window._pregameShown){
       window._pregameShown = true;
       var pid = localStorage.getItem('caprush_pilot')||'YUKI';
@@ -162,7 +217,7 @@
       var ps  = _pm[pid]||_pm.YUKI;
       var _pimgs={YUKI:'client/public/assets/images/yuki-piloto.png',KENTA:'client/public/assets/images/kenta-piloto.png'};
       PregameAnim.show({
-        track:'CAPRUSH — PISTA ORIGINAL',
+        track:'CAPRUSH -- PISTA ORIGINAL',
         p1name:pid, p1color:ps.color, p1kanji:ps.kanji, p1img:_pimgs[pid]||_pimgs.YUKI,
         p2name:'RACER-D', p2color:'#FF2A2A', p2kanji:'?', p2img:'client/public/assets/images/racer-x-piloto.png',
         mode:'SOLO vs IA'
@@ -181,7 +236,7 @@
   overlay.addEventListener('touchend',function(e){e.preventDefault();startGame();},{passive:false});
   overlay.style.cursor='pointer';
 
-  // ── INPUT ─────────────────────────────────────────────────────────────────
+  // -- INPUT -----------------------------------------------------------------
   function cpos(e){var r=canvas.getBoundingClientRect();return new Vector2D(e.clientX-r.left,e.clientY-r.top);}
   function bnd(){return{x:0,y:0,w:canvas.width,h:canvas.height};}
   canvas.addEventListener('mousedown',function(e){
@@ -218,7 +273,7 @@
     elFBar.style.height='0%';elFVal.textContent='0%';
   },{passive:true});
 
-  // ── LOOP ──────────────────────────────────────────────────────────────────
+  // -- LOOP ------------------------------------------------------------------
   function loop(now){
     var dt=Math.min((now-lt)/1000,0.05);lt=now;animT+=dt;
     ctx.setTransform(1,0,0,1,0,0);
@@ -238,7 +293,7 @@
         Physics.setVel(ph.vel.x-(pv0n-ev0n)*cnx*0.85,ph.vel.y-(pv0n-ev0n)*cny*0.85);
         enemyPhys.setVel(eph.vel.x+(pv0n-ev0n)*cnx*0.85,eph.vel.y+(pv0n-ev0n)*cny*0.85);
       }
-      // ── Sparks + hit sound on cap collision ──
+      // -- Sparks + hit sound on cap collision --
       SoundEngine.hit();
       var csx=(ph.pos.x+eph.pos.x)*0.5,csy=(ph.pos.y+eph.pos.y)*0.5;
       spawnSparks(csx,csy,(pv0n-ev0n)*cnx*0.5,(pv0n-ev0n)*cny*0.5,14);
@@ -252,12 +307,12 @@
     }
     TrackV3.render(ctx,canvas.width,canvas.height,animT);
 
-    // ════════════════════════════════════════════════════════════
+    // ============================================================
     // JOGADOR
-    // ════════════════════════════════════════════════════════════
+    // ============================================================
     if(gs.phase==='MOVING'){
       var obs=TrackV3.checkObstacles(ph.pos,CAP_R);
-      if(obs){var rest=obs.elastic?1.15:0.72;Physics.bounce(obs.nx,obs.ny,rest);SoundEngine.hit();log(t('game_hit_obs','Bateu em obstáculo!'));if(obs.elastic){spawnSparks(ph.pos.x,ph.pos.y,ph.vel.x,ph.vel.y,10);}ph=Physics.step(0,bnd());}
+      if(obs){var rest=obs.elastic?1.15:0.72;Physics.bounce(obs.nx,obs.ny,rest);SoundEngine.hit();log(t('game_hit_obs','Bateu em obstaculo!'));if(obs.elastic){spawnSparks(ph.pos.x,ph.pos.y,ph.vel.x,ph.vel.y,10);}ph=Physics.step(0,bnd());}
       // Pothole
       if(TrackV3.checkPothole){var pot=TrackV3.checkPothole(ph.pos,CAP_R);if(pot){Physics.reset(pot.x,pot.y,'asfalto');log('Buraco! Tampinha parou!','ev');SoundEngine.hit();spawnSparks(pot.x,pot.y,0,0,8);}}
       var stand=TrackV3.checkStands(ph.pos,CAP_R);
@@ -292,14 +347,14 @@
       });
 
       if(gs.cp>=NCPS&&TrackV3.checkLap(ph.pos)){
-        // ── MELHOR VOLTA ────────────────────────────────────────
+        // -- MELHOR VOLTA ----------------------------------------
         var lapTime=(performance.now()-gs.lapStart)/1000;
         if(!gs.best||lapTime<gs.best){
           gs.best=lapTime;
           elBest.textContent=fmt(gs.best);
         }
         gs.lapStart=performance.now();
-        // ────────────────────────────────────────────────────────
+        // --------------------------------------------------------
         gs.lap++; gs.cp=0; TrackV3.resetCPs();
         elLap.textContent=gs.lap+'/'+LAPS;
         log(t('game_lap_label','Volta')+' '+gs.lap,'lap');
@@ -317,9 +372,9 @@
 
     if(gs.respawnPending){Physics.reset(gs.respawnPending.x,gs.respawnPending.y,'asfalto');gs.respawnPending=null;}
 
-    // ════════════════════════════════════════════════════════════
-    // RACER-X — FISICA + PROGRESSO
-    // ════════════════════════════════════════════════════════════
+    // ============================================================
+    // RACER-X -- FISICA + PROGRESSO
+    // ============================================================
     if(TrackV3.isOnTrack(eph.pos)) enemyLastOnTrack={x:eph.pos.x,y:eph.pos.y};
 
     if(eph.moving){
@@ -343,7 +398,7 @@
     }
     if(enemyRespawnPending){enemyPhys.reset(enemyRespawnPending.x,enemyRespawnPending.y,'asfalto');enemyRespawnPending=null;eph=enemyPhys.snap();}
 
-    // ── Racer-X: checkpoints independentes ────────────────────
+    // -- Racer-X: checkpoints independentes --------------------
     var eCps=TrackV3.checkpoints;
     if(eCps&&(eph.moving||gs.phase==='ENEMY_MOVING')){
       for(var ci=0;ci<eCps.length;ci++){
@@ -357,7 +412,7 @@
           log('Racer-X: CP '+(ci+1),'ev');
         }
       }
-      // ── Racer-X: volta completa ────────────────────────────
+      // -- Racer-X: volta completa ----------------------------
       if(enemyRaceState.cp>=NCPS&&TrackV3.checkLap(eph.pos)){
         enemyRaceState.cp=0;
         enemyRaceState.cpsHit=[false,false,false];
@@ -369,10 +424,12 @@
       }
     }
 
-    // ── Racer-X: ENEMY_AIM ────────────────────────────────────
+    // -- Racer-X: ENEMY_AIM ------------------------------------
+    gs._enemyStuckFrames=(gs._enemyStuckFrames||0);
     if(gs.phase==='ENEMY_AIM'&&_racingPath.length>0){
       var eClosest=findClosestWaypoint(eph.pos);
-      var la=20;
+      var df=getDiff();
+      var la=df.lookahead;
       var w0=_racingPath[eClosest%_racingPath.length];
       var w10=_racingPath[(eClosest+10)%_racingPath.length];
       var w20=_racingPath[(eClosest+20)%_racingPath.length];
@@ -380,28 +437,45 @@
       var dotLA=d0x*d1x+d0y*d1y,magLA=Math.sqrt((d0x*d0x+d0y*d0y)*(d1x*d1x+d1y*d1y));
       if(magLA>0&&dotLA/magLA<0.5) la=12;
       var eTarget=_racingPath[(eClosest+la)%_racingPath.length];
-      // Desvio de obstáculos: se alvo perto de obstáculo, avança no path
-      var _obsC=TrackV3.checkObstacles({x:eTarget.x,y:eTarget.y},CAP_R*3.5);
-      if(_obsC){
-        for(var _sk=la+6;_sk<=la+30;_sk+=6){
+      // Obstacle avoidance: check target AND midpoint of trajectory
+      var _hitR = CAP_R*(DIFFICULTY===3 ? 4.5 : 3.5);
+      var _midPt = {x:(eph.pos.x+eTarget.x)/2, y:(eph.pos.y+eTarget.y)/2};
+      var _blocked = TrackV3.checkObstacles({x:eTarget.x,y:eTarget.y},_hitR)
+                  || TrackV3.checkObstacles(_midPt, _hitR);
+      if(_blocked){
+        var _skip = df.obsSkip||6;
+        var _found = false;
+        for(var _sk=la+_skip; _sk<=la+_skip*5; _sk+=_skip){
           var _alt=_racingPath[(eClosest+_sk)%_racingPath.length];
-          if(!TrackV3.checkObstacles({x:_alt.x,y:_alt.y},CAP_R*3)){eTarget=_alt;break;}
+          var _altMid={x:(eph.pos.x+_alt.x)/2,y:(eph.pos.y+_alt.y)/2};
+          if(!TrackV3.checkObstacles({x:_alt.x,y:_alt.y},_hitR)
+          && !TrackV3.checkObstacles(_altMid,_hitR)){
+            eTarget=_alt; _found=true; break;
+          }
+        }
+        // Hard fallback: take next waypoint regardless
+        if(!_found && DIFFICULTY===3){
+          eTarget=_racingPath[(eClosest+la+2)%_racingPath.length];
         }
       }
       var eDir=new Vector2D(eTarget.x-eph.pos.x,eTarget.y-eph.pos.y).normalize();
       var eDist=eph.pos.distanceTo(eTarget);
-      var eSpeed=Math.min(520,Math.max(440,eDist*4.2));
-      var noise=1+(Math.random()-0.5)*0.04;
+      // Hard: boost speed on straights (high dot product = low curvature)
+      var _straightBoost=(DIFFICULTY===3&&dotLA/Math.max(magLA,0.001)>0.85)?1.12:1.0;
+      var eSpeed=Math.min(560,Math.max(380,eDist*4.2))*df.speedMult*_straightBoost;
+      var noise=1+(Math.random()-0.5)*df.noise;
       enemyPhys.setVel(eDir.x*eSpeed*noise,eDir.y*eSpeed*noise);
       eph=enemyPhys.snap(); // re-snap ESSENCIAL (moving=true antes do check de parada)
       gs.phase='ENEMY_MOVING';
     }
     if(gs.phase==='ENEMY_MOVING'){
       gs.elapsed=(performance.now()-gs.t0)/1000; updHUD();
-      if(!eph.moving){gs.phase='AIM';log(t('game_your_turn','Sua vez'),'ev');}
+      gs._enemyStuck=(gs._enemyStuck||0)+1;
+      if(gs._enemyStuck>280){ gs.phase='AIM'; gs._enemyStuck=0; log('Sua vez','ev'); }
+      else if(!eph.moving){gs._enemyStuck=0;gs.phase='AIM';log(t('game_your_turn','Sua vez'),'ev');}
     }
 
-    // ── RENDER ────────────────────────────────────────────────
+    // -- RENDER ------------------------------------------------
     Yuki.render(ctx,ph,dt);
     RacerX.render(ctx,eph,dt);
 
@@ -423,11 +497,70 @@
       ctx.beginPath();ctx.arc(s.x,s.y,2.5*a,0,Math.PI*2);ctx.fill();
       ctx.restore();return true;
     });
+
+    // -- Cannon projectiles -----------------------------------------
+    _tickCannons(dt);
+    var _capPos=ph.pos;  // ph already computed by Physics.step above
+    _projectiles=_projectiles.filter(function(p){
+      p.life-=dt; if(p.life<=0) return false;
+      p.x+=p.vx*dt; p.y+=p.vy*dt;
+      var pdx=p.x-_capPos.x,pdy=p.y-_capPos.y;
+      if(Math.sqrt(pdx*pdx+pdy*pdy)<p.r+CAP_R){
+        var pn=new Vector2D(pdx,pdy).normalize();
+        var hitPow=Math.max(200,ph.speed*0.55+160);
+        Physics.setVel(pn.x*hitPow,pn.y*hitPow);
+        spawnSparks(p.x,p.y,p.vx*0.3,p.vy*0.3,18);
+        SoundEngine.hit();
+        log('? PROJETIL! Ricochete!','ev');
+        setTimeout(function(){
+          var np=Physics.pos;  // use getter
+          if(!TrackV3.isOnTrack(np)){
+            var cp2=gs.lastCP||TrackV3.getStartPos();
+            Physics.reset(cp2.x,cp2.y,'asfalto');
+            log('Saiu da pista -- volta ao CP','ev');
+          }
+        },1100);
+        return false;
+      }
+      // Add trail point every 2 frames
+      if(!p.trail) p.trail=[];
+      p.trail.push({x:p.x,y:p.y});
+      if(p.trail.length>28) p.trail.shift();
+
+      ctx.save();
+      // Comet tail
+      if(p.trail.length>1){
+        for(var ti=1;ti<p.trail.length;ti++){
+          var tp=ti/p.trail.length;
+          ctx.beginPath();
+          ctx.moveTo(p.trail[ti-1].x,p.trail[ti-1].y);
+          ctx.lineTo(p.trail[ti].x,p.trail[ti].y);
+          ctx.strokeStyle=p.color||'#FF6600';
+          ctx.lineWidth=(p.r*0.8)*tp;
+          ctx.globalAlpha=tp*0.55;
+          ctx.shadowColor=p.color||'#FF6600';
+          ctx.shadowBlur=6*tp;
+          ctx.lineCap='round';
+          ctx.stroke();
+        }
+      }
+      // Comet head -- bright core
+      ctx.globalAlpha=1;
+      ctx.shadowColor='#FFFFFF';ctx.shadowBlur=18;
+      var pg=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r);
+      pg.addColorStop(0,'#FFFFFF');
+      pg.addColorStop(0.35,p.color||'#FF6600');
+      pg.addColorStop(1,'rgba(255,80,0,0)');
+      ctx.fillStyle=pg;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r*1.2,0,Math.PI*2);ctx.fill();
+      ctx.shadowBlur=0;ctx.restore();
+      return true;
+    });
     if(gs.ds&&gs.dc) drawAim(ph.pos,gs.dc);
     if(gs.phase!=='FINISH') requestAnimationFrame(loop);
   }
 
-  // ── JOGADOR VENCE ────────────────────────────────────────────────────────
+  // -- JOGADOR VENCE --------------------------------------------------------
   function onFinish(){
     var tT=gs.elapsed;
     log(t('game_complete','CORRIDA COMPLETA!')+' '+fmt(tT),'ev');
@@ -443,10 +576,10 @@
     },1600);
   }
 
-  // ── RACER-X VENCE (tela de derrota) ──────────────────────────────────────
+  // -- RACER-X VENCE (tela de derrota) --------------------------------------
   function onEnemyWin(){
-    log('RACER-X VENCEU! Você foi derrotado!','ev');
-    // Som de vitória do chefe (beeps descendentes — diferente do jogador)
+    log('RACER-X VENCEU! Voce foi derrotado!','ev');
+    // Som de vitoria do chefe (beeps descendentes -- diferente do jogador)
     try{
       [880,740,660,440].forEach(function(f,i){
         setTimeout(function(){
@@ -486,7 +619,7 @@
         best:gs.best,lapStart:performance.now(),
         ds:null,dc:null,respawn:{x:gp.x,y:gp.y},respawnPending:null,respawnCooldown:0};
     updHUD();logBox.innerHTML='';
-    // ESSENCIAL: reinicia o loop de animação que parou na fase FINISH
+    // ESSENCIAL: reinicia o loop de animacao que parou na fase FINISH
     lt=performance.now();
     requestAnimationFrame(loop);
   }
@@ -518,7 +651,7 @@
     var SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpZ2dodWRhZ2J6cnphZHNiZW1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzk4OTUsImV4cCI6MjA5MTk1NTg5NX0.2fXODjCXc7IjsF7KS5cAMC-jt9ovxturuQUKmiApO9A';
     fetch(SURL,{method:'POST',headers:{'Content-Type':'application/json','apikey':SKEY,'Authorization':'Bearer '+SKEY,'Prefer':'return=minimal'},
       body:JSON.stringify({wallet:nick,nickname:nick,pilot:p,time_ms:Math.round(tT*1000),launches:0,mode:'solo'})
-    }).then(function(r){log(r.ok?'Score salvo!':'Erro ao salvar.','ev');}).catch(function(){log('Sem conexão.');});
+    }).then(function(r){log(r.ok?'Score salvo!':'Erro ao salvar.','ev');}).catch(function(){log('Sem conexao.');});
   }
 
   requestAnimationFrame(function(t2){lt=t2;requestAnimationFrame(loop);});
