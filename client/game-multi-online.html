@@ -115,6 +115,7 @@
 </div>
 <script src="src/core/Vector2D.js"></script>
 <script src="src/core/SoundEngine.js"></script>
+<script src="../pregame-anim.js"></script>
 <script src="src/core/CapSprite.js"></script>
 <script src="src/entities/Yuki.js"></script>
 <script src="src/entities/Kenta.js"></script>
@@ -179,7 +180,18 @@ function setStatus(t){document.getElementById('mp-turn').textContent=t;document.
 document.getElementById('btnHost').onclick=function(){setStatus('Conectando PeerServer...');peer=new Peer({debug:2});peer.on('open',function(id){setStatus('SALA: '+id);myId=0;cur=0;logEv('Host pronto');startGame()});peer.on('error',function(e){setStatus('ERRO: '+e.type);logEv('Host erro '+e.type)});peer.on('connection',function(c){conn=c;setupConn();logEv('Guest conectou');if(conn&&conn.open)conn.send({t:'pilot_id',id:_myPilot});})};
 document.getElementById('btnJoin').onclick=function(){var id=document.getElementById('roomId').value.trim();if(!id){setStatus('Digite ID');return}setStatus('Conectando...');peer=new Peer({debug:2});peer.on('open',function(){conn=peer.connect(id,{reliable:true});conn.on('open',function(){myId=1;cur=0;setStatus('CONECTADO');logEv('Entrou na sala');setupConn();if(conn&&conn.open)conn.send({t:'pilot_id',id:_myPilot});startGame()});conn.on('error',function(e){setStatus('Erro conn');logEv('Conn erro')})});peer.on('error',function(e){setStatus('ERRO: '+e.type);logEv('Join erro '+e.type)})};
 function setupConn(){conn.on('data',function(d){if(d.t==='pilot_id'){var oppSpec=PILOTS_O[d.id]||PILOTS_O.YUKI;P[1].name=d.id;P[1].color=oppSpec.color;P[1].accent=oppSpec.accent;P[1].kanji=oppSpec.kanji;applyPilotToCard(d.id,'opp');var p1nm=document.getElementById('p1-name');if(p1nm){p1nm.textContent=d.id;p1nm.style.color=oppSpec.color;}}if(d.t==='flick'){var p=P[d.p];p.phys.flick(new Vector2D(d.fx,d.fy),new Vector2D(d.tx,d.ty),1);if(!p.t0)p.t0=performance.now();}});conn.on('close',function(){setStatus('Desconectado')})}
-function startGame(){overlay.style.display='none';SoundEngine.resume();phase='AIM';if(!P[myId].t0)P[myId].t0=performance.now();showTurn();requestAnimationFrame(function(t){lt=t;loop(t)})}
+function _doStartGame(){overlay.style.display='none';SoundEngine.resume();phase='AIM';if(!P[myId].t0)P[myId].t0=performance.now();showTurn();requestAnimationFrame(function(t){lt=t;loop(t)});}
+function startGame(){
+  if(typeof PregameAnim!=='undefined'&&!window._pregameShownO){
+    window._pregameShownO=true;
+    var _pm={YUKI:{color:'#00E5FF',kanji:'\u96EA',img:'public/assets/images/yuki-piloto.png'},KENTA:{color:'#FF9900',kanji:'\u9B54',img:'public/assets/images/kenta-piloto.png'}};
+    var me=_pm[_myPilot]||_pm.YUKI;
+    var opp=_pm[P[1-myId]?P[1-myId].name:(_myPilot==='YUKI'?'KENTA':'YUKI')]||_pm.YUKI;
+    PregameAnim.show({track:'CIRCUITO MONZA',p1name:_myPilot,p1color:me.color,p1kanji:me.kanji,p1img:me.img,p2name:P[1-myId]?P[1-myId].name:(_myPilot==='YUKI'?'KENTA':'YUKI'),p2color:opp.color,p2kanji:opp.kanji,p2img:opp.img,mode:'1v1 ONLINE'},_doStartGame);
+    return;
+  }
+  _doStartGame();
+}
 function showTurn(){var p=P[cur];updPanel()}
 function cpos(e){var r=canvas.getBoundingClientRect();var pt=e.touches?e.touches[0]:e;return new Vector2D(pt.clientX-r.left,pt.clientY-r.top)}
 function bnd(){return{x:0,y:0,w:canvas.width,h:canvas.height}}

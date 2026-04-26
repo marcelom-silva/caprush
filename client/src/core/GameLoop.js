@@ -160,10 +160,11 @@
       var pid = localStorage.getItem('caprush_pilot')||'YUKI';
       var _pm = {YUKI:{color:'#00E5FF',kanji:'\u96EA'},KENTA:{color:'#FF9900',kanji:'\u9B54'}};
       var ps  = _pm[pid]||_pm.YUKI;
+      var _pimgs={YUKI:'client/public/assets/images/yuki-piloto.png',KENTA:'client/public/assets/images/kenta-piloto.png'};
       PregameAnim.show({
         track:'CAPRUSH — PISTA ORIGINAL',
-        p1name:pid, p1color:ps.color, p1kanji:ps.kanji,
-        p2name:'RACER-D', p2color:'#FF2A2A', p2kanji:'?',
+        p1name:pid, p1color:ps.color, p1kanji:ps.kanji, p1img:_pimgs[pid]||_pimgs.YUKI,
+        p2name:'RACER-D', p2color:'#FF2A2A', p2kanji:'?', p2img:'client/public/assets/images/racer-x-piloto.png',
         mode:'SOLO vs IA'
       }, function(){
         overlay.style.display='none'; gs.phase='AIM';
