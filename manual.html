@@ -238,6 +238,7 @@ p{line-height:1.75;color:#C8C8D8;margin-bottom:14px;font-size:1.02rem}
 <div class="wrap">
   <aside class="sidebar">
     <a href="#wallet" data-i18n="manual-menu-wallet">Carteira</a>
+    <a href="#cr" data-i18n="manual-menu-cr">Token $CR</a>
     <a href="#jogar" data-i18n="manual-menu-how">Como Jogar</a>
     <a href="#modos" data-i18n="manual-menu-modes">Modos</a>
   </aside>
@@ -246,11 +247,22 @@ p{line-height:1.75;color:#C8C8D8;margin-bottom:14px;font-size:1.02rem}
     <h1 data-i18n="manual-title">MANUAL DO JOGADOR</h1>
     <div class="subtitle" data-i18n="manual-intro">Bem-vindo ao CapRush Overdrive! — o jogo de corrida de tampinhas mais eletrizante do universo digital.</div>
 
-    <div class="card warn" data-i18n="manual-wallet-w">⚠ Sua carteira é non-custodial: criada via Google, sem senha. Guarde o acesso ao Google — se perder, perde a wallet. Você pode exportar para Phantom a qualquer momento.</div>
+    <div class="card warn" data-i18n="manual-wallet-w">⚠ Sua carteira é vinculada ao seu Google via Privy. Guarde o acesso à sua conta Google — ela é a chave da sua wallet e do seu saldo $CR.</div>
 
     <h2 id="wallet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M16 14a2 2 0 1 0 0-4 2 2 0 0 4z"/></svg><span data-i18n="manual-wallet-title">CARTEIRA E LOGIN</span></h2>
-    <p data-i18n="manual-wallet-desc">O CapRush usa TipLink na Solana. Você entra com Google e uma wallet é criada automaticamente — sem extensão, sem seed phrase. Quem já tem Phantom pode conectar depois.</p>
-    <div class="card tip" data-i18n="manual-wallet-tip">Seu progresso, ranking e futuros prêmios em $CR ficam vinculados à sua wallet. Jogue logado para salvar recordes.</div>
+    <p data-i18n="manual-wallet-desc">O CapRush usa <strong>Privy</strong> na Solana. Você entra com Google e um ID de wallet é criado automaticamente — sem extensão, sem seed phrase, zero fricção. O endereço Solana completo estará disponível no Marco 3.</p>
+    <div class="card tip" data-i18n="manual-wallet-tip">Seu progresso, saldo $CR e futuros prêmios ficam vinculados ao seu ID Privy. Jogue logado para salvar recordes e acumular tokens.</div>
+
+    <h2 id="cr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><span data-i18n="manual-cr-title">TOKEN $CR</span></h2>
+    <p data-i18n="manual-cr-desc">$CR é o token de recompensa do CapRush. Você ganha $CR jogando — sem comprar, sem gastar dinheiro real. No Marco 3 migra para on-chain na Solana.</p>
+    <div class="card">
+      <p><strong data-i18n="manual-cr-earn-title">Como ganhar $CR:</strong></p>
+      <p>🏎 <span data-i18n="manual-cr-solo">Corrida Solo completa → <strong>+1 $CR</strong></span></p>
+      <p>⚔️ <span data-i18n="manual-cr-multi">Vitória 1v1 (Local ou Online) → <strong>+3 $CR</strong></span></p>
+      <p>⏱️ <span data-i18n="manual-cr-record">Recorde pessoal → <strong>+0.5 $CR</strong></span></p>
+      <p>🏆 <span data-i18n="manual-cr-ach">Conquistas → <strong>+2 a +50 $CR</strong></span></p>
+    </div>
+    <div class="card tip" data-i18n="manual-cr-tip">Veja seu saldo em tempo real na tampinha $CR do menu ou acesse o Dashboard pela barra de navegação.</div>
 
     <h2 id="jogar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg><span data-i18n="manual-how">COMO JOGAR</span></h2>
     <p data-i18n="manual-how-desc">Clique e arraste para mirar, solte para lançar. A força depende da distância.</p>

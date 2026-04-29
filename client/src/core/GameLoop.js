@@ -646,12 +646,29 @@
     ctx.restore();
   }
   function postScore(p,tT){
-    var nick=(function(){try{return JSON.parse(localStorage.getItem('caprush_user')||'{}').nickname||'ANON';}catch(e){return 'ANON';}})();
+    // Lê sessão: Privy (Marco 2) com fallback para Google antigo (Marco 1)
+    var session = (function(){
+      try{ return JSON.parse(localStorage.getItem('caprush_privy_session')||'null'); }catch(e){}
+      return null;
+    })() || (function(){
+      try{ return JSON.parse(localStorage.getItem('caprush_user')||'null'); }catch(e){}
+      return null;
+    })();
+    var nick   = (session && session.nickname) || localStorage.getItem('caprush_nickname') || 'ANON';
+    var wallet = localStorage.getItem('caprush_wallet') || (session && session.id) || nick;
+
     var SURL='https://rigghudagbzrzadsbeml.supabase.co/rest/v1/runs';
     var SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpZ2dodWRhZ2J6cnphZHNiZW1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzk4OTUsImV4cCI6MjA5MTk1NTg5NX0.2fXODjCXc7IjsF7KS5cAMC-jt9ovxturuQUKmiApO9A';
+    var _ms = Math.round(tT*1000);
     fetch(SURL,{method:'POST',headers:{'Content-Type':'application/json','apikey':SKEY,'Authorization':'Bearer '+SKEY,'Prefer':'return=minimal'},
-      body:JSON.stringify({wallet:nick,nickname:nick,pilot:p,time_ms:Math.round(tT*1000),launches:0,mode:'solo'})
+      body:JSON.stringify({wallet:wallet,nickname:nick,pilot:p,time_ms:_ms,launches:0,mode:'solo',solana_address:wallet})
     }).then(function(r){log(r.ok?'Score salvo!':'Erro ao salvar.','ev');}).catch(function(){log('Sem conexao.');});
+    // Award $CR
+    if(typeof CREngine!=='undefined'){
+      var _prevBest=parseInt(localStorage.getItem('caprush_best_solo_'+p)||'0')||null;
+      CREngine.awardRace({mode:'solo',time_ms:_ms,won:true,previous_best_ms:_prevBest});
+      if(!_prevBest||_ms<_prevBest) localStorage.setItem('caprush_best_solo_'+p,_ms);
+    }
   }
 
   requestAnimationFrame(function(t2){lt=t2;requestAnimationFrame(loop);});

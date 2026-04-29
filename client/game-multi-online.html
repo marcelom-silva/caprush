@@ -203,7 +203,7 @@ canvas.addEventListener('touchstart',function(e){if(phase!=='AIM'||myId!==cur)re
 canvas.addEventListener('touchmove',function(e){if(ds)dc=cpos(e.touches[0])},{passive:false});
 canvas.addEventListener('touchend',function(e){if(!ds||myId!==cur)return;doFlick(cpos({touches:e.changedTouches}))});
 function doFlick(to){var p=P[myId];p.phys.flick(ds,to,1);if(!p.t0)p.t0=performance.now();if(conn&&conn.open)conn.send({t:'flick',p:myId,fx:ds.x,fy:ds.y,tx:to.x,ty:to.y});ds=null;dc=null;phase='MOVING'}
-function loop(now){var dt=Math.min((now-lt)/1000,.05);lt=now;animT+=dt;ctx.clearRect(0,0,canvas.width,canvas.height);TrackMonza.render(ctx,canvas.width,canvas.height,animT);if(phase==='MOVING'){P[0].phys.step(dt,bnd());P[1].phys.step(dt,bnd());var a=P[0],b=P[1],pa=a.phys.snap(),pb=b.phys.snap(),d=Math.hypot(pb.pos.x-pa.pos.x,pb.pos.y-pa.pos.y);if(d<28&&d>0.1){var nx=(pb.pos.x-pa.pos.x)/d,ny=(pb.pos.y-pa.pos.y)/d,va=(pb.vel.x-pa.vel.x)*nx+(pb.vel.y-pa.vel.y)*ny;if(va<0){var j=-(1.72)*va/2;a.phys.setVel(pa.vel.x-j*nx,pa.vel.y-j*ny);b.phys.setVel(pb.vel.x+j*nx,pb.vel.y+j*ny);SoundEngine.hit()}}P.forEach(function(p){var ph=p.phys.snap();var o=TrackMonza.checkObstacles(ph.pos,CAP_R);if(o&&o.nx!=null){p.phys.bounce(o.nx,o.ny);SoundEngine.hit()}if(TrackMonza.isOnTrack(ph.pos)){var t=Date.now();if(TrackMonza.detectPuddle(ph.pos)){p.phys.setSurface('agua');if(t-sndT.water>700){SoundEngine.splash();sndT.water=t}}else if(TrackMonza.detectGrassOnTrack(ph.pos)){p.phys.setSurface('grama');if(t-sndT.grass>900){SoundEngine.grass();sndT.grass=t}}else p.phys.setSurface('asfalto')}else if(TrackMonza.detectInner(ph.pos)){var rp=p.respawn||TrackMonza.getStartPos();p.phys.reset(rp.x,rp.y,'asfalto')}for(var i=0;i<p.cps.length;i++){var c=p.cps[i];if(c.ok)continue;if(Math.hypot(ph.pos.x-c.x,ph.pos.y-c.y)<c.r){c.ok=true;p.cp++;p.respawn={x:c.x,y:c.y};SoundEngine.checkpoint();logEv(p.name+' CP'+p.cp);updPanel()}}if(p.cp>=NCPS&&TrackMonza.checkLap(ph.pos)){p.cp=0;p.cps=cloneCPs(TrackMonza.checkpoints);if(p.lap>=LAPS){p.finished=true;p.elapsed=(performance.now()-p.t0)/1000;SoundEngine.victory();logEv(p.name+' VENCEU')}else{p.lap++;logEv(p.name+' V'+p.lap);updPanel()}}if(p.t0)p.elapsed=(performance.now()-p.t0)/1000;document.getElementById('p'+p.id+'-time').textContent=((p.elapsed/60|0).toString().padStart(2,'0'))+':'+((p.elapsed%60).toFixed(1).padStart(4,'0'));document.getElementById('p'+p.id+'-lap').textContent='V'+p.lap+'/'+LAPS+' CP'+p.cp+'/'+NCPS});var stop=!P[0].phys.snap().moving&&!P[1].phys.snap().moving;if(stop){phase='AIM';cur=1-cur;document.getElementById('mp-turn').textContent='VEZ DE '+P[cur].name;document.getElementById('force-value').textContent='0%';document.getElementById('force-bar-fill').style.height='0%'}}P.forEach(function(p){var ph=p.phys.snap(),s=ph.speed;p.anim.rot+=s*dt*.006;p.anim.glow+=.03*p.anim.gdir;if(p.anim.glow>=1||p.anim.glow<=0)p.anim.gdir*=-1;p.anim.trail.push({x:ph.pos.x,y:ph.pos.y});if(p.anim.trail.length>20)p.anim.trail.shift();CapSprite.drawTrail(ctx,p.anim.trail,p.color,s);CapSprite.drawCap(ctx,ph.pos.x,ph.pos.y,16,p.color,p.accent,p.kanji,p.anim.rot,s,p.anim.glow)});requestAnimationFrame(loop)}
+function loop(now){var dt=Math.min((now-lt)/1000,.05);lt=now;animT+=dt;ctx.clearRect(0,0,canvas.width,canvas.height);TrackMonza.render(ctx,canvas.width,canvas.height,animT);if(phase==='MOVING'){P[0].phys.step(dt,bnd());P[1].phys.step(dt,bnd());var a=P[0],b=P[1],pa=a.phys.snap(),pb=b.phys.snap(),d=Math.hypot(pb.pos.x-pa.pos.x,pb.pos.y-pa.pos.y);if(d<28&&d>0.1){var nx=(pb.pos.x-pa.pos.x)/d,ny=(pb.pos.y-pa.pos.y)/d,va=(pb.vel.x-pa.vel.x)*nx+(pb.vel.y-pa.vel.y)*ny;if(va<0){var j=-(1.72)*va/2;a.phys.setVel(pa.vel.x-j*nx,pa.vel.y-j*ny);b.phys.setVel(pb.vel.x+j*nx,pb.vel.y+j*ny);SoundEngine.hit()}}P.forEach(function(p){var ph=p.phys.snap();var o=TrackMonza.checkObstacles(ph.pos,CAP_R);if(o&&o.nx!=null){p.phys.bounce(o.nx,o.ny);SoundEngine.hit()}if(TrackMonza.isOnTrack(ph.pos)){var t=Date.now();if(TrackMonza.detectPuddle(ph.pos)){p.phys.setSurface('agua');if(t-sndT.water>700){SoundEngine.splash();sndT.water=t}}else if(TrackMonza.detectGrassOnTrack(ph.pos)){p.phys.setSurface('grama');if(t-sndT.grass>900){SoundEngine.grass();sndT.grass=t}}else p.phys.setSurface('asfalto')}else if(TrackMonza.detectInner(ph.pos)){var rp=p.respawn||TrackMonza.getStartPos();p.phys.reset(rp.x,rp.y,'asfalto')}for(var i=0;i<p.cps.length;i++){var c=p.cps[i];if(c.ok)continue;if(Math.hypot(ph.pos.x-c.x,ph.pos.y-c.y)<c.r){c.ok=true;p.cp++;p.respawn={x:c.x,y:c.y};SoundEngine.checkpoint();logEv(p.name+' CP'+p.cp);updPanel()}}if(p.cp>=NCPS&&TrackMonza.checkLap(ph.pos)){p.cp=0;p.cps=cloneCPs(TrackMonza.checkpoints);if(p.lap>=LAPS){p.finished=true;p.elapsed=(performance.now()-p.t0)/1000;SoundEngine.victory();logEv(p.name+' VENCEU');postScoreOnline(p);}else{p.lap++;logEv(p.name+' V'+p.lap);updPanel()}}if(p.t0)p.elapsed=(performance.now()-p.t0)/1000;document.getElementById('p'+p.id+'-time').textContent=((p.elapsed/60|0).toString().padStart(2,'0'))+':'+((p.elapsed%60).toFixed(1).padStart(4,'0'));document.getElementById('p'+p.id+'-lap').textContent='V'+p.lap+'/'+LAPS+' CP'+p.cp+'/'+NCPS});var stop=!P[0].phys.snap().moving&&!P[1].phys.snap().moving;if(stop){phase='AIM';cur=1-cur;document.getElementById('mp-turn').textContent='VEZ DE '+P[cur].name;document.getElementById('force-value').textContent='0%';document.getElementById('force-bar-fill').style.height='0%'}}P.forEach(function(p){var ph=p.phys.snap(),s=ph.speed;p.anim.rot+=s*dt*.006;p.anim.glow+=.03*p.anim.gdir;if(p.anim.glow>=1||p.anim.glow<=0)p.anim.gdir*=-1;p.anim.trail.push({x:ph.pos.x,y:ph.pos.y});if(p.anim.trail.length>20)p.anim.trail.shift();CapSprite.drawTrail(ctx,p.anim.trail,p.color,s);CapSprite.drawCap(ctx,ph.pos.x,ph.pos.y,16,p.color,p.accent,p.kanji,p.anim.rot,s,p.anim.glow)});requestAnimationFrame(loop)}
 // Portal auto
 if(new URLSearchParams(location.search).get('portal')==='true'){document.getElementById('overlay').querySelector('h2').textContent='PORTAL ATIVO';}
 setTimeout(()=>{const h=document.getElementById('hud');if(h){const a=document.createElement('a');a.href='https://vibej.am/portal/2026?ref='+encodeURIComponent(location.host);a.textContent='PORTAL';a.style='margin-left:8px;font-family:Bebas Neue;color:#FFD700;font-size:.75rem;border:1px solid #FFD700;padding:2px 6px;border-radius:3px;text-decoration:none';h.appendChild(a)}},500)
@@ -235,6 +235,35 @@ setTimeout(()=>{const h=document.getElementById('hud');if(h){const a=document.cr
     });}
   });
 })();
+</script>
+<!-- Marco 1+2: Motor $CR -->
+<script src="../cr-engine.js"></script>
+<script>
+function postScoreOnline(winner){
+  // Lê sessão Privy (Marco 2) com fallback Google (Marco 1)
+  var session = (function(){
+    try{ return JSON.parse(localStorage.getItem('caprush_privy_session')||'null'); }catch(e){}
+    try{ return JSON.parse(localStorage.getItem('caprush_user')||'null'); }catch(e){}
+    return null;
+  })();
+  var nick   = (session && session.nickname) || localStorage.getItem('caprush_nickname') || 'ANON';
+  var wallet = localStorage.getItem('caprush_wallet') || (session && session.id) || nick;
+  var _ms    = Math.round(winner.elapsed * 1000);
+  var isLocalWinner = (typeof myId !== 'undefined' && winner.id === myId);
+
+  // Salva score no Supabase
+  var SURL = 'https://rigghudagbzrzadsbeml.supabase.co/rest/v1/runs';
+  var SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpZ2dodWRhZ2J6cnphZHNiZW1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzk4OTUsImV4cCI6MjA5MTk1NTg5NX0.2fXODjCXc7IjsF7KS5cAMC-jt9ovxturuQUKmiApO9A';
+  fetch(SURL,{method:'POST',
+    headers:{'Content-Type':'application/json','apikey':SKEY,'Authorization':'Bearer '+SKEY,'Prefer':'return=minimal'},
+    body:JSON.stringify({wallet:wallet,nickname:nick,pilot:winner.name,time_ms:_ms,launches:0,mode:'online',solana_address:wallet})
+  }).catch(function(){});
+
+  // Credita $CR apenas para o jogador local vencedor
+  if(isLocalWinner && typeof CREngine !== 'undefined'){
+    CREngine.awardRace({mode:'multi_online',time_ms:_ms,won:true,previous_best_ms:null});
+  }
+}
 </script>
 </body>
 </html>

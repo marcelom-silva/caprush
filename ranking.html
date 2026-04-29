@@ -124,7 +124,7 @@ nav{display:flex;align-items:center;padding:12px 24px;background:rgba(5,5,12,.7)
     </div>
   </div>
 </nav>
-<div class="hero"><h1 data-i18n="rank-title">RANKING GLOBAL T1</h1><p data-i18n="rank-season">TEMPORADA ATUAL</p></div>
+<div class="hero"><h1 data-i18n="rank-title">RANKING GLOBAL T1</h1><p data-i18n="rank-season"><img src="tokenCR.png" alt="$CR" width="20" height="20" style="vertical-align:middle;margin:0 5px 2px 0;">TEMPORADA ATUAL</p></div>
 <div style="display:flex;justify-content:center;gap:12px;margin:20px 0 -10px;">
   <button class="mode-tab active" data-mode="solo" onclick="switchMode('solo')" style="font-family:'Bebas Neue';font-size:.9rem;letter-spacing:2px;padding:6px 20px;background:rgba(255,42,42,.15);border:1px solid rgba(255,42,42,.4);color:#FF2A2A;border-radius:20px;cursor:pointer;transition:.2s;">SOLO</button>
   <button class="mode-tab" data-mode="local" onclick="switchMode('local')" style="font-family:'Bebas Neue';font-size:.9rem;letter-spacing:2px;padding:6px 20px;background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.3);color:#00E5FF;border-radius:20px;cursor:pointer;transition:.2s;">1v1 LOCAL</button>
@@ -159,7 +159,7 @@ async function load(){
   const top3 = data.slice(0,3);
   document.getElementById('podium').innerHTML = [1,0,2].map(i=>{const r=top3[i];if(!r)return'';return `<div class="pod pod-${i+1}"><div class="pod-rank">${i+1}</div><div class="pod-avatar"><img src="${imgs[r.pilot]||imgs.YUKI}"></div><div class="pod-name">${getDisplayName(r)}</div><div class="pod-time">${fmt(r.time_ms)}</div><div class="pod-wallet" style="font-size:.8rem;color:#888;margin-top:2px">${r.mode||'solo'}</div></div>`}).join('');
 
-  document.getElementById('board').innerHTML = data.map((r,i)=>`<div class="row"><div class="pos ${i<3?'top3':''}">${i+1}</div><div class="player"><div class="p-avatar"><img src="${imgs[r.pilot]||imgs.YUKI}"></div><div class="p-name">${getDisplayName(r)}</div><div class="p-wallet" style="color:#888;font-size:.7rem">${r.pilot}</div></div><div class="time">${fmt(r.time_ms)}</div><div class="launches">${r.launches}</div></div>`).join('');
+  document.getElementById('board').innerHTML = data.map((r,i)=>`<div class="row"><div class="pos ${i<3?'top3':''}">${i+1}</div><div class="player"><div class="p-avatar"><img src="${imgs[r.pilot]||imgs.YUKI}"></div><div class="p-name">${getDisplayName(r)}</div><div class="p-wallet" style="color:#888;font-size:.7rem">${r.pilot}</div></div><div class="time">${fmt(r.time_ms)}</div><div class="launches"><img src="tokenCR.png" width="26" height="26" style="vertical-align:middle;margin-right:5px;"> ${r.launches}</div></div>`).join('');
 }
 load();
 </script>

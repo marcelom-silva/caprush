@@ -292,7 +292,7 @@ footer a:hover{text-decoration:underline}
     </div>
     <div class="feat"><div class="feat-icon">🔑</div>
       <h3 data-i18n="brand_feat5_t">Login sem fricção</h3>
-      <p data-i18n="brand_feat5_d">Google Sign-In → wallet Solana automática via TipLink. Zero extensão, zero seed phrase. Onboarding em 10 segundos.</p>
+      <p data-i18n="brand_feat5_d">Google → wallet Solana automática via <strong>Privy OAuth</strong>. Zero extensão, zero seed phrase. Marco 2 concluído ✅</p>
     </div>
     <div class="feat"><div class="feat-icon">✨</div>
       <h3 data-i18n="brand_feat6_t">Visual Procedural</h3>
@@ -305,40 +305,59 @@ footer a:hover{text-decoration:underline}
 <section>
   <div class="sec-label" data-i18n="brand_sec_pilots">Pilotos NFT</div>
   <h2 class="sec-title" data-i18n="brand_pilots_title">COLECIONÁVEIS COM <span>ATRIBUTOS REAIS</span></h2>
-  <div class="pilots-grid reveal">
+  <div class="pilots-grid reveal" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));">
     <div class="pilot-card">
-      <div class="pilot-rarity" style="background:rgba(255,215,0,.12);color:#FFD700;border:1px solid rgba(255,215,0,.3)" data-i18n="pilot-legendary">◆ LENDÁRIO</div>
-      <div class="pilot-name" style="color:#00E5FF">YUKI</div>
-      <div class="pilot-stat">Velocidade <span>82</span></div>
-      <div class="pilot-stat">Controle <span>91</span></div>
-      <div class="pilot-stat">Aerodinâmica <span>75</span></div>
-      <div style="margin-top:12px;font-size:.75rem;color:#666" data-i18n="yuki-lore">Óculos retrô dos anos 60 e cachecol ao vento.</div>
-    </div>
-    <div class="pilot-card">
-      <div class="pilot-rarity" style="background:rgba(255,153,0,.12);color:#FF9900;border:1px solid rgba(255,153,0,.3)" data-i18n="pilot-epic">◆ ÉPICO</div>
-      <div class="pilot-name" style="color:#FF9900">KENTA</div>
+      <div class="pilot-rarity" style="background:rgba(255,140,0,.12);color:#FF8C00;border:1px solid rgba(255,140,0,.3)" data-i18n="pilot-epic">◆ ÉPICA</div>
+      <div style="width:110px;height:140px;overflow:hidden;margin:8px auto;border-radius:10px;"><img src="client/public/assets/images/kenta-piloto.png" style="width:100%;height:100%;object-fit:cover;object-position:50% 5%;"></div>
+      <div class="pilot-name" style="color:#FF8C00">KENTA</div>
+      <div style="font-size:.62rem;color:#555;margin-bottom:8px">#CR-0001 · Maine Coon Tabby</div>
       <div class="pilot-stat">Velocidade <span>88</span></div>
       <div class="pilot-stat">Controle <span>76</span></div>
       <div class="pilot-stat">Aerodinâmica <span>83</span></div>
-      <div style="margin-top:12px;font-size:.75rem;color:#666" data-i18n="kenta-lore">Piloto veterano do norte. Capacete customizado.</div>
+      <div style="margin-top:12px;font-size:.75rem;color:#666" data-i18n="kenta-lore">Piloto veterano do norte. Capacete customizado deixa os tufos das orelhas de fora para sentir o vento.</div>
     </div>
-    <div class="pilot-card" style="opacity:.6">
+    <div class="pilot-card" style="border-color:rgba(0,229,255,.2);">
+      <div class="pilot-rarity" style="background:rgba(0,229,255,.08);color:#00E5FF;border:1px solid rgba(0,229,255,.3)" data-i18n="pilot-legendary">◆ LENDÁRIA</div>
+      <div style="width:110px;height:140px;overflow:hidden;margin:8px auto;border-radius:10px;"><img src="client/public/assets/images/yuki-piloto.png" style="width:100%;height:100%;object-fit:cover;object-position:50% 5%;"></div>
+      <div class="pilot-name" style="color:#00E5FF">YUKI</div>
+      <div style="font-size:.62rem;color:#555;margin-bottom:8px">#CR-0002 · Samoieda</div>
+      <div class="pilot-stat">Velocidade <span>82</span></div>
+      <div class="pilot-stat">Controle <span>91</span></div>
+      <div class="pilot-stat">Aerodinâmica <span>75</span></div>
+      <div style="margin-top:12px;font-size:.75rem;color:#666" data-i18n="yuki-lore">Óculos retrô dos anos 60 e cachecol ao vento. Controle absurdo em pistas de gelo.</div>
+    </div>
+    <div class="pilot-card" style="opacity:.65;">
       <div class="locked-badge">🔒 EM BREVE</div>
-      <div class="pilot-rarity" style="background:rgba(100,200,255,.1);color:#64CFFF;border:1px solid rgba(100,200,255,.25)" data-i18n="pilot-rare">◆ RARA</div>
-      <div class="pilot-name" style="color:#64CFFF">BRUNA</div>
+      <div class="pilot-rarity" style="background:rgba(255,80,80,.08);color:#FF5555;border:1px solid rgba(255,80,80,.3)" data-i18n="pilot-rare">◆ RARA</div>
+      <div style="width:110px;height:140px;overflow:hidden;margin:8px auto;border-radius:10px;"><img src="client/public/assets/images/bruna-piloto.png" style="width:100%;height:100%;object-fit:cover;object-position:50% 5%;"></div>
+      <div class="pilot-name" style="color:#FF5555">BRUNA</div>
+      <div style="font-size:.62rem;color:#555;margin-bottom:8px">#CR-0003 · SRD</div>
       <div class="pilot-stat">Velocidade <span>78</span></div>
       <div class="pilot-stat">Controle <span>95</span></div>
       <div class="pilot-stat">Aerodinâmica <span>71</span></div>
-      <div style="margin-top:12px;font-size:.75rem;color:#666" data-i18n="bruna-lore">Rainha das curvas fechadas.</div>
+      <div style="margin-top:12px;font-size:.75rem;color:#666" data-i18n="bruna-lore">Macação vermelho e lacinho azul. Rainha das curvas fechadas.</div>
     </div>
-    <div class="pilot-card" style="opacity:.6">
+    <div class="pilot-card" style="opacity:.65;">
       <div class="locked-badge">🔒 EM BREVE</div>
-      <div class="pilot-rarity" style="background:rgba(200,100,255,.1);color:#CC66FF;border:1px solid rgba(200,100,255,.25)" data-i18n="pilot-mythic">◆ MÍTICO</div>
-      <div class="pilot-name" style="color:#CC66FF">TAPZ</div>
+      <div class="pilot-rarity" style="background:rgba(157,78,221,.12);color:#9D4EDD;border:1px solid rgba(157,78,221,.3)" data-i18n="pilot-mythic">◆ MÍTICA</div>
+      <div style="width:110px;height:140px;overflow:hidden;margin:8px auto;border-radius:10px;"><img src="client/public/assets/images/duo-collie-piloto.png" style="width:100%;height:100%;object-fit:cover;object-position:50% 5%;"></div>
+      <div class="pilot-name" style="color:#9D4EDD">DUO</div>
+      <div style="font-size:.62rem;color:#555;margin-bottom:8px">#CR-0005 · Border Collie Fusion</div>
+      <div class="pilot-stat">Velocidade <span>90</span></div>
+      <div class="pilot-stat">Controle <span>85</span></div>
+      <div class="pilot-stat">Aerodinâmica <span>92</span></div>
+      <div style="margin-top:12px;font-size:.75rem;color:#666" data-i18n="duo-lore">Fusão dos Border Collies. Dois cérebros, uma tampinha. Sincronia perfeita nas curvas.</div>
+    </div>
+    <div class="pilot-card" style="opacity:.65;">
+      <div class="locked-badge">🔒 EM BREVE</div>
+      <div class="pilot-rarity" style="background:rgba(255,215,0,.08);color:#FFD700;border:1px solid rgba(255,215,0,.3)" data-i18n="pilot-mythic">◆ MÍTICA</div>
+      <div style="width:110px;height:140px;overflow:hidden;margin:8px auto;border-radius:10px;"><img src="client/public/assets/images/tapz-piloto.png" style="width:100%;height:100%;object-fit:cover;object-position:50% 5%;"></div>
+      <div class="pilot-name" style="color:#FFD700">TAPZ</div>
+      <div style="font-size:.62rem;color:#555;margin-bottom:8px">#CR-0004 · Golden Angel</div>
       <div class="pilot-stat">Velocidade <span>94</span></div>
       <div class="pilot-stat">Controle <span>80</span></div>
       <div class="pilot-stat">Aerodinâmica <span>97</span></div>
-      <div style="margin-top:12px;font-size:.75rem;color:#666" data-i18n="tapz-lore">Sapatilhas de corrida e asas de anjo.</div>
+      <div style="margin-top:12px;font-size:.75rem;color:#666" data-i18n="tapz-lore">Sapatilhas de corrida e asas de anjo. Velocidade abençoada.</div>
     </div>
   </div>
 </section>
@@ -349,7 +368,7 @@ footer a:hover{text-decoration:underline}
   <h2 class="sec-title" data-i18n="brand_tech_title">STACK <span>100% WEB-NATIVE</span></h2>
   <div class="stack-grid reveal">
     <div class="stack-item"><div class="stack-icon">⚡</div><div class="stack-info"><h4>Canvas 2D + Vanilla JS</h4><p>Zero framework, zero dependência pesada. Motor de física próprio — Vector2D, Physics, GameLoop, SoundEngine.</p></div></div>
-    <div class="stack-item"><div class="stack-icon">🔐</div><div class="stack-info"><h4>Google + TipLink</h4><p>Login com Google cria automaticamente uma wallet Solana via TipLink. Onboarding sem fricção.</p></div></div>
+    <div class="stack-item"><div class="stack-icon">🔐</div><div class="stack-info"><h4>Google + Privy</h4><p>Login com Google via Privy OAuth cria automaticamente um ID de wallet Solana. Onboarding sem fricção. Marco 2 ✅</p></div></div>
     <div class="stack-item"><div class="stack-icon">⛓️</div><div class="stack-info"><h4>Solana + Fogo SVM</h4><p>NFT pilotos com metadata on-chain. Deploy no Fogo (EVM-compatível) para roadmap Q4 2026.</p></div></div>
     <div class="stack-item"><div class="stack-icon">📊</div><div class="stack-info"><h4>Supabase Postgres</h4><p>Ranking em tempo real. Tabela <code>runs</code> com tempo, piloto, modo e nickname. REST API direta do frontend.</p></div></div>
     <div class="stack-item"><div class="stack-icon">🌐</div><div class="stack-info"><h4>PeerJS WebRTC</h4><p>Multiplayer online P2P direto entre browsers. Sem servidor de jogo — apenas signaling público.</p></div></div>
@@ -365,14 +384,14 @@ footer a:hover{text-decoration:underline}
     <div class="tl-item done">
       <div class="tl-dot"></div>
       <div class="tl-label">Q1–Q2 2026 · CONCLUÍDO</div>
-      <div class="tl-title" data-i18n="brand_road1_t">MVP Jogável</div>
-      <div class="tl-desc" data-i18n="brand_road1_d">Motor de física completo · 2 pistas procedurais · 3 modos (Solo, 1v1 Local, Online Beta) · Google Login · Ranking Supabase · PT/EN/ES · Vibe Jam 2026</div>
+      <div class="tl-title" data-i18n="brand_road1_t">Marcos 1 & 2 ✅</div>
+      <div class="tl-desc" data-i18n="brand_road1_d">Motor física · 2 pistas · 3 modos · Privy Login · $CR off-chain · Dashboard carteira · Ranking · PT/EN/ES · Vibe Jam 2026</div>
     </div>
     <div class="tl-item active">
       <div class="tl-dot"></div>
       <div class="tl-label">Q3 2026 · EM ANDAMENTO</div>
-      <div class="tl-title" data-i18n="brand_road2_t">Blockchain & Economia</div>
-      <div class="tl-desc" data-i18n="brand_road2_d">Mint NFT pilotos on-chain · Token $CR na Solana · 1v1 com aposta $CR · Marketplace de tampinhas · Ranking on-chain por temporada</div>
+      <div class="tl-title" data-i18n="brand_road2_t">Marco 3 — Blockchain</div>
+      <div class="tl-desc" data-i18n="brand_road2_d">SPL Token $CR on-chain Solana · Endereço Solana real · Mint NFT pilotos (Metaplex) · Airdrop saldos off-chain · 1v1 com aposta $CR</div>
     </div>
     <div class="tl-item">
       <div class="tl-dot"></div>
@@ -392,7 +411,11 @@ footer a:hover{text-decoration:underline}
 <!-- TOKENOMICS -->
 <section>
   <div class="sec-label" data-i18n="brand_sec_token">Tokenomics</div>
-  <h2 class="sec-title" data-i18n="brand_token_title">TOKEN <span>$CR</span></h2>
+  <!-- img FORA do h2 — o h2 tem -webkit-text-fill-color:transparent que torna imgs filhas invisíveis -->
+  <div style="display:flex;align-items:center;gap:14px;margin-bottom:8px;">
+    <img src="tokenCR.png" alt="$CR" width="52" height="52" style="flex-shrink:0;filter:drop-shadow(0 0 12px rgba(255,215,0,.5));">
+    <h2 class="sec-title" style="margin-bottom:0" data-i18n="brand_token_title">TOKEN <span>$CR</span></h2>
+  </div>
   <div style="margin-bottom:24px;color:#AAA;max-width:640px" data-i18n="brand_token_desc">O $CR é o token utilitário do ecossistema CapRush — usado para entrar em corridas com aposta, comprar/vender pilotos NFT e participar da governança.</div>
   <div class="token-grid reveal">
     <div class="token-box"><span class="token-pct">40%</span><div class="token-name" data-i18n="brand_tok1">Recompensas de Jogo</div><div class="token-desc" data-i18n="brand_tok1d">Prize pools de torneios e ranking por temporada</div></div>
@@ -405,7 +428,7 @@ footer a:hover{text-decoration:underline}
 
 <!-- ECONOMY -->
 <section>
-  <div class="sec-label" data-i18n="tok_util_title">Utilidade do $CR</div>
+  <div class="sec-label" data-i18n="tok_util_title" style="display:flex;align-items:center;gap:6px;"><img src="tokenCR.png" alt="$CR" width="18" height="18" style="flex-shrink:0;"> Utilidade do $CR</div>
   <h2 class="sec-title" data-i18n="tok_title_full">ECONOMIA DO $CR — MODELO JUSTO E SUSTENTÁVEL</h2>
 
   <!-- Princípio central -->

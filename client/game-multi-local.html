@@ -329,8 +329,29 @@ canvas.addEventListener('touchmove',function(e){e.preventDefault();if(!ds)return
 canvas.addEventListener('touchend',function(e){if(!ds||phase!=='AIM')return;P[cur].phys.flick(ds,cpos(e.changedTouches[0]),P[cur].spec.spd);if(!P[cur].t0)P[cur].t0=performance.now();ds=null;dc=null;phase='MOVING';},{passive:true});
 
 // ─── Vitória ─────────────────────────────────────────────────────────────
+function _getSession(){
+  try{ return JSON.parse(localStorage.getItem('caprush_privy_session')||'null'); }catch(e){}
+  try{ return JSON.parse(localStorage.getItem('caprush_user')||'null'); }catch(e){}
+  return null;
+}
+function postScoreMulti(winnerName, pilotId, elapsedSec, won){
+  var session = _getSession();
+  var nick   = (session && session.nickname) || localStorage.getItem('caprush_nickname') || 'ANON';
+  var wallet = localStorage.getItem('caprush_wallet') || (session && session.id) || nick;
+  var _ms    = Math.round(elapsedSec * 1000);
+  var SURL   = 'https://rigghudagbzrzadsbeml.supabase.co/rest/v1/runs';
+  var SKEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpZ2dodWRhZ2J6cnphZHNiZW1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzk4OTUsImV4cCI6MjA5MTk1NTg5NX0.2fXODjCXc7IjsF7KS5cAMC-jt9ovxturuQUKmiApO9A';
+  fetch(SURL,{method:'POST',headers:{'Content-Type':'application/json','apikey':SKEY,'Authorization':'Bearer '+SKEY,'Prefer':'return=minimal'},
+    body:JSON.stringify({wallet:wallet,nickname:nick,pilot:pilotId,time_ms:_ms,launches:0,mode:'local',solana_address:wallet})
+  }).catch(function(){});
+  if(typeof CREngine!=='undefined' && won){
+    CREngine.awardRace({mode:'multi_local',time_ms:_ms,won:true,previous_best_ms:null});
+  }
+}
 function onWin(winner){
   SoundEngine.victory(); logEv(winner.name+' VENCEU! '+fmt(winner.elapsed),'win');
+  // Salva score e credita $CR para o vencedor
+  postScoreMulti(winner.name, winner.name, winner.elapsed, true);
   setTimeout(function(){
     overlay.innerHTML='<h2 style="color:'+winner.spec.color+'">'+winner.name+' VENCEU!</h2>'+
       '<p style="color:'+winner.spec.color+';font-size:2rem;font-family:Bebas Neue,sans-serif">'+fmt(winner.elapsed)+'</p>'+
@@ -509,5 +530,7 @@ requestAnimationFrame(function(t){lt=t;requestAnimationFrame(loop);});
   },{once:true});
 })();
 </script>
+<!-- Marco 1+2: Motor $CR — credita tokens ao vencedor -->
+<script src="../cr-engine.js"></script>
 </body>
 </html>
