@@ -284,13 +284,37 @@ window.addEventListener('privyAuthLogin', function(){
   var s = getSession();
   if (s) {
     applySession(s);
-    // Se não tem nickname custom, abre modal pra escolher
-    if (!localStorage.getItem('caprush_nickname')) {
+    // Marco 2.9.2: abre modal de nick se ainda não tem nick real
+    // (Privy às vezes salva 'Player' como genérico — não conta como nick custom)
+    var savedNick = localStorage.getItem('caprush_nickname');
+    var isGeneric = !savedNick || savedNick === 'Player' || savedNick === 'PILOTO' || savedNick === '';
+    if (isGeneric) {
       document.getElementById('nick-modal').classList.add('open');
       setTimeout(function(){document.getElementById('nick-input').focus();},100);
     }
   }
 });
+
+// Marco 2.9.2: clicar no nickname permite editá-lo
+(function(){
+  var nickEl = document.getElementById('user-nick');
+  if (nickEl) {
+    nickEl.style.cursor = 'pointer';
+    nickEl.title = 'Clique para alterar o nickname';
+    nickEl.onclick = function(){
+      var input = document.getElementById('nick-input');
+      var current = localStorage.getItem('caprush_nickname') || '';
+      // Pré-preenche com o atual (se não for genérico)
+      if (current && current !== 'Player' && current !== 'PILOTO') {
+        input.value = current;
+      } else {
+        input.value = '';
+      }
+      document.getElementById('nick-modal').classList.add('open');
+      setTimeout(function(){ input.focus(); input.select(); }, 100);
+    };
+  }
+})();
 
 // Marco 2.9.2: também escuta logout do Privy
 window.addEventListener('privyAuthLogout', function(){
