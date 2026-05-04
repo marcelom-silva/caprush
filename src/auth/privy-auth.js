@@ -14,7 +14,7 @@
 // =============================================================================
 
 const PRIVY_APP_ID    = 'cmoi3fpo900ot0cl70ndu4ids';
-const PRIVY_CLIENT_ID = 'client-WY6YfV5FxxAFNEnbeJChmb15z4NT7GU1Fdhca4cvGj2wr'; 
+//const PRIVY_CLIENT_ID = 'client-WY6YfV5FxxAFNEnbeJChmb15z4NT7GU1Fdhca4cvGj2wr'; 
 
 const SUPABASE_URL = 'https://rigghudagbzrzadsbeml.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpZ2dodWRhZ2J6cnphZHNiZW1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzk4OTUsImV4cCI6MjA5MTk1NTg5NX0.2fXODjCXc7IjsF7KS5cAMC-jt9ovxturuQUKmiApO9A';
@@ -38,7 +38,6 @@ function _boot() {
 
   _privy = new Privy({
     appId:    PRIVY_APP_ID,
-    clientId: PRIVY_CLIENT_ID,
     storage:  new LocalStorage(),
   });
 
