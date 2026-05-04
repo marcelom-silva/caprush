@@ -445,5 +445,8 @@ window.PrivyAuth = {
   getNickname,
 };
 
+window.privyLogin  = login;
+window.privyLogout = logout;
+
 window.dispatchEvent(new CustomEvent('privyAuthReady'));
 console.log('[PrivyAuth] Modulo carregado. Aguardando iframe...');
