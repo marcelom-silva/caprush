@@ -189,7 +189,29 @@ function _resolvePlayDestination(){
 }
 
 // ── Sessão localStorage ───────────────────────────────────────────────────
-function getSession(){try{return JSON.parse(localStorage.getItem('caprush_user')||'null');}catch(e){return null;}}
+// Marco 2.9.2: getSession agora lê DUAS chaves — primeiro a do Privy
+// (caprush_privy_session, formato moderno), depois fallback pra antiga
+// (caprush_user, mantém compatibilidade com sessões legadas).
+function getSession(){
+  try {
+    // Privy (formato novo)
+    var privy = JSON.parse(localStorage.getItem('caprush_privy_session')||'null');
+    if (privy) {
+      // Normaliza pra formato esperado por applySession
+      // Nickname vem de caprush_nickname (definido pelo usuário) OU do Privy
+      var customNick = localStorage.getItem('caprush_nickname') || '';
+      return {
+        nickname: customNick || privy.nickname || '',
+        name:     privy.name || '',
+        email:    privy.email || '',
+        picture:  privy.picture || '',
+        wallet:   privy.walletAddress || ''
+      };
+    }
+    // Fallback legado
+    return JSON.parse(localStorage.getItem('caprush_user')||'null');
+  } catch(e){ return null; }
+}
 function saveSession(s){localStorage.setItem('caprush_user',JSON.stringify(s));}
 function clearSession(){localStorage.removeItem('caprush_user');}
 
@@ -199,51 +221,42 @@ function applySession(s){
   document.getElementById('user-display').style.display='flex';
   var av=document.getElementById('user-avatar');
   if(s.picture) av.src=s.picture; else av.style.display='none';
-  document.getElementById('user-nick').textContent=s.nickname||s.name||'PILOTO';
-  var ini=document.getElementById('user-initials');if(ini)ini.textContent=(s.nickname||s.name||'P').charAt(0);
+  // Marco 2.9.2: se nickname estiver vazio (Privy retornou tudo vazio),
+  // mostra "PILOTO" e força o usuário a abrir modal de nick depois.
+  // Caso queira nick custom, edita em /dashboard.html ou similar.
+  var displayName = s.nickname || s.name || 'PILOTO';
+  document.getElementById('user-nick').textContent = displayName;
+  var ini=document.getElementById('user-initials');if(ini)ini.textContent=displayName.charAt(0).toUpperCase();
   document.getElementById('playBtn').classList.remove('locked');
   document.getElementById('hint-txt').textContent='Clique em JOGAR para começar';
-  // Salva nickname globalmente para o GameLoop usar ao salvar scores
   window.CAPRUSH_NICKNAME = s.nickname || s.name;
+  // Mostra wallet pill se tiver endereço
+  if (s.wallet) {
+    var pill = document.getElementById('wallet-pill');
+    if (pill) {
+      var w = s.wallet;
+      var shortW = w.length > 16 ? w.slice(0, 8) + '...' + w.slice(-4) : w;
+      pill.textContent = shortW;
+      pill.style.display = 'inline-block';
+    }
+  }
 }
 
-function logout(){clearSession();location.reload();}
-
-// ── Google Sign-In callback ───────────────────────────────────────────────
-var _pendingPayload=null;
-window.onGoogleLogin=function(response){
-  // Decodifica JWT (payload — sem verificar assinatura, só para UI)
-  var parts=response.credential.split('.');
-  var payload=JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
-  var existing=getSession();
-  if(existing && existing.google_id===payload.sub){
-    // Já logado com esta conta
-    applySession(existing);
-    return;
-  }
-  // Novo usuário → pede nickname
-  _pendingPayload=payload;
-  document.getElementById('nick-modal').classList.add('open');
-  setTimeout(function(){document.getElementById('nick-input').focus();},100);
-};
+// Marco 2.9.2: logout antigo renomeado pra logoutLegacy pra não colidir com
+// window.privyLogout (definido em src/auth/privy-auth.js)
+function logoutLegacy(){clearSession();location.reload();}
 
 document.getElementById('nick-confirm').onclick=function(){
   var raw=document.getElementById('nick-input').value.trim().replace(/\s/g,'').toUpperCase();
   var err=document.getElementById('nick-error');
   if(raw.length<3){err.style.display='block';return;}
   err.style.display='none';
-  if(!_pendingPayload) return;
-  var session={
-    google_id: _pendingPayload.sub,
-    nickname:  raw,
-    name:      _pendingPayload.name,
-    picture:   _pendingPayload.picture,
-    email:     _pendingPayload.email
-  };
-  saveSession(session);
-  _pendingPayload=null;
+  // Marco 2.9.2: salva nick custom no localStorage (aplicado por getSession)
+  localStorage.setItem('caprush_nickname', raw);
   document.getElementById('nick-modal').classList.remove('open');
-  applySession(session);
+  // Re-aplica sessão com nick atualizado
+  var s = getSession();
+  if (s) applySession(s);
 };
 
 document.getElementById('nick-input').addEventListener('keydown',function(e){
@@ -264,13 +277,35 @@ document.getElementById('loginBtn').onclick = function(){
   }
 };
 
-// Verifica sessão existente ao carregar — o Privy já restaura sessão automaticamente
-// via privyAuthLogin / privyAuthReady events. Aqui só sincronizamos UI legacy.
-window.addEventListener('load', function(){
-  if (typeof getSession === 'function') {
-    var s = getSession();
-    if (s && typeof applySession === 'function') applySession(s);
+// Marco 2.9.2: Privy dispara 'privyAuthLogin' quando completa login OAuth.
+// Esse listener garante que a UI atualiza imediatamente após o redirect.
+window.addEventListener('privyAuthLogin', function(){
+  console.log('[CapRush] Login do Privy detectado, atualizando UI');
+  var s = getSession();
+  if (s) {
+    applySession(s);
+    // Se não tem nickname custom, abre modal pra escolher
+    if (!localStorage.getItem('caprush_nickname')) {
+      document.getElementById('nick-modal').classList.add('open');
+      setTimeout(function(){document.getElementById('nick-input').focus();},100);
+    }
   }
+});
+
+// Marco 2.9.2: também escuta logout do Privy
+window.addEventListener('privyAuthLogout', function(){
+  console.log('[CapRush] Logout do Privy detectado');
+  // Privy já limpou as chaves; só recarrega UI
+  setTimeout(function(){ location.reload(); }, 100);
+});
+
+// Verifica sessão existente ao carregar (página recém-aberta com sessão Privy ativa)
+window.addEventListener('load', function(){
+  // Pequeno delay pra garantir que privy-auth.js terminou de inicializar
+  setTimeout(function(){
+    var s = getSession();
+    if (s) applySession(s);
+  }, 300);
 });
 
 window.addEventListener('pageshow',function(){
