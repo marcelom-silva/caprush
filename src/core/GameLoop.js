@@ -1153,7 +1153,10 @@
     var SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpZ2dodWRhZ2J6cnphZHNiZW1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzk4OTUsImV4cCI6MjA5MTk1NTg5NX0.2fXODjCXc7IjsF7KS5cAMC-jt9ovxturuQUKmiApO9A';
     var _ms = Math.round(tT*1000);
     fetch(SURL,{method:'POST',headers:{'Content-Type':'application/json','apikey':SKEY,'Authorization':'Bearer '+SKEY,'Prefer':'return=minimal'},
-      body:JSON.stringify({wallet:nick,nickname:nick,pilot:p,time_ms:_ms,launches:0,mode:'solo'})
+      body:JSON.stringify({
+        wallet:nick, nickname:nick, pilot:p, time_ms:_ms, launches:0, mode:'solo',
+        env: (location.hostname==='localhost'||location.hostname==='127.0.0.1') ? 'dev' : 'production'
+      })
     }).then(function(r){log(r.ok?'Score salvo!':'Erro ao salvar.','ev');}).catch(function(){log('Sem conexao.');});
     // Award $CR for completed solo race
     if(typeof CREngine!=='undefined'){

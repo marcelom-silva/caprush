@@ -362,17 +362,34 @@ async function restoreSession() {
 // ============================================================================
 
 async function logout() {
+  // Tenta avisar o Privy server (ignora erro 400 - sessão pode ter expirado)
   try { await _privy.auth.logout(); } catch (_) {}
-  localStorage.removeItem('caprush_privy_session');
-  localStorage.removeItem('caprush_wallet');
-  localStorage.removeItem('caprush_user_email');
-  localStorage.removeItem('caprush_user_name');
-  localStorage.removeItem('caprush_user_picture');
-  localStorage.removeItem('caprush_user');
-  localStorage.removeItem('caprush_custom_nickname');
-  localStorage.removeItem('caprush_access_token');
+
+  // Marco 2.9.2: limpa TUDO que começa com caprush_ ou _privy_ — não dá pra
+  // confiar em lista manual (vaza chave nova toda vez que adicionamos algo).
+  // O loop é seguro porque só apaga prefixos do nosso projeto.
+  const keysToRemove = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && (k.startsWith('caprush_') || k.startsWith('_privy_'))) {
+      keysToRemove.push(k);
+    }
+  }
+  keysToRemove.forEach(k => localStorage.removeItem(k));
+
+  // Cookies do Privy (se houver)
+  document.cookie.split(';').forEach(c => {
+    const name = c.split('=')[0].trim();
+    if (name.startsWith('privy-') || name.startsWith('caprush_')) {
+      document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';
+    }
+  });
+
   window.dispatchEvent(new CustomEvent('privyAuthLogout'));
-  console.log('[PrivyAuth] Logout OK');
+  console.log('[PrivyAuth] Logout completo — todas as chaves limpas');
+  
+  // Marco 2.9.2: hard reload pra garantir que nada do estado em memória persista
+  setTimeout(() => { window.location.href = '/index.html'; }, 100);
 }
 
 // ============================================================================
