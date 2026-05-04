@@ -250,29 +250,26 @@ document.getElementById('nick-input').addEventListener('keydown',function(e){
   if(e.key==='Enter') document.getElementById('nick-confirm').click();
 });
 
-// Botão ENTRAR dispara Google One Tap
-var GOOGLE_CLIENT_ID='260195350476-no0mcp0ak3mmc3gag9v83lighvjov85e.apps.googleusercontent.com'; // ← substituir depois de criar no Google Cloud
-document.getElementById('loginBtn').onclick=function(){
-  if(typeof google!=='undefined'&&google.accounts){
-    google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:window.onGoogleLogin});
-    google.accounts.id.prompt(function(notification){
-      if(notification.isNotDisplayed()||notification.isSkippedMoment()){
-        // Fallback: popup
-        google.accounts.id.renderButton(document.createElement('div'),{});
-      }
-    });
+// Marco 2.9.2: Login agora é gerenciado 100% pelo Privy (src/auth/privy-auth.js).
+// O fluxo do Google OAuth é controlado pelo Privy SDK (configurado no Privy Dashboard).
+// Removido o Google One Tap direto que não funcionava sem o SDK do Google.
+document.getElementById('loginBtn').onclick = function(){
+  if (window.PrivyAuth && typeof window.PrivyAuth.login === 'function') {
+    window.PrivyAuth.login();
+  } else if (typeof window.privyLogin === 'function') {
+    window.privyLogin();
   } else {
-    alert('Google Sign-In não carregou. Verifique sua conexão e tente novamente.');
+    console.error('[CapRush] PrivyAuth ainda não carregou. Aguarde alguns segundos.');
+    alert('Sistema de login carregando... Tente novamente em 2 segundos.');
   }
 };
 
-// Verifica sessão existente ao carregar
-window.addEventListener('load',function(){
-  var s=getSession();
-  if(s) applySession(s);
-  // Inicializa Google silenciosamente para auto-login
-  if(typeof google!=='undefined'&&google.accounts){
-    google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:window.onGoogleLogin,auto_select:true});
+// Verifica sessão existente ao carregar — o Privy já restaura sessão automaticamente
+// via privyAuthLogin / privyAuthReady events. Aqui só sincronizamos UI legacy.
+window.addEventListener('load', function(){
+  if (typeof getSession === 'function') {
+    var s = getSession();
+    if (s && typeof applySession === 'function') applySession(s);
   }
 });
 
