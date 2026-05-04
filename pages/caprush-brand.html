@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<script async src="https://vibej.am/2026/widget.js"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CapRush Overdrive! — Investor Deck</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--red:#FF2A2A;--gold:#FFD700;--acc:#00E5FF;--dark:#05050A;--panel:rgba(10,10,22,.88)}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--dark);color:#E8E8F0;font-family:'Rajdhani',sans-serif;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;z-index:-2;
+  background:radial-gradient(1400px 900px at 75% -10%,rgba(255,42,42,.12),transparent 60%),
+    radial-gradient(1000px 700px at 5% 110%,rgba(0,229,255,.09),transparent 60%),#05050A}
+body::after{content:"";position:fixed;inset:0;z-index:-1;opacity:.03;
+  background-image:linear-gradient(rgba(255,255,255,.12)1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.12)1px,transparent 1px);background-size:44px 44px}
+
+/* NAV */
+nav{display:flex;align-items:center;padding:10px 28px;background:rgba(5,5,12,.9);
+  backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,42,42,.22);
+  gap:1.4rem;position:sticky;top:0;z-index:100}
+.nav-logo{font-family:'Bebas Neue';font-size:1.3rem;letter-spacing:4px;
+  background:linear-gradient(135deg,var(--red),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none}
+.nav-link{color:#999;text-decoration:none;font-size:.78rem;letter-spacing:2px;
+  text-transform:uppercase;transition:.2s}
+.nav-link:hover{color:var(--gold)}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+#flag-container{display:flex;gap:5px}
+.flag-btn{width:24px;height:16px;border:1px solid rgba(255,255,255,.2);border-radius:3px;
+  cursor:pointer;opacity:.6;background-size:cover;transition:.2s}
+.flag-btn:hover{opacity:1;border-color:var(--gold)}
+.flag-pt{background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23009b3a"/><polygon points="1.5,0.2 2.7,1 1.5,1.8 0.3,1" fill="%23ffdf00"/><circle cx="1.5" cy="1" r="0.35" fill="%23002776"/></svg>')}
+.flag-us{background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23b22234"/><g fill="%23fff"><rect y="0.15" width="3" height="0.15"/><rect y="0.45" width="3" height="0.15"/><rect y="0.75" width="3" height="0.15"/><rect y="1.05" width="3" height="0.15"/><rect y="1.35" width="3" height="0.15"/><rect y="1.65" width="3" height="0.15"/></g><rect width="1.2" height="1.05" fill="%233c3b6e"/></svg>')}
+.flag-es{background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23c60b1e"/><rect y="0.5" width="3" height="1" fill="%23ffc400"/></svg>')}
+
+/* SECTIONS */
+section{padding:80px 60px;max-width:1200px;margin:0 auto}
+@media(max-width:768px){section{padding:48px 20px}}
+
+/* HERO */
+.hero{text-align:center;padding:100px 40px 80px;max-width:none}
+.hero-badge{display:inline-block;background:rgba(255,42,42,.15);border:1px solid rgba(255,42,42,.4);
+  color:var(--red);font-family:'Bebas Neue';letter-spacing:3px;font-size:.75rem;
+  padding:5px 16px;border-radius:20px;margin-bottom:24px}
+.hero h1{font-family:'Bebas Neue';font-size:clamp(4rem,10vw,8rem);letter-spacing:4px;
+  background:linear-gradient(135deg,var(--red) 0%,var(--gold) 50%,var(--acc) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  line-height:.9;margin-bottom:12px;
+  filter:drop-shadow(0 0 40px rgba(255,42,42,.3))}
+.hero-sub{font-size:1.25rem;color:#AAA;letter-spacing:4px;text-transform:uppercase;margin-bottom:36px}
+.hero-desc{max-width:680px;margin:0 auto 48px;color:#C8C8D8;font-size:1.1rem;line-height:1.8}
+.hero-cta{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.btn-primary{display:inline-block;background:linear-gradient(135deg,var(--red),#A00);
+  color:#fff;font-family:'Bebas Neue';font-size:1rem;letter-spacing:3px;
+  padding:14px 36px;border-radius:6px;text-decoration:none;
+  border:1px solid var(--gold);transition:.2s;box-shadow:0 0 28px rgba(255,42,42,.35)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 40px rgba(255,215,0,.3)}
+.btn-sec{display:inline-block;background:transparent;color:var(--gold);
+  font-family:'Bebas Neue';font-size:1rem;letter-spacing:3px;
+  padding:13px 34px;border-radius:6px;text-decoration:none;
+  border:1px solid rgba(255,215,0,.4);transition:.2s}
+.btn-sec:hover{background:rgba(255,215,0,.08)}
+
+/* STATS BAR */
+.stats-bar{display:flex;justify-content:center;gap:0;flex-wrap:wrap;
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;overflow:hidden;margin:60px 40px 0}
+.stat{flex:1;min-width:140px;text-align:center;padding:28px 20px;
+  border-right:1px solid rgba(255,255,255,.06);transition:.2s}
+.stat:last-child{border-right:none}
+.stat:hover{background:rgba(255,215,0,.04)}
+.stat-num{font-family:'Bebas Neue';font-size:2.6rem;color:var(--gold);line-height:1;
+  display:block;letter-spacing:2px}
+.stat-lbl{font-size:.7rem;color:#666;letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+
+/* SECTION HEADERS */
+.sec-label{font-size:.68rem;letter-spacing:4px;color:var(--red);text-transform:uppercase;
+  margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.sec-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(255,42,42,.3),transparent)}
+h2.sec-title{font-family:'Bebas Neue';font-size:clamp(2rem,5vw,3.2rem);
+  letter-spacing:4px;color:#fff;margin-bottom:40px;
+  background:linear-gradient(135deg,#fff,#AAA);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+h2.sec-title span{-webkit-text-fill-color:var(--gold)}
+
+/* GAME FEATURES */
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.feat{background:var(--panel);border:1px solid rgba(255,255,255,.07);border-radius:14px;
+  padding:24px;position:relative;overflow:hidden;transition:.2s}
+.feat::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--acc),transparent);opacity:0;transition:.3s}
+.feat:hover{border-color:rgba(255,215,0,.2);transform:translateY(-3px)}
+.feat:hover::before{opacity:1}
+.feat-icon{font-size:1.8rem;margin-bottom:12px}
+.feat h3{font-family:'Bebas Neue';font-size:1.1rem;letter-spacing:2px;color:var(--gold);margin-bottom:8px}
+.feat p{font-size:.88rem;color:#AAA;line-height:1.6}
+
+/* PILOTS */
+.pilots-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+/* Marco 2.9.2: força 4 colunas em desktop, cai em tablet e mobile */
+@media(max-width:980px){.pilots-grid[style*="repeat(4,1fr)"]{grid-template-columns:repeat(2,1fr) !important;}}
+@media(max-width:560px){.pilots-grid[style*="repeat(4,1fr)"]{grid-template-columns:1fr !important;}}
+.pilot-card{background:var(--panel);border:1px solid rgba(255,255,255,.07);border-radius:14px;
+  padding:20px;text-align:center;transition:.2s;position:relative;overflow:hidden}
+.pilot-card:hover{transform:translateY(-4px);border-color:rgba(255,215,0,.25)}
+.pilot-rarity{font-size:.62rem;letter-spacing:3px;padding:3px 10px;border-radius:12px;
+  text-transform:uppercase;display:inline-block;margin-bottom:12px}
+.pilot-name{font-family:'Bebas Neue';font-size:1.6rem;letter-spacing:3px;margin-bottom:12px}
+.pilot-stat{display:flex;justify-content:space-between;font-size:.75rem;
+  color:#888;margin:4px 0;border-bottom:1px solid rgba(255,255,255,.04);padding-bottom:4px}
+.pilot-stat span{color:var(--gold);font-weight:700}
+
+/* TECH STACK */
+.stack-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.stack-item{background:var(--panel);border:1px solid rgba(255,255,255,.06);border-radius:12px;
+  padding:18px 20px;display:flex;align-items:flex-start;gap:14px}
+.stack-icon{width:40px;height:40px;border-radius:8px;background:rgba(255,215,0,.1);
+  border:1px solid rgba(255,215,0,.2);display:flex;align-items:center;
+  justify-content:center;font-size:1.2rem;flex-shrink:0}
+.stack-info h4{font-family:'Bebas Neue';letter-spacing:2px;font-size:.95rem;
+  color:var(--gold);margin-bottom:4px}
+.stack-info p{font-size:.78rem;color:#888;line-height:1.5}
+
+/* ROADMAP */
+.timeline{position:relative;padding-left:32px}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;
+  background:linear-gradient(180deg,var(--red),var(--gold),var(--acc))}
+.tl-item{position:relative;margin-bottom:36px}
+.tl-dot{position:absolute;left:-28px;top:4px;width:14px;height:14px;border-radius:50%;
+  border:2px solid var(--gold);background:var(--dark)}
+.tl-item.done .tl-dot{background:var(--gold);box-shadow:0 0 12px rgba(255,215,0,.5)}
+.tl-item.active .tl-dot{background:var(--red);border-color:var(--red);
+  box-shadow:0 0 12px rgba(255,42,42,.6);animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 12px rgba(255,42,42,.6)}50%{box-shadow:0 0 22px rgba(255,42,42,.9)}}
+.tl-label{font-size:.65rem;letter-spacing:3px;color:var(--red);text-transform:uppercase;margin-bottom:4px}
+.tl-title{font-family:'Bebas Neue';font-size:1.2rem;letter-spacing:2px;color:#fff;margin-bottom:6px}
+.tl-desc{font-size:.85rem;color:#888;line-height:1.6}
+
+/* TOKENOMICS */
+.token-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-top:8px}
+.token-box{background:var(--panel);border:1px solid rgba(255,215,0,.15);border-radius:12px;
+  padding:20px;text-align:center}
+.token-pct{font-family:'Bebas Neue';font-size:2.4rem;color:var(--gold);display:block}
+.token-name{font-size:.72rem;letter-spacing:2px;color:#888;text-transform:uppercase;margin-top:4px}
+.token-desc{font-size:.78rem;color:#666;margin-top:8px;line-height:1.5}
+
+/* FOOTER */
+footer{text-align:center;padding:48px 20px;border-top:1px solid rgba(255,255,255,.06);
+  color:#444;font-size:.82rem;letter-spacing:1px}
+footer a{color:var(--gold);text-decoration:none}
+footer a:hover{text-decoration:underline}
+
+/* ── ANIMATIONS ─────────────────────────────────────────────── */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeInLeft{from{opacity:0;transform:translateX(-32px)}to{opacity:1;transform:translateX(0)}}
+@keyframes shimmer{0%{background-position:200% center}100%{background-position:-200% center}}
+@keyframes borderPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,42,42,.4)}70%{box-shadow:0 0 0 12px rgba(255,42,42,0)}}
+@keyframes floatCap{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-12px) rotate(8deg)}}
+@keyframes countUp{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+@keyframes gradShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+
+.hero h1{
+  background-size:300% auto;
+  animation:gradShift 4s ease infinite;
+}
+.hero-badge{animation:borderPulse 2s ease-in-out infinite;}
+
+/* Scroll-reveal (JS-driven via .revealed class) */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease;}
+.reveal.revealed{opacity:1;transform:none;}
+.reveal-left{opacity:0;transform:translateX(-28px);transition:opacity .7s ease,transform .7s ease;}
+.reveal-left.revealed{opacity:1;transform:none;}
+
+/* Feat cards hover */
+.feat{transition:transform .25s,box-shadow .25s,border-color .25s;}
+.feat:hover{transform:translateY(-6px) scale(1.015);
+  box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 30px rgba(255,100,0,.18);}
+
+/* Pilot cards */
+.pilot-card{transition:transform .25s,box-shadow .25s;}
+.pilot-card:hover{transform:translateY(-6px);
+  box-shadow:0 20px 50px rgba(0,0,0,.5),0 0 28px rgba(255,215,0,.22);}
+
+/* Stack items */
+.stack-item{transition:transform .22s,background .22s,border-color .22s;}
+.stack-item:hover{transform:translateX(6px);background:rgba(255,100,0,.07);
+  border-color:rgba(255,100,0,.25);}
+
+/* Stats hover */
+.stat{transition:background .2s;}
+.stat:hover{background:rgba(255,215,0,.07);}
+.stat-num{
+  background:linear-gradient(135deg,var(--gold),var(--red),var(--gold));
+  background-size:200% auto;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  animation:shimmer 3s linear infinite;
+}
+
+/* Token boxes */
+.token-box{transition:transform .22s,border-color .22s,box-shadow .22s;}
+.token-box:hover{transform:scale(1.04);border-color:rgba(255,215,0,.4);
+  box-shadow:0 0 24px rgba(255,215,0,.22);}
+.token-pct{
+  background:linear-gradient(135deg,var(--gold),var(--red));
+  background-size:200% auto;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  animation:shimmer 2.5s linear infinite;
+}
+
+/* Timeline dot pulse for active item */
+.tl-item.active .tl-dot{animation:borderPulse 1.5s ease-in-out infinite;}
+
+/* CTA hover glow */
+.btn-primary{transition:transform .2s,box-shadow .2s,filter .2s;}
+.btn-primary:hover{transform:translateY(-3px) scale(1.04);
+  filter:brightness(1.15);
+  box-shadow:0 12px 50px rgba(255,100,0,.5);}
+.btn-sec:hover{background:rgba(255,215,0,.1);border-color:rgba(255,215,0,.7);}
+
+/* Hero floating caps decoration */
+.deco-cap{position:absolute;opacity:0.12;pointer-events:none;animation:floatCap 4s ease-in-out infinite;}
+
+</style>
+<script src="../src/ui/i18n.js"></script>
+</head>
+<body>
+
+<nav>
+  <a href="../index.html" class="nav-logo">CAP RUSH</a>
+  <a href="game/caprush-game.html" class="nav-link" data-i18n="play">JOGAR</a>
+  <a href="ranking.html" class="nav-link" data-i18n="ranking">RANKING</a>
+  <a href="manual.html" class="nav-link" data-i18n="manual">MANUAL</a>
+  <div class="nav-right">
+    <div id="flag-container">
+      <button class="flag-btn flag-pt" onclick="setLang('pt')"></button>
+      <button class="flag-btn flag-us" onclick="setLang('en')"></button>
+      <button class="flag-btn flag-es" onclick="setLang('es')"></button>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+  <!-- Floating decorative caps -->
+  <div class="deco-cap" style="top:8%;left:4%;font-size:2.5rem;animation-delay:0s">🪙</div>
+  <div class="deco-cap" style="top:15%;right:6%;font-size:3rem;animation-delay:1.2s">🪙</div>
+  <div class="deco-cap" style="top:60%;left:2%;font-size:2rem;animation-delay:2.1s">🪙</div>
+
+<div class="hero">
+  <div class="hero-badge" data-i18n="brand_badge">🏎 WEB3 RACING · SOLANA · VIBE JAM 2026</div>
+  <h1>CAP<br>RUSH</h1>
+  <p class="hero-sub" data-i18n="brand_tagline">Overdrive! — O Jogo de Tampinhas mais rápido do Universo</p>
+  <p class="hero-desc" data-i18n="brand_desc">
+    CapRush é um jogo de corrida de tampinhas (bottle caps) competitivo, construído nativamente em Web3 na Solana.
+    Cada tampinha é um NFT jogável com atributos únicos. Jogue, colecione e compita por prêmios em $CR.
+  </p>
+  <div class="hero-cta">
+    <a href="game/caprush-game.html" class="btn-primary" data-i18n="brand_cta_play">▶ JOGAR AGORA</a>
+    <a href="arquitetura.html" class="btn-sec" data-i18n="brand_cta_arch">VER ARQUITETURA</a>
+  </div>
+  <div class="stats-bar reveal">
+    <div class="stat"><span class="stat-num">2</span><div class="stat-lbl" data-i18n="brand_stat_tracks">Pistas</div></div>
+    <div class="stat"><span class="stat-num">3</span><div class="stat-lbl" data-i18n="brand_stat_modes">Modos de Jogo</div></div>
+    <div class="stat"><span class="stat-num">4</span><div class="stat-lbl" data-i18n="brand_stat_pilots">Pilotos NFT</div></div>
+    <div class="stat"><span class="stat-num">PT·EN·ES</span><div class="stat-lbl" data-i18n="brand_stat_langs">Idiomas</div></div>
+    <div class="stat"><span class="stat-num">$CR</span><div class="stat-lbl" data-i18n="brand_stat_token">Token Nativo</div></div>
+    <div class="stat"><span class="stat-num">SOL</span><div class="stat-lbl" data-i18n="brand_stat_chain">Blockchain</div></div>
+  </div>
+</div>
+
+<!-- GAMEPLAY -->
+<section>
+  <div class="sec-label" data-i18n="brand_sec_game">Gameplay</div>
+  <h2 class="sec-title" data-i18n="brand_game_title">FÍSICA REAL, <span>ADRENALINA DIGITAL</span></h2>
+  <div class="features reveal">
+    <div class="feat"><div class="feat-icon">🎯</div>
+      <h3 data-i18n="brand_feat1_t">Turn-Based Physics</h3>
+      <p data-i18n="brand_feat1_d">Mecânica de tiro e mira com física procedural completa — colisão, ricochete, drag por superfície, faíscas e efeito de buracos.</p>
+    </div>
+    <div class="feat"><div class="feat-icon">🏎</div>
+      <h3 data-i18n="brand_feat2_t">2 Pistas Únicas</h3>
+      <p data-i18n="brand_feat2_d">TrackV3 (pista original com areia, grama, poças) e Monza F1 (circuito inspirado em Fórmula 1 com chicanes elásticas, helipad e grandstands animadas).</p>
+    </div>
+    <div class="feat"><div class="feat-icon">🌐</div>
+      <h3 data-i18n="brand_feat3_t">Multiplayer P2P</h3>
+      <p data-i18n="brand_feat3_d">1v1 Local (mesmo dispositivo) e 1v1 Online via PeerJS WebRTC — sem servidor, sem latência, conexão direta entre jogadores.</p>
+    </div>
+    <div class="feat"><div class="feat-icon">🏆</div>
+      <h3 data-i18n="brand_feat4_t">Ranking On-Chain</h3>
+      <p data-i18n="brand_feat4_d">Tempos e pontuações registrados na Supabase. Roadmap: migração para on-chain na Solana com recompensas $CR por temporada.</p>
+    </div>
+    <div class="feat"><div class="feat-icon">🔑</div>
+      <h3 data-i18n="brand_feat5_t">Login sem fricção</h3>
+      <p data-i18n="brand_feat5_d">Google → wallet Solana via <strong>Privy OAuth</strong>. Zero extensão, zero seed phrase. Marco 2 concluído ✅</p>
+    </div>
+    <div class="feat"><div class="feat-icon">✨</div>
+      <h3 data-i18n="brand_feat6_t">Visual Procedural</h3>
+      <p data-i18n="brand_feat6_d">Torcida animada, faíscas no impacto, rastros de velocidade, background Tron estilo laranja/vermelho — tudo renderizado em Canvas 2D sem dependências.</p>
+    </div>
+    <div class="feat"><div class="feat-icon">🧬</div>
+      <h3 data-i18n="brand_feat7_t">Evolução RPG</h3>
+      <p data-i18n="brand_feat7_d">Complete missões → ganhe pontos → distribua em Velocidade, Controle ou Aerodinâmica. Cada piloto vira único. Stats afetam a física na pista em tempo real.</p>
+    </div>
+    <div class="feat"><div class="feat-icon">🎲</div>
+      <h3 data-i18n="brand_feat8_t">Apostas 1v1</h3>
+      <p data-i18n="brand_feat8_d">Modo apostado no 1v1 Online: ambos os jogadores colocam $CR em jogo. Vencedor leva o pot inteiro. Árbitro via Supabase — sem trapaça.</p>
+    </div>
+    <div class="feat"><div class="feat-icon">🏰</div>
+      <h3 data-i18n="brand_feat9_t">Clãs</h3>
+      <p data-i18n="brand_feat9_d">Forme equipes, convide amigos, acumule $CR coletivamente. Ranking de clãs, hierarquia (Líder / Oficial / Membro) e feed de atividade em tempo real.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PILOTS / NFTs -->
+<section>
+  <div class="sec-label" data-i18n="brand_sec_pilots">Pilotos NFT</div>
+  <h2 class="sec-title" data-i18n="brand_pilots_title">COLECIONÁVEIS COM <span>ATRIBUTOS REAIS</span></h2>
+  <div class="pilots-grid reveal" style="grid-template-columns:repeat(4,1fr);gap:16px;">
+
+    <!-- COMUNS (gratuitos) -->
+    <div class="pilot-card">
+      <div class="pilot-rarity" style="background:rgba(160,160,160,.10);color:#BBBBBB;border:1px solid rgba(160,160,160,.30)" data-i18n="pilot-common">◆ COMUM</div>
+      <div style="width:110px;height:140px;overflow:hidden;margin:8px auto;border-radius:10px;"><img src="/assets/images/pilots/cal-piloto.png" style="width:100%;height:100%;object-fit:cover;object-position:50% 5%;"></div>
+      <div class="pilot-name" style="color:#BBBBBB">CAL</div>
+      <div style="font-size:.62rem;color:#555;margin-bottom:8px">#CR-0001 · <span data-i18n="brand_species_cal">Pug Onyx</span></div>
+      <div class="pilot-stat">Velocidade <span>80</span></div>
+      <div class="pilot-stat">Controle <span>82</span></div>
+      <div class="pilot-stat">Aerodinâmica <span>78</span></div>
+      <div style="margin-top:12px;font-size:.75rem;color:#666" data-i18n="brand_lore_cal">Pug equilibrado, default da casa. Resmunga nas curvas mas chega lá.</div>
+    </div>
+
+    <div class="pilot-card">
+      <div class="pilot-rarity" style="background:rgba(160,160,160,.10);color:#BBBBBB;border:1px solid rgba(160,160,160,.30)" data-i18n="pilot-common">◆ COMUM</div>
+      <div style="width:110px;height:140px;overflow:hidden;margin:8px auto;border-radius:10px;"><img src="/assets/images/pilots/joao-piloto.png" style="width:100%;height:100%;object-fit:cover;object-position:50% 5%;"></div>
+      <div class="pilot-name" style="color:#BBBBBB">JOÃO</div>
+      <div style="font-size:.62rem;color:#555;margin-bottom:8px">#CR-0002 · <span data-i18n="brand_species_joao">Gato Anjinho</span></div>
+      <div class="pilot-stat">Velocidade <span>78</span></div>
+      <div class="pilot-stat">Controle <span>78</span></div>
+      <div class="pilot-stat">Aerodinâmica <span>84</span></div>
+      <div style="margin-top:12px;font-size:.75rem;color:#666" data-i18n="brand_lore_joao">Gato celestial com asinhas. Aero acima da média, ronrona em retas longas.</div>
+    </div>
+
+    <div class="pilot-card">
+      <div class="pilot-rarity" style="background:rgba(160,160,160,.10);color:#BBBBBB;border:1px solid rgba(160,160,160,.30)" data-i18n="pilot-common">◆ COMUM</div>
+      <div style="width:110px;height:140px;overflow:hidden;margin:8px auto;border-radius:10px;"><img src="/assets/images/pilots/sherlock-piloto.png" style="width:100%;height:100%;object-fit:cover;object-position:50% 5%;"></div>
+      <div class="pilot-name" style="color:#BBBBBB">SHERLOCK</div>
+      <div style="font-size:.62rem;color:#555;margin-bottom:8px">#CR-0003 · <span data-i18n="brand_species_sherlock">Shih-tzu Detective</span></div>
+      <div class="pilot-stat">Velocidade <span>78</span></div>
+      <div class="pilot-stat">Controle <span>84</span></div>
+      <div class="pilot-stat">Aerodinâmica <span>78</span></div>
+      <div style="margin-top:12px;font-size:.75rem;color:#666" data-i18n="brand_lore_sherlock">Shih-tzu detetive de cachimbo. Lê a pista como um caso a resolver.</div>
+    </div>
+
+    <!-- INCOMUNS -->
+    <div class="pilot-card" style="">
+      <div class="pilot-rarity" style="background:rgba(76,175,80,.10);color:#4CAF50;border:1px solid rgba(76,175,80,.35)" data-i18n="pilot-uncommon">◆ INCOMUM</div>
+      <div style="width:110px;height:140px;overflow:hidden;margin:8px auto;border-radius:10px;"><img src="/assets/images/pilots/plush-piloto.png" style="width:100%;height:100%;object-fit:cover;object-position:50% 5%;"></div>
+      <div class="pilot-name" style="color:#4CAF50">PLUSH</div>
+      <div style="font-size:.62rem;color:#555;margin-bottom:8px">#CR-0004 · <span data-i18n="brand_species_plush">Poodle Aristocrata</span></div>
+      <div class="pilot-stat">Velocidade <span>82</span></div>
+      <div class="pilot-stat">Controle <span>86</span></div>
+      <div class="pilot-stat">Aerodinâmica <span>84</span></div>
+      <div style="margin-top:12px;font-size:.75rem;color:#666" data-i18n="brand_lore_plush">Poodle de cocar e elegância afiada. Pelos no vento, controle no volante.</div>
+    </div>
+
+    <div class="pilot-card" style="">
+      <div class="pilot-rarity" style="background:rgba(76,175,80,.10);color:#4CAF50;border:1px solid rgba(76,175,80,.35)" data-i18n="pilot-uncommon">◆ INCOMUM</div>
+      <div style="width:110px;height:140px;overflow:hidden;margin:8px auto;border-radius:10px;"><img src="/assets/images/pilots/urubu-mengao-piloto.png" style="width:100%;height:100%;object-fit:cover;object-position:50% 5%;"></div>
+      <div class="pilot-name" style="color:#4CAF50">URUBU MENGÃO</div>
+      <div style="font-size:.62rem;color:#555;margin-bottom:8px">#CR-0005 · <span data-i18n="brand_species_urubu">Mascote Rubro-Negro</span></div>
+      <div class="pilot-stat">Velocidade <span>84</span></div>
+      <div class="pilot-stat">Controle <span>82</span></div>
+      <div class="pilot-stat">Aerodinâmica <span>86</span></div>
+      <div style="margin-top:12px;font-size:.75rem;color:#666" data-i18n="brand_lore_urubu">Mascote rubro-negro com penas no peito. Voa baixo na reta.</div>
+    </div>
+
+    <!-- RARAS -->
+    <div class="pilot-card" style="border-color:rgba(255,80,80,.18);">
+      <div class="pilot-rarity" style="background:rgba(255,80,80,.10);color:#FF5555;border:1px solid rgba(255,80,80,.35)" data-i18n="pilot-rare">◆ RARA</div>
+      <div style="width:110px;height:140px;overflow:hidden;margin:8px auto;border-radius:10px;"><img src="/assets/images/pilots/duo-collie-piloto.png" style="width:100%;height:100%;object-fit:cover;object-position:50% 5%;"></div>
+      <div class="pilot-name" style="color:#FF5555">DUO</div>
+      <div style="font-size:.62rem;color:#555;margin-bottom:8px">#CR-0006 · <span data-i18n="brand_species_duo">Border Collie Fusion</span></div>
+      <div class="pilot-stat">Velocidade <span>88</span></div>
+      <div class="pilot-stat">Controle <span>88</span></div>
+      <div class="pilot-stat">Aerodinâmica <span>88</span></div>
+      <div style="margin-top:12px;font-size:.75rem;color:#666" data-i18n="brand_lore_duo">Fusão dos Border Collies. Dois cérebros, uma tampinha. Equilíbrio perfeito.</div>
+    </div>
+
+    <div class="pilot-card" style="border-color:rgba(255,80,80,.18);">
+      <div class="pilot-rarity" style="background:rgba(255,80,80,.10);color:#FF5555;border:1px solid rgba(255,80,80,.35)" data-i18n="pilot-rare">◆ RARA</div>
+      <div style="width:110px;height:140px;overflow:hidden;margin:8px auto;border-radius:10px;"><img src="/assets/images/pilots/bitkong-piloto.png" style="width:100%;height:100%;object-fit:cover;object-position:50% 5%;"></div>
+      <div class="pilot-name" style="color:#FF5555">BITKONG</div>
+      <div style="font-size:.62rem;color:#555;margin-bottom:8px">#CR-0007 · <span data-i18n="brand_species_bitkong">Macaco Viking</span></div>
+      <div class="pilot-stat">Velocidade <span>90</span></div>
+      <div class="pilot-stat">Controle <span>86</span></div>
+      <div class="pilot-stat">Aerodinâmica <span>88</span></div>
+      <div style="margin-top:12px;font-size:.75rem;color:#666" data-i18n="brand_lore_bitkong">Macaco viking de capacete chifrudo. Bate antes de pensar — em cheio.</div>
+    </div>
+
+    <!-- MÍTICAS -->
+    <div class="pilot-card" style="border-color:rgba(157,78,221,.20);">
+      <div class="pilot-rarity" style="background:rgba(157,78,221,.12);color:#9D4EDD;border:1px solid rgba(157,78,221,.30)" data-i18n="pilot-mythic">◆ MÍTICA</div>
+      <div style="width:110px;height:140px;overflow:hidden;margin:8px auto;border-radius:10px;"><img src="/assets/images/pilots/bruna-piloto.png" style="width:100%;height:100%;object-fit:cover;object-position:50% 5%;"></div>
+      <div class="pilot-name" style="color:#9D4EDD">BRUNA</div>
+      <div style="font-size:.62rem;color:#555;margin-bottom:8px">#CR-0008 · <span data-i18n="brand_species_bruna">SRD</span></div>
+      <div class="pilot-stat">Velocidade <span>90</span></div>
+      <div class="pilot-stat">Controle <span>94</span></div>
+      <div class="pilot-stat">Aerodinâmica <span>92</span></div>
+      <div style="margin-top:12px;font-size:.75rem;color:#666" data-i18n="brand_lore_bruna">Macacão vermelho, lacinho azul. Rainha das curvas fechadas.</div>
+    </div>
+
+    <div class="pilot-card" style="border-color:rgba(157,78,221,.20);">
+      <div class="pilot-rarity" style="background:rgba(157,78,221,.12);color:#9D4EDD;border:1px solid rgba(157,78,221,.30)" data-i18n="pilot-mythic">◆ MÍTICA</div>
+      <div style="width:110px;height:140px;overflow:hidden;margin:8px auto;border-radius:10px;"><img src="/assets/images/pilots/kenta-piloto.png" style="width:100%;height:100%;object-fit:cover;object-position:50% 5%;"></div>
+      <div class="pilot-name" style="color:#9D4EDD">KENTA</div>
+      <div style="font-size:.62rem;color:#555;margin-bottom:8px">#CR-0009 · <span data-i18n="brand_species_kenta">Maine Coon Tabby</span></div>
+      <div class="pilot-stat">Velocidade <span>94</span></div>
+      <div class="pilot-stat">Controle <span>90</span></div>
+      <div class="pilot-stat">Aerodinâmica <span>92</span></div>
+      <div style="margin-top:12px;font-size:.75rem;color:#666" data-i18n="brand_lore_kenta">Veterano do norte. Capacete deixa as orelhas tufudas no vento.</div>
+    </div>
+
+    <div class="pilot-card" style="border-color:rgba(157,78,221,.20);">
+      <div class="pilot-rarity" style="background:rgba(157,78,221,.12);color:#9D4EDD;border:1px solid rgba(157,78,221,.30)" data-i18n="pilot-mythic">◆ MÍTICA</div>
+      <div style="width:110px;height:140px;overflow:hidden;margin:8px auto;border-radius:10px;"><img src="/assets/images/pilots/yuki-piloto.png" style="width:100%;height:100%;object-fit:cover;object-position:50% 5%;"></div>
+      <div class="pilot-name" style="color:#9D4EDD">YUKI</div>
+      <div style="font-size:.62rem;color:#555;margin-bottom:8px">#CR-0010 · <span data-i18n="brand_species_yuki">Samoieda</span></div>
+      <div class="pilot-stat">Velocidade <span>92</span></div>
+      <div class="pilot-stat">Controle <span>94</span></div>
+      <div class="pilot-stat">Aerodinâmica <span>90</span></div>
+      <div style="margin-top:12px;font-size:.75rem;color:#666" data-i18n="brand_lore_yuki">Óculos retrô anos 60 e cachecol ao vento. Controle absurdo no gelo.</div>
+    </div>
+
+    <!-- LENDÁRIA -->
+    <div class="pilot-card" style="border-color:rgba(255,215,0,.22);">
+      <div class="pilot-rarity" style="background:rgba(255,215,0,.10);color:#FFD700;border:1px solid rgba(255,215,0,.35)" data-i18n="pilot-legendary">◆ LENDÁRIA</div>
+      <div style="width:110px;height:140px;overflow:hidden;margin:8px auto;border-radius:10px;"><img src="/assets/images/pilots/tapz-piloto.png" style="width:100%;height:100%;object-fit:cover;object-position:50% 5%;"></div>
+      <div class="pilot-name" style="color:#FFD700">TAPZ</div>
+      <div style="font-size:.62rem;color:#555;margin-bottom:8px">#CR-0011 · <span data-i18n="brand_species_tapz">Lebre Aerodinâmica</span></div>
+      <div class="pilot-stat">Velocidade <span>97</span></div>
+      <div class="pilot-stat">Controle <span>95</span></div>
+      <div class="pilot-stat">Aerodinâmica <span>96</span></div>
+      <div style="margin-top:12px;font-size:.75rem;color:#666" data-i18n="brand_lore_tapz">Sapatilhas de corrida e asas de anjo. Velocidade abençoada.</div>
+    </div>
+
+    <!-- BOSS (não jogável) -->
+    <div class="pilot-card" style="border-color:rgba(255,42,42,.30);background:linear-gradient(180deg,rgba(255,42,42,.10),rgba(0,0,0,.5));">
+      <div class="pilot-rarity" style="background:rgba(255,42,42,.15);color:#FF2A2A;border:1px solid rgba(255,42,42,.40)" data-i18n="pilot-boss">◆ BOSS</div>
+      <div style="width:110px;height:140px;overflow:hidden;margin:8px auto;border-radius:10px;"><img src="/assets/images/pilots/racer-x-piloto.png" style="width:100%;height:100%;object-fit:cover;object-position:50% 5%;" onerror="this.style.opacity='.4'"></div>
+      <div class="pilot-name" style="color:#FF2A2A">RACER-D</div>
+      <div style="font-size:.62rem;color:#555;margin-bottom:8px">#CR-BOSS · <span data-i18n="brand_species_racerd">???</span></div>
+      <div class="pilot-stat">Velocidade <span>???</span></div>
+      <div class="pilot-stat">Controle <span>???</span></div>
+      <div class="pilot-stat">Aerodinâmica <span>???</span></div>
+      <div style="margin-top:12px;font-size:.75rem;color:#666" data-i18n="brand_lore_racerd">Adversário no Modo Solo. Não é colecionável. Vence-o no Hard pra ganhar a badge BOSS_SLAYER.</div>
+    </div>
+  </div>
+</section>
+
+<!-- BOTTLECAPS / GARAGEM (Marco 2.9.2) -->
+<section>
+  <div class="sec-label" data-i18n="brand_sec_caps">Tampinhas NFT</div>
+  <h2 class="sec-title" data-i18n="brand_caps_title">SUA <span>TAMPINHA DE COMPETIÇÃO</span></h2>
+  <p class="sec-desc reveal" style="max-width:820px;margin:0 auto 30px;text-align:center;color:#bbb;line-height:1.7;" data-i18n="brand_caps_desc">
+    4 modelos fixos, cada um com cor própria, perfil estatístico e som de derrapagem único. A primeira aplicação é grátis; trocas posteriores custam 200 $CR. Os atributos são <strong>informativos neste marco</strong> — afetarão a física no Marco 4 (Oficina).
+  </p>
+  <div class="pilots-grid reveal" style="grid-template-columns:repeat(4,1fr);gap:16px;max-width:1100px;margin:0 auto;">
+
+    <div class="pilot-card" style="border-color:rgba(230,42,42,.30);">
+      <div class="pilot-rarity" style="background:rgba(230,42,42,.12);color:#E62A2A;border:1px solid rgba(230,42,42,.40)">CR-01</div>
+      <div style="width:120px;height:120px;margin:8px auto;display:flex;align-items:center;justify-content:center;">
+        <img src="/assets/images/caps/aetherion.png" style="width:100%;height:100%;object-fit:contain;" onerror="this.style.opacity='.3'">
+      </div>
+      <div class="pilot-name" style="color:#E62A2A">AETHERION</div>
+      <div style="font-size:.65rem;color:#777;margin-bottom:10px;letter-spacing:1.5px;text-transform:uppercase;" data-i18n="brand_cap_aetherion_tag">Velocidade extrema</div>
+      <div class="pilot-stat">Velocidade <span>90</span></div>
+      <div class="pilot-stat">Aceleração <span>88</span></div>
+      <div class="pilot-stat">Controle <span>60</span></div>
+      <div class="pilot-stat">Aderência <span>55</span></div>
+      <div style="margin-top:12px;font-size:.72rem;color:#666;line-height:1.45" data-i18n="brand_cap_aetherion_lore">Som metálico agressivo na derrapagem. Para quem voa em retas e aceita o risco nas curvas.</div>
+    </div>
+
+    <div class="pilot-card" style="border-color:rgba(30,144,255,.30);">
+      <div class="pilot-rarity" style="background:rgba(30,144,255,.12);color:#1E90FF;border:1px solid rgba(30,144,255,.40)">CR-02</div>
+      <div style="width:120px;height:120px;margin:8px auto;display:flex;align-items:center;justify-content:center;">
+        <img src="/assets/images/caps/solara.png" style="width:100%;height:100%;object-fit:contain;" onerror="this.style.opacity='.3'">
+      </div>
+      <div class="pilot-name" style="color:#1E90FF">SOLARA</div>
+      <div style="font-size:.65rem;color:#777;margin-bottom:10px;letter-spacing:1.5px;text-transform:uppercase;" data-i18n="brand_cap_solara_tag">Estabilidade total</div>
+      <div class="pilot-stat">Velocidade <span>70</span></div>
+      <div class="pilot-stat">Aceleração <span>65</span></div>
+      <div class="pilot-stat">Controle <span>88</span></div>
+      <div class="pilot-stat">Aderência <span>90</span></div>
+      <div style="margin-top:12px;font-size:.72rem;color:#666;line-height:1.45" data-i18n="brand_cap_solara_lore">Timbre grave e abafado. Para quem domina a chuva, a curva fechada e a paciência.</div>
+    </div>
+
+    <div class="pilot-card" style="border-color:rgba(61,184,56,.30);">
+      <div class="pilot-rarity" style="background:rgba(61,184,56,.12);color:#3DB838;border:1px solid rgba(61,184,56,.40)">CR-03</div>
+      <div style="width:120px;height:120px;margin:8px auto;display:flex;align-items:center;justify-content:center;">
+        <img src="/assets/images/caps/verdantcore.png" style="width:100%;height:100%;object-fit:contain;" onerror="this.style.opacity='.3'">
+      </div>
+      <div class="pilot-name" style="color:#3DB838">VERDANTCORE</div>
+      <div style="font-size:.65rem;color:#777;margin-bottom:10px;letter-spacing:1.5px;text-transform:uppercase;" data-i18n="brand_cap_verdantcore_tag">Equilíbrio perfeito</div>
+      <div class="pilot-stat">Velocidade <span>78</span></div>
+      <div class="pilot-stat">Aceleração <span>78</span></div>
+      <div class="pilot-stat">Controle <span>78</span></div>
+      <div class="pilot-stat">Aderência <span>78</span></div>
+      <div style="margin-top:12px;font-size:.72rem;color:#666;line-height:1.45" data-i18n="brand_cap_verdantcore_lore">Som neutro padrão. Sem fraquezas, sem extremos — a tampinha definitiva pra qualquer pista.</div>
+    </div>
+
+    <div class="pilot-card" style="border-color:rgba(157,78,221,.30);">
+      <div class="pilot-rarity" style="background:rgba(157,78,221,.12);color:#9D4EDD;border:1px solid rgba(157,78,221,.40)">CR-04</div>
+      <div style="width:120px;height:120px;margin:8px auto;display:flex;align-items:center;justify-content:center;">
+        <img src="/assets/images/caps/novaflux.png" style="width:100%;height:100%;object-fit:contain;" onerror="this.style.opacity='.3'">
+      </div>
+      <div class="pilot-name" style="color:#9D4EDD">NOVAFLUX</div>
+      <div style="font-size:.65rem;color:#777;margin-bottom:10px;letter-spacing:1.5px;text-transform:uppercase;" data-i18n="brand_cap_novaflux_tag">Manobras radicais</div>
+      <div class="pilot-stat">Velocidade <span>82</span></div>
+      <div class="pilot-stat">Aceleração <span>90</span></div>
+      <div class="pilot-stat">Controle <span>75</span></div>
+      <div class="pilot-stat">Aderência <span>70</span></div>
+      <div style="margin-top:12px;font-size:.72rem;color:#666;line-height:1.45" data-i18n="brand_cap_novaflux_lore">Som sintético com buzz. Aceleração explosiva pra quem sabe canalizar a energia.</div>
+    </div>
+
+  </div>
+
+  <!-- Oficina Marco 4 -->
+  <div class="reveal" style="max-width:920px;margin:48px auto 0;padding:24px 28px;background:linear-gradient(135deg,rgba(255,215,0,.08),rgba(255,42,42,.06));border:1px solid rgba(255,215,0,.25);border-radius:16px;">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px;">
+      <span style="font-size:1.8rem;">🔧</span>
+      <h3 style="font-family:'Bebas Neue';letter-spacing:3px;color:#FFD700;font-size:1.4rem;margin:0;" data-i18n="brand_workshop_title">OFICINA — MARCO 4 (Q4 2026)</h3>
+    </div>
+    <p style="color:#bbb;line-height:1.7;font-size:.95rem;margin:0;" data-i18n="brand_workshop_desc">
+      No próximo grande ciclo, os atributos das tampinhas <strong>passam a afetar a física da corrida</strong>. Velocidade vira ganho real de top speed, Aderência reduz derrapagem na chuva, Aceleração diminui o tempo até pico, Controle aumenta o raio de mira útil. Você poderá <strong>aplicar upgrades funcionais</strong> ($CR + componentes ganhos em corridas) pra ajustar o perfil ao seu estilo — sem trocar a tampinha. A Oficina é onde a customização visual da Garagem encontra performance real on-track.
+    </p>
+  </div>
+</section>
+
+<!-- TECH STACK -->
+<section>
+  <div class="sec-label" data-i18n="brand_sec_tech">Tecnologia</div>
+  <h2 class="sec-title" data-i18n="brand_tech_title">STACK <span>100% WEB-NATIVE</span></h2>
+  <div class="stack-grid reveal">
+    <div class="stack-item"><div class="stack-icon">⚡</div><div class="stack-info"><h4>Canvas 2D + Vanilla JS</h4><p>Zero framework, zero dependência pesada. Motor de física próprio — Vector2D, Physics, GameLoop, SoundEngine.</p></div></div>
+    <div class="stack-item"><div class="stack-icon">🔐</div><div class="stack-info"><h4>Google + TipLink</h4><p>Login com Google cria automaticamente uma wallet Solana via TipLink. Onboarding sem fricção.</p></div></div>
+    <div class="stack-item"><div class="stack-icon">⛓️</div><div class="stack-info"><h4>Solana + Fogo SVM</h4><p>NFT pilotos com metadata on-chain. Deploy no Fogo (EVM-compatível) para roadmap Q4 2026.</p></div></div>
+    <div class="stack-item"><div class="stack-icon">📊</div><div class="stack-info"><h4>Supabase Postgres</h4><p>Ranking em tempo real. Tabela <code>runs</code> com tempo, piloto, modo e nickname. REST API direta do frontend.</p></div></div>
+    <div class="stack-item"><div class="stack-icon">🌐</div><div class="stack-info"><h4>PeerJS WebRTC</h4><p>Multiplayer online P2P direto entre browsers. Sem servidor de jogo — apenas signaling público.</p></div></div>
+    <div class="stack-item"><div class="stack-icon">🚀</div><div class="stack-info"><h4>Vercel + GitHub</h4><p>Deploy contínuo em CDN global. Zero config, zero custo de infra. Carrega em &lt;1s.</p></div></div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section>
+  <div class="sec-label" data-i18n="brand_sec_road">Roadmap</div>
+  <h2 class="sec-title" data-i18n="brand_road_title">VISÃO <span>ESTRATÉGICA</span></h2>
+  <div class="timeline reveal-left">
+    <div class="tl-item done">
+      <div class="tl-dot"></div>
+      <div class="tl-label">Q1–Q2 2026 · CONCLUÍDO</div>
+      <div class="tl-title" data-i18n="brand_road1_t">Marcos 1 → 2.9.2 ✅</div>
+      <div class="tl-desc" data-i18n="brand_road1_d">Motor física · 2 pistas · 3 modos · Privy Login · $CR off-chain · Dashboard · Evolução RPG · Apostas 1v1 · Clãs · Ranking · PT/EN/ES · Vibe Jam 2026</div>
+    </div>
+    <div class="tl-item active">
+      <div class="tl-dot"></div>
+      <div class="tl-label">Q3 2026 · EM ANDAMENTO</div>
+      <div class="tl-title" data-i18n="brand_road2_t">Marco 3 — SPL Token On-Chain</div>
+      <div class="tl-desc" data-i18n="brand_road2_d">SPL Token $CR on-chain Solana · Endereço Solana real via Vercel Function · Mint NFT pilotos (Metaplex) · Airdrop saldos off-chain · 1v1 com aposta on-chain</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-label">Q4 2026</div>
+      <div class="tl-title" data-i18n="brand_road3_t">Marco 4 — Oficina + Torneios</div>
+      <div class="tl-desc" data-i18n="brand_road3_d">🔧 OFICINA: atributos das tampinhas afetam física da corrida + upgrades funcionais ($CR + componentes) · Smart contract Anchor · Apostas on-chain · Deploy Fogo SVM · Torneios patrocinados com prize pool em $CR · Mobile (PWA)</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-label">2027</div>
+      <div class="tl-title" data-i18n="brand_road4_t">Ecossistema Completo</div>
+      <div class="tl-desc" data-i18n="brand_road4_d">DAO de governança · Staking de $CR · Campeonatos globais · Licenciamento de IP · Parcerias com marcas de bebidas</div>
+    </div>
+  </div>
+</section>
+
+<!-- TOKENOMICS -->
+<section>
+  <div class="sec-label" data-i18n="brand_sec_token">Tokenomics</div>
+  <!-- img FORA do h2 — o h2 tem -webkit-text-fill-color:transparent que torna imgs filhas invisíveis -->
+  <div style="display:flex;align-items:center;gap:14px;margin-bottom:8px;">
+    <img src="../assets/images/ui/tokenCR.png" alt="$CR" width="52" height="52" style="flex-shrink:0;filter:drop-shadow(0 0 12px rgba(255,215,0,.5));">
+    <h2 class="sec-title" style="margin-bottom:0" data-i18n="brand_token_title">TOKEN <span>$CR</span></h2>
+  </div>
+  <div style="margin-bottom:24px;color:#AAA;max-width:640px" data-i18n="brand_token_desc">O $CR é o token utilitário do ecossistema CapRush — usado para entrar em corridas com aposta, comprar/vender pilotos NFT e participar da governança.</div>
+  <div class="token-grid reveal">
+    <div class="token-box"><span class="token-pct">40%</span><div class="token-name" data-i18n="brand_tok1">Recompensas de Jogo</div><div class="token-desc" data-i18n="brand_tok1d">Prize pools de torneios e ranking por temporada</div></div>
+    <div class="token-box"><span class="token-pct">20%</span><div class="token-name" data-i18n="brand_tok2">Equipe & Dev</div><div class="token-desc" data-i18n="brand_tok2d">Vesting 2 anos, cliff 6 meses</div></div>
+    <div class="token-box"><span class="token-pct">20%</span><div class="token-name" data-i18n="brand_tok3">Ecossistema</div><div class="token-desc" data-i18n="brand_tok3d">Liquidez, grants, parcerias estratégicas</div></div>
+    <div class="token-box"><span class="token-pct">20%</span><div class="token-name" data-i18n="brand_tok4">Investidores</div><div class="token-desc" data-i18n="brand_tok4d">Seed + Private round, vesting 18 meses</div></div>
+  </div>
+</section>
+
+
+<!-- ECONOMY -->
+<section>
+  <div class="sec-label" data-i18n="tok_util_title" style="display:flex;align-items:center;gap:6px;"><img src="../assets/images/ui/tokenCR.png" alt="$CR" width="18" height="18" style="flex-shrink:0;"> Utilidade do $CR</div>
+  <h2 class="sec-title" data-i18n="tok_title_full">ECONOMIA DO $CR — MODELO JUSTO E SUSTENTÁVEL</h2>
+
+  <!-- Princípio central -->
+  <div style="background:rgba(255,42,42,.07);border:1px solid rgba(255,42,42,.25);border-left:4px solid var(--red);border-radius:12px;padding:18px 22px;margin-bottom:32px;" class="reveal">
+    <div style="font-family:'Bebas Neue';font-size:1rem;letter-spacing:2px;color:var(--red);margin-bottom:6px" data-i18n="tok_principle">Princípio central: mérito antes de dinheiro</div>
+    <p style="color:#AAA;font-size:.9rem;line-height:1.7" data-i18n="tok_principle_d">No CapRush, dinheiro sem conquista não te leva longe. Upgrades premium exigem corridas ganhas, conquistas e tempo de jogo — além dos tokens.</p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;margin-bottom:36px">
+
+    <!-- Utilidade -->
+    <div class="feat reveal" style="--delay:.1s">
+      <div class="feat-icon">⚡</div>
+      <h3 data-i18n="tok_util_title">UTILIDADE DO $CR</h3>
+      <ul style="list-style:none;margin:0">
+        <li style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.84rem;color:#AAA">🏎 <span data-i18n="tok_util_1">Entrar em corridas com aposta</span></li>
+        <li style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.84rem;color:#AAA">🖼 <span data-i18n="tok_util_2">Mint e upgrade de tampinha NFT</span></li>
+        <li style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.84rem;color:#AAA">🏪 <span data-i18n="tok_util_3">Marketplace entre jogadores</span></li>
+        <li style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.84rem;color:#AAA">🔧 <span data-i18n="tok_util_4">Acesso à Garagem — upgrades</span></li>
+        <li style="padding:6px 0;font-size:.84rem;color:#AAA">📈 <span data-i18n="tok_util_5">Staking por temporada (1.2x–2x)</span></li>
+      </ul>
+    </div>
+
+    <!-- Como ganhar -->
+    <div class="feat reveal" style="--delay:.2s">
+      <div class="feat-icon">🏆</div>
+      <h3 data-i18n="tok_earn_title">COMO GANHAR $CR</h3>
+      <div style="display:grid;gap:6px">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+          <span style="font-size:.82rem;color:#AAA" data-i18n="tok_earn_1">Vitória Solo vs IA</span>
+          <span style="font-family:'Bebas Neue';color:var(--gold);letter-spacing:1px">1 $CR</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+          <span style="font-size:.82rem;color:#AAA" data-i18n="tok_earn_2">Vitória 1v1</span>
+          <span style="font-family:'Bebas Neue';color:var(--gold);letter-spacing:1px">3 $CR</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+          <span style="font-size:.82rem;color:#AAA" data-i18n="tok_earn_3">Recorde pessoal</span>
+          <span style="font-family:'Bebas Neue';color:var(--gold);letter-spacing:1px">0.5 $CR</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+          <span style="font-size:.82rem;color:#AAA" data-i18n="tok_earn_4">Conquista desbloqueada</span>
+          <span style="font-family:'Bebas Neue';color:var(--gold);letter-spacing:1px">5–20 $CR</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0">
+          <span style="font-size:.82rem;color:#AAA" data-i18n="tok_earn_5">Top 10 da Temporada</span>
+          <span style="font-family:'Bebas Neue';color:var(--gold);letter-spacing:1px">50–500 $CR</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Anti-inflação -->
+    <div class="feat reveal" style="--delay:.3s;border-color:rgba(255,215,0,.15)">
+      <div class="feat-icon">🔥</div>
+      <h3 style="color:var(--gold)" data-i18n="tok_burn_title">MECANISMO ANTI-INFLAÇÃO</h3>
+      <p style="font-size:.86rem;color:#AAA;line-height:1.65;margin-bottom:14px" data-i18n="tok_burn_d">10% de toda corrida com aposta é queimado (burn). Quanto mais o jogo é jogado, menos supply existe.</p>
+      <div style="background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.18);border-radius:8px;padding:12px;text-align:center">
+        <div style="font-family:'Bebas Neue';font-size:1.6rem;color:var(--gold)" data-i18n="tok_supply">100 Milhões de $CR</div>
+        <div style="font-size:.68rem;letter-spacing:2px;color:#666;text-transform:uppercase;margin-top:2px">Supply Total · Deflacionário</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fluxo visual da economia -->
+  <div style="background:var(--panel);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:24px;text-align:center" class="reveal">
+    <div style="font-family:'Bebas Neue';font-size:.95rem;letter-spacing:3px;color:#666;margin-bottom:16px">FLUXO DO TOKEN $CR</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;font-size:.82rem">
+      <div style="background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.3);border-radius:8px;padding:10px 16px;color:var(--acc)">🎮 JOGAR</div>
+      <div style="color:#555;font-family:'Bebas Neue'">→</div>
+      <div style="background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.3);border-radius:8px;padding:10px 16px;color:var(--gold)">🏆 GANHAR $CR</div>
+      <div style="color:#555;font-family:'Bebas Neue'">→</div>
+      <div style="background:rgba(255,42,42,.1);border:1px solid rgba(255,42,42,.3);border-radius:8px;padding:10px 16px;color:var(--red)">⚡ USAR $CR</div>
+      <div style="color:#555;font-family:'Bebas Neue'">→</div>
+      <div style="background:rgba(100,100,100,.1);border:1px solid rgba(100,100,100,.3);border-radius:8px;padding:10px 16px;color:#888">🔥 10% BURN</div>
+      <div style="color:#555;font-family:'Bebas Neue'">→</div>
+      <div style="background:rgba(200,100,255,.1);border:1px solid rgba(200,100,255,.3);border-radius:8px;padding:10px 16px;color:#CC66FF">📈 VALORIZAÇÃO</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p style="font-family:'Bebas Neue';font-size:1.5rem;letter-spacing:4px;
+    background:linear-gradient(135deg,var(--red),var(--gold));
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px">CAP RUSH</p>
+  <p style="margin-bottom:12px" data-i18n="brand_footer">
+    Construído com ❤️ na Solana · Vibe Jam 2026
+  </p>
+  <p><a href="mailto:dev@caprush.gg">dev@caprush.gg</a> &nbsp;|&nbsp;
+    <a href="https://github.com/marcelom-silva/caprush" target="_blank">GitHub</a> &nbsp;|&nbsp;
+    <a href="arquitetura.html" data-i18n="brand_arch_link">Arquitetura Técnica</a>
+  </p>
+</footer>
+
+<script>
+function setLang(l){ if(window.I18N) I18N.setLang(l); localStorage.setItem('lang',l); }
+</script>
+<script src="../src/ui/audio.js"></script>
+<script src="../src/ui/background.js"></script>
+
+<script>
+// ── Scroll reveal ─────────────────────────────────────────────────
+(function(){
+  var els = document.querySelectorAll('.reveal,.reveal-left');
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('revealed'); obs.unobserve(e.target); }
+    });
+  },{threshold:0.12});
+  els.forEach(function(el){ obs.observe(el); });
+})();
+
+// ── Animated stat counters ─────────────────────────────────────────
+function animCount(el, target, suffix){
+  var start = 0, dur = 1200, step = 16;
+  var timer = setInterval(function(){
+    start += Math.ceil(target/((dur/step)));
+    if(start >= target){ start=target; clearInterval(timer); }
+    el.textContent = start + (suffix||'');
+  }, step);
+}
+
+var statsObs = new IntersectionObserver(function(entries){
+  entries.forEach(function(e){
+    if(!e.isIntersecting) return;
+    statsObs.unobserve(e.target);
+    var nums = e.target.querySelectorAll('.stat-num');
+    nums.forEach(function(n){
+      var raw = n.textContent.trim();
+      var num = parseInt(raw);
+      if(!isNaN(num) && num > 0){ n.textContent='0'; animCount(n, num, ''); }
+    });
+  });
+},{threshold:0.3});
+var sb = document.querySelector('.stats-bar');
+if(sb) statsObs.observe(sb);
+</script>
+
+</body>
+</html>

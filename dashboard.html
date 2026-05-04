@@ -5,8 +5,6 @@
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>CapRush — Carteira $CR</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
-<!-- Marco 2: Privy -->
-<script type="module" src="privy-auth.js"></script>
 <style>
 :root{
   --red:#FF2A2A;--gold:#FFD700;--acc:#00E5FF;--dark:#05050A;
@@ -14,7 +12,10 @@
   --cr:#FFD700;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-html,body{min-height:100%;background:var(--dark);color:#E8E8F0;font-family:'Rajdhani',sans-serif;overflow-x:hidden;}
+/* Marco 2.9.2: html guarda cor escura, body transparente para o background.js
+   animado aparecer (canvas tem z-index:-1 fixed, opacity:0.55) */
+html{min-height:100%;background:var(--dark);color:#E8E8F0;font-family:'Rajdhani',sans-serif;overflow-x:hidden;}
+body{min-height:100%;background:transparent;color:#E8E8F0;font-family:'Rajdhani',sans-serif;overflow-x:hidden;}
 
 /* BG */
 body::before{content:"";position:fixed;inset:0;z-index:-2;
@@ -112,18 +113,10 @@ nav{display:flex;align-items:center;padding:10px 28px;background:rgba(5,5,12,.9)
 .tx-amount.earn{color:var(--gold);}
 .tx-amount.spend{color:var(--red);}
 .tx-empty{text-align:center;color:#444;font-size:.82rem;padding:30px 0;}
-/* ── Logos $CR: PNG já tem fundo transparente — img simples ── */
-.cr-logo-hero{width:72px;height:72px;flex-shrink:0;object-fit:contain;filter:drop-shadow(0 0 18px rgba(255,215,0,.5));animation:crPulse 3s ease-in-out infinite;}
-.cr-logo-sm{width:18px;height:18px;object-fit:contain;display:inline-block;vertical-align:middle;margin-right:3px;flex-shrink:0;}
-.cr-logo-md{width:32px;height:32px;object-fit:contain;display:inline-block;vertical-align:middle;}
-/* Wallet bar (Marco 2) */
-#cr-wallet-bar{display:none;align-items:center;justify-content:space-between;background:rgba(255,107,0,.05);border:1px solid rgba(255,107,0,.18);border-radius:12px;padding:12px 18px;margin-bottom:20px;cursor:pointer;transition:.2s;}
-#cr-wallet-bar:hover{background:rgba(255,107,0,.10);border-color:rgba(255,107,0,.35);}
-.wb-left{display:flex;align-items:center;gap:12px;}
-.wb-label{color:#555;font-size:.62rem;letter-spacing:3px;text-transform:uppercase;margin-bottom:2px;}
-.wb-addr{color:#ff9944;font-family:'Share Tech Mono';font-size:.85rem;}
-.wb-copy{color:#ff6b00;font-size:.7rem;letter-spacing:2px;font-family:'Bebas Neue';opacity:.7;}
-#cr-wallet-bar:hover .wb-copy{opacity:1;}
+/* Token logo sizes */
+.cr-logo-hero{width:72px;height:72px;flex-shrink:0;filter:drop-shadow(0 0 18px rgba(255,215,0,.5));animation:crPulse 3s ease-in-out infinite;}
+.cr-logo-sm{width:18px;height:18px;background:url('assets/images/ui/tokenCR.png') center/contain no-repeat;display:inline-block;vertical-align:middle;margin-right:3px;flex-shrink:0;}
+.cr-logo-md{width:32px;height:32px;background:url('assets/images/ui/tokenCR.png') center/contain no-repeat;display:inline-block;vertical-align:middle;}
 @keyframes crPulse{0%,100%{filter:drop-shadow(0 0 14px rgba(255,215,0,.4))}50%{filter:drop-shadow(0 0 28px rgba(255,215,0,.8))}}
 
 /* ACHIEVEMENTS */
@@ -142,7 +135,96 @@ nav{display:flex;align-items:center;padding:10px 28px;background:rgba(5,5,12,.9)
   letter-spacing:2px;background:var(--gold);color:#000;
   padding:2px 6px;border-radius:4px;}
 
-/* STAKING PREVIEW (coming soon) */
+/* ── EVOLUÇÃO DE PILOTOS (Marco 2.5) ── */
+.evo-section { margin-bottom: 20px; }
+.evo-pilots-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+.evo-tab {
+  font-family: 'Bebas Neue'; letter-spacing: 2px; font-size: .9rem;
+  padding: 6px 18px; border: 1px solid rgba(255,255,255,.12);
+  border-radius: 20px; cursor: pointer; background: transparent; color: #555;
+  transition: .2s;
+}
+.evo-tab.active { background: rgba(255,215,0,.12); border-color: var(--gold); color: var(--gold); }
+.evo-pilot-panel { display: none; }
+.evo-pilot-panel.active { display: block; }
+.evo-stat-row { margin: 14px 0; }
+.evo-stat-header {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: .75rem; letter-spacing: 1.5px; color: #AAA; margin-bottom: 6px;
+}
+.evo-stat-name { text-transform: uppercase; }
+.evo-stat-vals { display: flex; gap: 6px; align-items: center; }
+.evo-base { color: #555; }
+.evo-arrow { color: #444; }
+.evo-final { color: var(--acc); font-weight: 700; }
+.evo-pts-badge {
+  font-size: .65rem; background: rgba(0,229,255,.15);
+  border: 1px solid rgba(0,229,255,.3); color: var(--acc);
+  padding: 1px 6px; border-radius: 10px;
+}
+.evo-slider-wrap { position: relative; }
+.evo-slider {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 6px; border-radius: 3px; outline: none;
+  background: rgba(255,255,255,.08); cursor: pointer;
+}
+.evo-slider::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+  background: var(--gold); cursor: pointer; border: 2px solid #000;
+}
+.evo-slider::-moz-range-thumb {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--gold); cursor: pointer; border: 2px solid #000;
+}
+.evo-pts-info {
+  display: flex; justify-content: space-between; align-items: center;
+  margin: 12px 0 8px; padding: 10px 14px;
+  background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08);
+  border-radius: 8px; font-size: .8rem;
+}
+.evo-pts-avail { color: var(--gold); font-family: 'Bebas Neue'; font-size: 1.1rem; }
+.evo-pts-label { color: #555; font-size: .7rem; letter-spacing: 1.5px; }
+.evo-actions { display: flex; gap: 8px; margin-top: 12px; }
+.evo-btn-save {
+  flex: 1; font-family: 'Bebas Neue'; letter-spacing: 2px; font-size: .9rem;
+  padding: 8px 0; border: none; border-radius: 8px;
+  background: linear-gradient(135deg, var(--red), var(--gold));
+  color: #000; cursor: pointer; transition: .2s;
+}
+.evo-btn-save:hover { filter: brightness(1.15); transform: scale(1.01); }
+.evo-btn-save:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+.evo-btn-reset {
+  padding: 8px 14px; font-family: 'Bebas Neue'; letter-spacing: 2px; font-size: .85rem;
+  border: 1px solid rgba(255,255,255,.12); border-radius: 8px;
+  background: transparent; color: #555; cursor: pointer; transition: .2s; white-space: nowrap;
+}
+.evo-btn-reset:hover { border-color: var(--red); color: var(--red); }
+.evo-reset-info { font-size: .7rem; color: #555; margin-top: 6px; text-align: center; }
+.evo-feedback {
+  padding: 8px 12px; border-radius: 6px; font-size: .78rem; margin-top: 8px;
+  display: none; text-align: center;
+}
+.evo-feedback.ok  { background: rgba(0,229,100,.12); border: 1px solid rgba(0,229,100,.3); color: #0f9; }
+.evo-feedback.err { background: rgba(255,42,42,.12);  border: 1px solid rgba(255,42,42,.3);  color: #f55; }
+.miss-list { max-height: 260px; overflow-y: auto; }
+.miss-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.miss-row:last-child { border-bottom: none; }
+.miss-icon { font-size: 1.1rem; flex-shrink: 0; }
+.miss-info { flex: 1; min-width: 0; }
+.miss-name { font-size: .82rem; color: #CCC; letter-spacing: .5px; }
+.miss-prog { font-size: .68rem; color: #555; margin-top: 2px; }
+.miss-pts {
+  font-family: 'Bebas Neue'; color: var(--gold); font-size: .95rem;
+  flex-shrink: 0; white-space: nowrap;
+}
+.miss-done { opacity: .4; text-decoration: line-through; }
+.miss-bar-wrap { height: 3px; background: rgba(255,255,255,.08); border-radius: 2px; margin-top: 4px; }
+.miss-bar-fill { height: 3px; background: var(--acc); border-radius: 2px; transition: width .4s; }
+
+/* STAKING / COMING SOON */
 .coming-soon{background:rgba(255,255,255,.02);border:1px dashed rgba(255,255,255,.08);
   border-radius:14px;padding:30px;text-align:center;margin-bottom:20px;}
 .cs-icon{font-size:2.5rem;margin-bottom:10px;opacity:.4;}
@@ -167,17 +249,38 @@ nav{display:flex;align-items:center;padding:10px 28px;background:rgba(5,5,12,.9)
 #no-login h2{font-family:'Bebas Neue';font-size:2rem;letter-spacing:4px;color:#444;margin-bottom:12px;}
 #no-login p{color:#555;font-size:.9rem;}
 #no-login a{color:var(--gold);text-decoration:none;}
+/* ── Marco 2.9: cards Garagem/Daily/Badges ───────────────────────────── */
+.m29-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:24px 0;}
+.m29-card{background:rgba(14,14,26,.8);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px;}
+.m29-card .m29-title{font-family:'Bebas Neue';font-size:1rem;letter-spacing:3px;color:var(--gold);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
+.m29-card .m29-link{font-size:.7rem;letter-spacing:2px;color:var(--acc);text-decoration:none;}
+.m29-card .m29-link:hover{text-decoration:underline;}
+.m29-cap-preview{width:90px;height:90px;margin:0 auto 8px;display:block;object-fit:contain;}
+.m29-streak-num{font-family:'Bebas Neue';font-size:2.5rem;color:var(--gold);text-align:center;line-height:1;}
+.m29-streak-lbl{font-size:.65rem;letter-spacing:2px;color:#888;text-align:center;text-transform:uppercase;}
+.m29-cal{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;margin:10px 0;}
+.m29-cal .d{aspect-ratio:1;border-radius:4px;background:#1a1a28;display:grid;place-items:center;font-size:.55rem;color:#666;}
+.m29-cal .d.done{background:rgba(255,215,0,.25);color:var(--gold);}
+.m29-cal .d.today{background:rgba(0,229,255,.4);color:#fff;border:1px solid var(--acc);}
+.m29-cal .d.milestone{background:rgba(255,42,42,.2);color:#ff6666;}
+.m29-claim-btn{width:100%;padding:8px;background:linear-gradient(135deg,var(--red),var(--gold));border:none;border-radius:8px;font-family:'Bebas Neue';letter-spacing:3px;color:#000;cursor:pointer;font-size:.85rem;}
+.m29-claim-btn:disabled{opacity:.4;cursor:not-allowed;}
+.m29-badges{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.m29-badge{aspect-ratio:1;border-radius:8px;background:#1a1a28;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:1.4rem;border:1px solid rgba(255,255,255,.06);position:relative;}
+.m29-badge.earned{border-color:rgba(255,215,0,.6);background:rgba(255,215,0,.08);}
+.m29-badge .lbl{font-family:'Rajdhani';font-size:.55rem;letter-spacing:1px;color:#888;margin-top:3px;text-align:center;line-height:1;}
+.m29-badge.earned .lbl{color:var(--gold);}
 </style>
-<script src="i18n.js"></script>
+<script src="src/ui/i18n.js"></script>
 </head>
 <body>
 
 <nav>
   <a href="index.html" class="nav-logo">CAP RUSH</a>
-  <a href="caprush-game.html" class="nav-link">JOGAR</a>
-  <a href="ranking.html" class="nav-link">RANKING</a>
+  <a href="pages/game/caprush-game.html" class="nav-link">JOGAR</a>
+  <a href="pages/ranking.html" class="nav-link">RANKING</a>
   <a href="dashboard.html" class="nav-link" style="color:var(--gold)" data-i18n="dash_nav">CARTEIRA</a>
-  <a href="manual.html" class="nav-link">MANUAL</a>
+  <a href="pages/manual.html" class="nav-link">MANUAL</a>
   <div class="nav-right">
     <div id="flag-container">
       <button class="flag-btn flag-pt" onclick="setLang('pt')"></button>
@@ -194,11 +297,53 @@ nav{display:flex;align-items:center;padding:10px 28px;background:rgba(5,5,12,.9)
 
   <!-- NO LOGIN STATE -->
   <div id="no-login">
-    <div style="margin-bottom:20px;">
-      <!-- Imagem da tampinha com aerofólio (arquivo: tampinha-asa.png — PNG com fundo transparente) -->
-      <img src="tampinha-asa.png" alt="Tampinha CapRush"
-           style="width:180px;height:auto;opacity:0.45;filter:drop-shadow(0 4px 16px rgba(0,0,0,.6));" />
-    </div>
+    <div style="margin-bottom:20px;opacity:0.4;">
+  <svg width="160" height="100" viewBox="0 0 160 100" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="capSideGrad" cx="40%" cy="35%" r="60%">
+        <stop offset="0%" stop-color="#FF5555"/>
+        <stop offset="55%" stop-color="#AA0000"/>
+        <stop offset="100%" stop-color="#440000"/>
+      </radialGradient>
+      <radialGradient id="capEdgeGrad" cx="50%" cy="0%" r="100%">
+        <stop offset="0%" stop-color="#882200"/>
+        <stop offset="100%" stop-color="#330000"/>
+      </radialGradient>
+    </defs>
+    <!-- Shadow -->
+    <ellipse cx="80" cy="96" rx="46" ry="5" fill="#000" opacity=".35"/>
+    <!-- Bottom rim / thickness -->
+    <ellipse cx="80" cy="72" rx="44" ry="8" fill="url(#capEdgeGrad)"/>
+    <!-- Corrugated teeth -->
+    <ellipse cx="40" cy="72" rx="5" ry="7" fill="#CC4400" opacity=".7"/>
+    <ellipse cx="51" cy="74" rx="5" ry="7" fill="#CC4400" opacity=".7"/>
+    <ellipse cx="62" cy="75" rx="5" ry="7.5" fill="#CC4400" opacity=".7"/>
+    <ellipse cx="73" cy="76" rx="5" ry="7.5" fill="#CC4400" opacity=".7"/>
+    <ellipse cx="84" cy="76" rx="5" ry="7.5" fill="#CC4400" opacity=".7"/>
+    <ellipse cx="95" cy="75" rx="5" ry="7" fill="#CC4400" opacity=".7"/>
+    <ellipse cx="106" cy="74" rx="5" ry="7" fill="#CC4400" opacity=".7"/>
+    <ellipse cx="117" cy="72" rx="5" ry="6.5" fill="#CC4400" opacity=".7"/>
+    <!-- Main cap face -->
+    <ellipse cx="80" cy="62" rx="44" ry="28" fill="url(#capSideGrad)"/>
+    <!-- Inner ring -->
+    <ellipse cx="80" cy="62" rx="32" ry="20" fill="none" stroke="#FFD700" stroke-width="1.5" opacity=".55"/>
+    <!-- CR text -->
+    <text x="80" y="68" font-family="Arial Black" font-size="18" font-weight="bold"
+          fill="#FFD700" text-anchor="middle" opacity=".85">$CR</text>
+    <!-- Rear wing blade -->
+    <rect x="18" y="30" width="90" height="9" rx="4" fill="#FFD700" opacity=".95"/>
+    <!-- Wing endplates -->
+    <rect x="18" y="24" width="7" height="18" rx="3" fill="#CC8800"/>
+    <rect x="101" y="24" width="7" height="18" rx="3" fill="#CC8800"/>
+    <!-- Wing struts -->
+    <rect x="55" y="36" width="5" height="22" rx="2" fill="#CC8800" opacity=".8"/>
+    <rect x="80" y="36" width="5" height="22" rx="2" fill="#CC8800" opacity=".8"/>
+    <!-- Speed lines -->
+    <line x1="8" y1="50" x2="28" y2="50" stroke="#FF4400" stroke-width="1.5" opacity=".25" stroke-linecap="round"/>
+    <line x1="4" y1="60" x2="24" y2="60" stroke="#FF4400" stroke-width="1.5" opacity=".25" stroke-linecap="round"/>
+    <line x1="8" y1="70" x2="26" y2="70" stroke="#FF4400" stroke-width="1.5" opacity=".25" stroke-linecap="round"/>
+  </svg>
+</div>
     <h2 data-i18n="dash_no_wallet_title">CARTEIRA NAO ENCONTRADA</h2>
     <p data-i18n="dash_no_wallet_desc">Voce precisa entrar com sua conta para ver seus $CR.</p><p style="margin-top:8px"><a href="index.html" data-i18n="dash_back">← Voltar ao inicio e fazer login</a></p>
   </div>
@@ -221,7 +366,7 @@ nav{display:flex;align-items:center;padding:10px 28px;background:rgba(5,5,12,.9)
       <div class="hero-left">
         <div class="hero-label" data-i18n="dash_balance">Saldo disponivel</div>
         <div style="display:flex;align-items:center;gap:16px;margin-bottom:4px;">
-          <img class="cr-logo-hero" src="tokenCR.png" alt="$CR"/>
+          <div class="cr-logo-hero" style="background:url('assets/images/ui/tokenCR.png') center/contain no-repeat;"></div>
           <div class="hero-amount" id="balance-display" style="margin:0">0</div>
         </div>
         <div class="hero-ticker" data-i18n="dash_ticker">$CR · CAPRUSH TOKEN · TEMPORADA 1</div>
@@ -243,15 +388,6 @@ nav{display:flex;align-items:center;padding:10px 28px;background:rgba(5,5,12,.9)
       </div>
     </div>
 
-    <!-- WALLET BAR SOLANA (Marco 2) -->
-    <div id="cr-wallet-bar" onclick="crCopyWallet()" title="Clique para copiar o endereço Solana">
-      <div class="wb-left">
-        <svg width="20" height="20" viewBox="0 0 397 312" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="sG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#9945FF"/><stop offset="100%" style="stop-color:#14F195"/></linearGradient></defs><path fill="url(#sG)" d="M64.6 237.9a10.3 10.3 0 0 1 7.2-3h317.4c4.5 0 6.8 5.5 3.6 8.7l-62.7 62.7a10.3 10.3 0 0 1-7.2 3H5.5c-4.5 0-6.8-5.5-3.6-8.7l62.7-62.7ZM64.6 3a10.5 10.5 0 0 1 7.2-3h317.4c4.5 0 6.8 5.5 3.6 8.7L330.1 71.4a10.3 10.3 0 0 1-7.2 3H5.5c-4.5 0-6.8-5.5-3.6-8.7L64.6 3Zm267.9 117.5a10.3 10.3 0 0 0-7.2-3H5.5c-4.5 0-6.8 5.5-3.6 8.7l62.7 62.7a10.3 10.3 0 0 0 7.2 3h322.4c4.5 0 6.8-5.5 3.6-8.7l-65.3-62.7Z"/></svg>
-        <div><div class="wb-label">Solana Wallet</div><div class="wb-addr" id="cr-wallet-addr">—</div></div>
-      </div>
-      <div><span id="cr-copy-ok" style="display:none;color:#14F195;font-family:'Bebas Neue';font-size:.75rem;letter-spacing:2px;">✓ Copiado!</span><span class="wb-copy" id="cr-copy-hint">COPIAR</span></div>
-    </div>
-
     <!-- STATS ROW -->
     <div class="stats-row">
       <div class="stat-box"><span class="stat-num" id="stat-solo">0</span><div class="stat-lbl" data-i18n="dash_solo_races">Corridas Solo</div></div>
@@ -266,7 +402,7 @@ nav{display:flex;align-items:center;padding:10px 28px;background:rgba(5,5,12,.9)
 
       <!-- TRANSACTION HISTORY -->
       <div class="card">
-        <div class="card-title"><img class="cr-logo-sm" src="tokenCR.png" alt="$CR"/> <span data-i18n="dash_history">Historico de $CR</span></div>
+        <div class="card-title"><span class="cr-logo-sm"></span> <span data-i18n="dash_history">Historico de $CR</span></div>
         <div id="tx-list"><div class="tx-empty">Carregando...</div></div>
         <div id="tx-more" style="text-align:center;margin-top:12px;display:none;">
           <button onclick="loadMoreTx()" style="background:none;border:1px solid rgba(255,255,255,.1);color:#666;font-family:'Bebas Neue';letter-spacing:2px;font-size:.8rem;padding:6px 16px;border-radius:6px;cursor:pointer;" data-i18n="dash_load_more">VER MAIS</button>
@@ -278,12 +414,12 @@ nav{display:flex;align-items:center;padding:10px 28px;background:rgba(5,5,12,.9)
         <div class="card-title"><span>&#x26A1;</span> <span data-i18n="dash_how_earn">Como Ganhar $CR</span></div>
         <div id="earn-guide">
           <div class="tx-row">
-            <div class="tx-icon tx-earn" style="background:url('tokenCR.png') center/cover;border-radius:8px;"></div>
+            <div class="tx-icon tx-earn" style="background:url('assets/images/ui/tokenCR.png') center/cover;border-radius:8px;"></div>
             <div class="tx-info">
               <div class="tx-desc" data-i18n="dash_earn_solo">Corrida Solo completa</div>
               <div class="tx-date" data-i18n="dash_earn_solo_sub">Por corrida finalizada</div>
             </div>
-            <div class="tx-amount earn"><img class="cr-logo-sm" src="tokenCR.png" alt="$CR"/>+1</div>
+            <div class="tx-amount earn"><span class="cr-logo-sm"></span>+1</div>
           </div>
           <div class="tx-row">
             <div class="tx-icon tx-earn">⚔️</div>
@@ -291,7 +427,7 @@ nav{display:flex;align-items:center;padding:10px 28px;background:rgba(5,5,12,.9)
               <div class="tx-desc" data-i18n="dash_earn_multi">Vitoria 1v1 (Local ou Online)</div>
               <div class="tx-date" data-i18n="dash_earn_multi_sub">Por vitoria</div>
             </div>
-            <div class="tx-amount earn"><img class="cr-logo-sm" src="tokenCR.png" alt="$CR"/>+3</div>
+            <div class="tx-amount earn"><span class="cr-logo-sm"></span>+3</div>
           </div>
           <div class="tx-row">
             <div class="tx-icon tx-earn">⏱️</div>
@@ -299,7 +435,7 @@ nav{display:flex;align-items:center;padding:10px 28px;background:rgba(5,5,12,.9)
               <div class="tx-desc" data-i18n="dash_earn_record">Recorde pessoal</div>
               <div class="tx-date" data-i18n="dash_earn_record_sub">Ao bater seu melhor tempo</div>
             </div>
-            <div class="tx-amount earn"><img class="cr-logo-sm" src="tokenCR.png" alt="$CR"/>+0.5</div>
+            <div class="tx-amount earn"><span class="cr-logo-sm"></span>+0.5</div>
           </div>
           <div class="tx-row">
             <div class="tx-icon tx-earn">🏆</div>
@@ -307,7 +443,7 @@ nav{display:flex;align-items:center;padding:10px 28px;background:rgba(5,5,12,.9)
               <div class="tx-desc" data-i18n="dash_earn_ach">Conquistas desbloqueadas</div>
               <div class="tx-date" data-i18n="dash_earn_ach_sub">Varia por conquista</div>
             </div>
-            <div class="tx-amount earn"><img class="cr-logo-sm" src="tokenCR.png" alt="$CR"/>+2–50</div>
+            <div class="tx-amount earn"><span class="cr-logo-sm"></span>+2–50</div>
           </div>
           <div class="tx-row" style="opacity:.5">
             <div class="tx-icon" style="background:rgba(255,42,42,.1)">🔒</div>
@@ -315,7 +451,7 @@ nav{display:flex;align-items:center;padding:10px 28px;background:rgba(5,5,12,.9)
               <div class="tx-desc" data-i18n="dash_earn_top10">Top 10 da Temporada</div>
               <div class="tx-date" data-i18n="dash_earn_top10_sub">Em breve - ao fim da T1</div>
             </div>
-            <div class="tx-amount" style="color:#666"><img class="cr-logo-sm" src="tokenCR.png" alt="$CR"/>+50–500</div>
+            <div class="tx-amount" style="color:#666"><span class="cr-logo-sm"></span>+50–500</div>
           </div>
         </div>
       </div>
@@ -326,6 +462,200 @@ nav{display:flex;align-items:center;padding:10px 28px;background:rgba(5,5,12,.9)
       <div class="card-title"><span>&#x1F3C5;</span> <span data-i18n="dash_achievements">Conquistas</span></div>
       <div class="ach-grid" id="ach-grid">
         <div class="tx-empty">Carregando conquistas...</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         MARCO 2.9 — Garagem / Daily / Badges
+         ═══════════════════════════════════════════════════════════════ -->
+    <div class="m29-grid">
+      <div class="m29-card">
+        <div class="m29-title">
+          <span>🔧 <span data-i18n="dash_garage_title">MINHA GARAGEM</span></span>
+          <a href="pages/garagem.html" class="m29-link" data-i18n="dash_garage_open">CUSTOMIZAR →</a>
+        </div>
+        <div id="m29-garage-body"><div style="color:#666;font-size:.78rem;text-align:center;padding:10px;" data-i18n="dash_garage_loading">Carregando...</div></div>
+      </div>
+      <div class="m29-card">
+        <div class="m29-title">📅 <span data-i18n="dash_daily_title">LOGIN DIÁRIO</span></div>
+        <div id="m29-daily-body"><div style="color:#666;font-size:.78rem;text-align:center;padding:10px;" data-i18n="dash_daily_loading">Carregando...</div></div>
+      </div>
+      <div class="m29-card">
+        <div class="m29-title">🏆 <span data-i18n="dash_badges_title">CONQUISTAS</span></div>
+        <div id="m29-badges-body"><div style="color:#666;font-size:.78rem;text-align:center;padding:10px;">···</div></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         EVOLUÇÃO DE PILOTOS — Marco 2.5
+         ═══════════════════════════════════════════════════════════════ -->
+    <div class="card evo-section" id="evo-section">
+      <div class="card-title">
+        <span>🧬</span>
+        <span data-i18n="evo_title">EVOLUÇÃO DE PILOTOS</span>
+        <span id="evo-pts-global" style="margin-left:auto;font-size:.75rem;color:#555;letter-spacing:1px;"></span>
+      </div>
+
+      <!-- Abas de pilotos -->
+      <div class="evo-pilots-tabs" id="evo-tabs"></div>
+
+      <!-- Painel YUKI -->
+      <div class="evo-pilot-panel active" id="evo-panel-YUKI">
+        <!-- Stat: Velocidade -->
+        <div class="evo-stat-row">
+          <div class="evo-stat-header">
+            <span class="evo-stat-name" data-i18n="stat-speed">Velocidade</span>
+            <div class="evo-stat-vals">
+              <span class="evo-base" id="evo-YUKI-speed-base">82</span>
+              <span class="evo-arrow">→</span>
+              <span class="evo-final" id="evo-YUKI-speed-final">82</span>
+              <span class="evo-pts-badge" id="evo-YUKI-speed-badge">+0</span>
+            </div>
+          </div>
+          <div class="evo-slider-wrap">
+            <input type="range" class="evo-slider" id="sl-YUKI-speed" min="0" max="25" value="0"
+              oninput="onEvoSlider('YUKI','speed',this.value)" style="accent-color:#00E5FF;">
+          </div>
+        </div>
+        <!-- Stat: Controle -->
+        <div class="evo-stat-row">
+          <div class="evo-stat-header">
+            <span class="evo-stat-name" data-i18n="stat-control">Controle</span>
+            <div class="evo-stat-vals">
+              <span class="evo-base" id="evo-YUKI-ctrl-base">91</span>
+              <span class="evo-arrow">→</span>
+              <span class="evo-final" id="evo-YUKI-ctrl-final">91</span>
+              <span class="evo-pts-badge" id="evo-YUKI-ctrl-badge">+0</span>
+            </div>
+          </div>
+          <input type="range" class="evo-slider" id="sl-YUKI-ctrl" min="0" max="25" value="0"
+            oninput="onEvoSlider('YUKI','ctrl',this.value)" style="accent-color:#FFD700;">
+        </div>
+        <!-- Stat: Aerodinâmica -->
+        <div class="evo-stat-row">
+          <div class="evo-stat-header">
+            <span class="evo-stat-name" data-i18n="stat-aero">Aerodinâmica</span>
+            <div class="evo-stat-vals">
+              <span class="evo-base" id="evo-YUKI-aero-base">75</span>
+              <span class="evo-arrow">→</span>
+              <span class="evo-final" id="evo-YUKI-aero-final">75</span>
+              <span class="evo-pts-badge" id="evo-YUKI-aero-badge">+0</span>
+            </div>
+          </div>
+          <input type="range" class="evo-slider" id="sl-YUKI-aero" min="0" max="25" value="0"
+            oninput="onEvoSlider('YUKI','aero',this.value)" style="accent-color:#FF9900;">
+        </div>
+        <!-- Pontos disponíveis -->
+        <div class="evo-pts-info">
+          <div>
+            <div class="evo-pts-avail" id="evo-YUKI-avail">0</div>
+            <div class="evo-pts-label" data-i18n="evo_pts_available">PONTOS DISPONÍVEIS</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="color:#AAA;font-size:.8rem;" id="evo-YUKI-used-label">0 <span data-i18n="evo_pts_used_of">de</span> 0 <span data-i18n="evo_pts_used_lbl">usados</span></div>
+            <div class="evo-pts-label" data-i18n="evo_cap">CAP: 25 por stat</div>
+          </div>
+        </div>
+        <!-- Ações -->
+        <div class="evo-actions">
+          <button class="evo-btn-save" id="evo-YUKI-save" onclick="saveEvo('YUKI')" data-i18n="evo_btn_save">SALVAR DISTRIBUIÇÃO</button>
+          <button class="evo-btn-reset" id="evo-YUKI-reset" onclick="resetEvo('YUKI')" data-i18n="evo_btn_reset">RESETAR</button>
+        </div>
+        <div class="evo-reset-info" id="evo-YUKI-reset-info"></div>
+        <div class="evo-feedback" id="evo-YUKI-feedback"></div>
+      </div>
+
+      <!-- Painel KENTA (mesma estrutura) -->
+      <div class="evo-pilot-panel" id="evo-panel-KENTA">
+        <div class="evo-stat-row">
+          <div class="evo-stat-header">
+            <span class="evo-stat-name" data-i18n="stat-speed">Velocidade</span>
+            <div class="evo-stat-vals">
+              <span class="evo-base" id="evo-KENTA-speed-base">88</span>
+              <span class="evo-arrow">→</span>
+              <span class="evo-final" id="evo-KENTA-speed-final">88</span>
+              <span class="evo-pts-badge" id="evo-KENTA-speed-badge">+0</span>
+            </div>
+          </div>
+          <input type="range" class="evo-slider" id="sl-KENTA-speed" min="0" max="25" value="0"
+            oninput="onEvoSlider('KENTA','speed',this.value)" style="accent-color:#FF9900;">
+        </div>
+        <div class="evo-stat-row">
+          <div class="evo-stat-header">
+            <span class="evo-stat-name" data-i18n="stat-control">Controle</span>
+            <div class="evo-stat-vals">
+              <span class="evo-base" id="evo-KENTA-ctrl-base">76</span>
+              <span class="evo-arrow">→</span>
+              <span class="evo-final" id="evo-KENTA-ctrl-final">76</span>
+              <span class="evo-pts-badge" id="evo-KENTA-ctrl-badge">+0</span>
+            </div>
+          </div>
+          <input type="range" class="evo-slider" id="sl-KENTA-ctrl" min="0" max="25" value="0"
+            oninput="onEvoSlider('KENTA','ctrl',this.value)" style="accent-color:#FFD700;">
+        </div>
+        <div class="evo-stat-row">
+          <div class="evo-stat-header">
+            <span class="evo-stat-name" data-i18n="stat-aero">Aerodinâmica</span>
+            <div class="evo-stat-vals">
+              <span class="evo-base" id="evo-KENTA-aero-base">83</span>
+              <span class="evo-arrow">→</span>
+              <span class="evo-final" id="evo-KENTA-aero-final">83</span>
+              <span class="evo-pts-badge" id="evo-KENTA-aero-badge">+0</span>
+            </div>
+          </div>
+          <input type="range" class="evo-slider" id="sl-KENTA-aero" min="0" max="25" value="0"
+            oninput="onEvoSlider('KENTA','aero',this.value)" style="accent-color:#FF9900;">
+        </div>
+        <div class="evo-pts-info">
+          <div>
+            <div class="evo-pts-avail" id="evo-KENTA-avail">0</div>
+            <div class="evo-pts-label" data-i18n="evo_pts_available">PONTOS DISPONÍVEIS</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="color:#AAA;font-size:.8rem;" id="evo-KENTA-used-label">0 <span data-i18n="evo_pts_used_of">de</span> 0 <span data-i18n="evo_pts_used_lbl">usados</span></div>
+            <div class="evo-pts-label" data-i18n="evo_cap">CAP: 25 por stat</div>
+          </div>
+        </div>
+        <div class="evo-actions">
+          <button class="evo-btn-save" id="evo-KENTA-save" onclick="saveEvo('KENTA')" data-i18n="evo_btn_save">SALVAR DISTRIBUIÇÃO</button>
+          <button class="evo-btn-reset" id="evo-KENTA-reset" onclick="resetEvo('KENTA')" data-i18n="evo_btn_reset">RESETAR</button>
+        </div>
+        <div class="evo-reset-info" id="evo-KENTA-reset-info"></div>
+        <div class="evo-feedback" id="evo-KENTA-feedback"></div>
+      </div>
+    </div>
+
+    <!-- MISSÕES -->
+    <div class="card" id="missions-section" style="margin-bottom:20px;">
+      <div class="card-title"><span>🎯</span> <span data-i18n="evo_missions_title">MISSÕES</span></div>
+      <div class="miss-list" id="miss-list">
+        <div class="tx-empty" data-i18n="evo_missions_loading">Carregando missões...</div>
+      </div>
+    </div>
+
+    <!-- CLÃ — Marco 2.7 -->
+    <div class="card" id="clan-section" style="margin-bottom:20px;">
+      <div class="card-title"><span>🏰</span> <span data-i18n="dash_clan_title">MEU CLÃ</span></div>
+      <div id="clan-loading" style="color:#555;font-size:.8rem;letter-spacing:1px;" data-i18n="clans_loading">Carregando...</div>
+      <div id="clan-no" style="display:none;">
+        <p style="color:#555;font-size:.82rem;margin-bottom:10px;" data-i18n="dash_clan_none">Você não pertence a nenhum clã.</p>
+        <a href="pages/clans.html" class="btn-small-link" style="font-family:'Bebas Neue';letter-spacing:2px;font-size:.8rem;color:var(--gold);text-decoration:none;border:1px solid rgba(255,215,0,.3);padding:5px 12px;border-radius:8px;" data-i18n="dash_clan_explore">EXPLORAR CLÃS →</a>
+      </div>
+      <div id="clan-info" style="display:none;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+          <span id="clan-symbol-dash" style="font-size:2rem;">🏎</span>
+          <div>
+            <div id="clan-name-dash" style="font-family:'Bebas Neue';font-size:1.2rem;letter-spacing:3px;color:#EEE;"></div>
+            <div id="clan-tag-dash" style="font-size:.7rem;color:#555;margin-top:2px;"></div>
+          </div>
+          <div style="margin-left:auto;text-align:right;">
+            <div id="clan-pool-dash" style="font-family:'Bebas Neue';font-size:1.3rem;color:var(--gold);letter-spacing:2px;">0</div>
+            <div style="font-size:.6rem;color:#555;letter-spacing:2px;">$CR POOL</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <a href="pages/clans.html" style="font-family:'Bebas Neue';letter-spacing:2px;font-size:.8rem;color:var(--acc);text-decoration:none;border:1px solid rgba(0,229,255,.3);padding:5px 12px;border-radius:8px;" data-i18n="dash_clan_manage">GERENCIAR CLÃ →</a>
+        </div>
       </div>
     </div>
 
@@ -350,24 +680,21 @@ nav{display:flex;align-items:center;padding:10px 28px;background:rgba(5,5,12,.9)
   </div><!-- /dash-content -->
 </div>
 
-<script src="cr-engine.js"></script>
+<script src="src/core/CapSprite.js"></script>
+<script src="src/engines/cr-engine.js"></script>
+<script src="src/engines/pilot-evolution.js"></script>
+<script src="src/engines/missions.js"></script>
+<script src="src/engines/clan-engine.js"></script>
+<script src="src/engines/pilots-data.js"></script>
+<script src="src/engines/garage-engine.js"></script>
+<script src="src/engines/daily-streak.js"></script>
+<script src="src/engines/badges-engine.js"></script>
 <script>
 function setLang(l){ if(window.I18N) I18N.setLang(l); localStorage.setItem('lang',l); }
-var _wallet=localStorage.getItem('caprush_wallet')||localStorage.getItem('caprush_google_sub')||'';
-var _nick=localStorage.getItem('caprush_nickname')||localStorage.getItem('caprush_nick')||'Jogador';
-var _txOffset=0;
-function crUpdateWalletBar(addr){
-  var bar=document.getElementById('cr-wallet-bar'),d=document.getElementById('cr-wallet-addr');
-  if(!addr||addr.length<8){if(bar)bar.style.display='none';return;}
-  if(d)d.textContent=addr.slice(0,6)+'...'+addr.slice(-6);if(bar)bar.style.display='flex';
-}
-function crCopyWallet(){
-  var addr=localStorage.getItem('caprush_wallet')||_wallet;if(!addr||addr.length<8)return;
-  if(navigator.clipboard){navigator.clipboard.writeText(addr).then(function(){document.getElementById('cr-copy-hint').style.display='none';document.getElementById('cr-copy-ok').style.display='inline';setTimeout(function(){document.getElementById('cr-copy-hint').style.display='inline';document.getElementById('cr-copy-ok').style.display='none';},2500);});}
-}
-crUpdateWalletBar(_wallet);
-window.addEventListener('privyAuthLogin',function(e){if(e.detail&&e.detail.walletAddress){_wallet=e.detail.walletAddress;crUpdateWalletBar(_wallet);}});
-(function(){function tryP(){if(!window.PrivyAuth)return;PrivyAuth.restoreSession().then(function(s){if(s&&s.walletAddress&&s.walletAddress!==_wallet){_wallet=s.walletAddress;crUpdateWalletBar(_wallet);}}).catch(function(){});}window.addEventListener('privyAuthReady',tryP);if(window.PrivyAuth)tryP();})();
+
+var _wallet = localStorage.getItem('caprush_wallet') || localStorage.getItem('caprush_google_sub') || '';
+var _nick   = localStorage.getItem('caprush_nick') || 'Jogador';
+var _txOffset = 0;
 
 function fmt(ms){ if(!ms||ms<=0) return '--:--'; var s=Math.floor(ms/1000); var m=Math.floor(s/60); return (m<10?'0':'')+m+':'+(s%60<10?'0':'')+(s%60)+'.'+(Math.floor((ms%1000)/100)); }
 
@@ -492,10 +819,476 @@ if(!_wallet){
         }, i*500);
       });
     }
+
+    // Marco 2.5: inicializa evolução de pilotos
+    initEvoSection();
+
+    // Marco 2.7: carrega clã do jogador
+    if (typeof ClanEngine !== 'undefined') {
+      ClanEngine.getMyClan(function(clan) {
+        var loading = document.getElementById('clan-loading');
+        var noDiv   = document.getElementById('clan-no');
+        var infoDiv = document.getElementById('clan-info');
+        if (loading) loading.style.display = 'none';
+        if (clan) {
+          if (noDiv)   noDiv.style.display   = 'none';
+          if (infoDiv) infoDiv.style.display = 'block';
+          var s  = document.getElementById('clan-symbol-dash');
+          var n  = document.getElementById('clan-name-dash');
+          var tg = document.getElementById('clan-tag-dash');
+          var p  = document.getElementById('clan-pool-dash');
+          if (s)  s.textContent = clan.symbol || '🏎';
+          if (n)  n.textContent = clan.name || '';
+          if (tg) tg.textContent = '[' + (clan.tag || '') + '] · ' + (clan.my_role === 'leader' ? '👑 Líder' : clan.my_role === 'officer' ? '⭐ Oficial' : '🎮 Membro');
+          if (p)  p.textContent = parseFloat(clan.cr_pool || 0).toFixed(1);
+        } else {
+          if (noDiv)   noDiv.style.display   = 'block';
+          if (infoDiv) infoDiv.style.display = 'none';
+        }
+      });
+    } else {
+      var l = document.getElementById('clan-loading');
+      if (l) l.style.display = 'none';
+    }
   });
 }
+
+// ═══════════════════════════════════════════════════════════════════
+// EVOLUÇÃO DE PILOTOS — Marco 2.5
+// ═══════════════════════════════════════════════════════════════════
+
+// Marco 2.9.2: filtra pilotos da seção evo por isUnlocked (Bug Dashboard).
+// O HTML mantém painéis hardcoded YUKI/KENTA por compatibilidade; aqui só
+// removemos abas se os pilotos estiverem bloqueados.
+// Marco 2.9.2: filtra pilotos da seção evo por isUnlocked + considera piloto selecionado.
+// Atualmente só YUKI/KENTA têm árvore de evolução implementada (Marco 2.5).
+// Outros pilotos jogáveis aparecem com mensagem amigável personalizada.
+// Marco 2.9.2: TODOS os pilotos jogáveis podem evoluir.
+// Por enquanto só YUKI e KENTA têm painel visual implementado (Marco 2.5);
+// os outros mostram uma mensagem clara dizendo que árvore será adicionada
+// em breve mas referenciando o piloto SELECIONADO atual.
+var _PLAYABLE_PILOTS = ['CAL','JOAO','SHERLOCK','PLUSH','URUBU_MENGAO','DUO',
+                        'BITKONG','BRUNA','KENTA','YUKI','TAPZ'];
+var _PILOTS_WITH_PANEL = ['YUKI', 'KENTA'];
+
+function _getSelectedPilotId(){
+  try {
+    if(typeof PilotsData !== 'undefined' && PilotsData.getSelected){
+      var sel = PilotsData.getSelected();
+      if(sel && sel.id) return sel.id;
+    }
+  } catch(e){}
+  return localStorage.getItem('caprush_pilot') || 'CAL';
+}
+
+var _evoPilots = (function(){
+  // Pilotos com PAINEL VISUAL que estão DESBLOQUEADOS
+  if(typeof PilotsData === 'undefined' || !PilotsData.isUnlocked){
+    return _PILOTS_WITH_PANEL.slice();
+  }
+  return _PILOTS_WITH_PANEL.filter(function(pid){
+    try { return PilotsData.isUnlocked(pid); } catch(e){ return false; }
+  });
+})();
+var _evoActive   = _evoPilots[0] || null;
+var _evoPending  = {};
+
+var _evoBases = {
+  YUKI:  { speed: 82, ctrl: 91, aero: 75 },
+  KENTA: { speed: 88, ctrl: 76, aero: 83 },
+};
+
+function initEvoSection() {
+  if (typeof PilotEvolution === 'undefined') return;
+
+  // Esconde painéis dos pilotos com painel mas não desbloqueados
+  _PILOTS_WITH_PANEL.forEach(function(pid){
+    var panel = document.getElementById('evo-panel-' + pid);
+    if(!panel) return;
+    if(_evoPilots.indexOf(pid) === -1) panel.style.display = 'none';
+  });
+
+  var tabsEl = document.getElementById('evo-tabs');
+  tabsEl.innerHTML = '';
+
+  // Marco 2.9.2: pega o piloto SELECIONADO. Se for um piloto com painel
+  // implementado E desbloqueado, mostra a árvore. Senão, mostra mensagem
+  // amigável reconhecendo que o piloto vai ter sua árvore adicionada.
+  var selectedId = _getSelectedPilotId();
+  var selectedHasPanel = _evoPilots.indexOf(selectedId) !== -1;
+
+  if(!selectedHasPanel){
+    // Mensagem informando que a árvore deste piloto está em desenvolvimento
+    var displayName = selectedId.replace(/_/g,' '); // URUBU_MENGAO → URUBU MENGAO
+    var template = (window.I18N && I18N.t)
+      ? I18N.t('evo_pilot_coming_soon', 'A árvore de evolução do {name} está em desenvolvimento. Em breve você poderá investir pontos de XP em Velocidade, Controle e Aerodinâmica para este piloto.')
+      : 'A árvore de evolução do {name} está em desenvolvimento. Em breve você poderá investir pontos de XP em Velocidade, Controle e Aerodinâmica para este piloto.';
+    var msg = template.replace('{name}', displayName);
+    tabsEl.innerHTML = '<div style="color:#a8a8c0;font-size:.85rem;letter-spacing:.5px;padding:20px 22px;text-align:center;border:1px dashed rgba(255,215,0,.20);border-radius:10px;line-height:1.6;background:rgba(255,215,0,.03);">' +
+      '<div style="font-family:\'Bebas Neue\';color:#FFD700;letter-spacing:3px;font-size:1rem;margin-bottom:6px;">' + displayName + '</div>' +
+      msg +
+      '</div>';
+    return;
+  }
+
+  _evoPilots.forEach(function(pid) {
+    var btn = document.createElement('button');
+    btn.className = 'evo-tab' + (pid === _evoActive ? ' active' : '');
+    btn.textContent = pid;
+    btn.onclick = function() { switchEvoPilot(pid); };
+    tabsEl.appendChild(btn);
+  });
+
+  // Garante que só o painel ativo está visível
+  document.querySelectorAll('.evo-pilot-panel').forEach(function(p){
+    p.classList.toggle('active', p.id === 'evo-panel-' + _evoActive);
+  });
+
+  // Carrega dados do Supabase e renderiza
+  PilotEvolution.loadAll(function() {
+    _evoPilots.forEach(function(pid) { renderEvoPilot(pid); });
+    updateEvoGlobalBadge();
+  });
+
+  // Carrega missões
+  if (typeof Missions !== 'undefined') {
+    Missions.loadFromSupabase(function() { renderMissions(); });
+  }
+}
+
+function switchEvoPilot(pid) {
+  _evoActive = pid;
+  document.querySelectorAll('.evo-tab').forEach(function(t) {
+    t.classList.toggle('active', t.textContent === pid);
+  });
+  document.querySelectorAll('.evo-pilot-panel').forEach(function(p) {
+    p.classList.toggle('active', p.id === 'evo-panel-' + pid);
+  });
+}
+
+function renderEvoPilot(pid) {
+  var st = PilotEvolution.getFinalStats(pid);
+  var base = _evoBases[pid];
+  if (!st || !base) return;
+
+  // Sliders
+  document.getElementById('sl-' + pid + '-speed').value = st.speed_pts;
+  document.getElementById('sl-' + pid + '-ctrl').value  = st.ctrl_pts;
+  document.getElementById('sl-' + pid + '-aero').value  = st.aero_pts;
+
+  // Labels
+  updateEvoLabels(pid, st.speed_pts, st.ctrl_pts, st.aero_pts, st.pts_total_ever);
+}
+
+function updateEvoLabels(pid, sp, cp, ap, total) {
+  var base  = _evoBases[pid];
+  var sFin  = Math.round(base.speed * (1 + Math.min(sp, 25) * 0.008));
+  var cFin  = Math.round(base.ctrl  * (1 + Math.min(cp, 25) * 0.008));
+  var aFin  = Math.round(base.aero  * (1 + Math.min(ap, 25) * 0.006));
+  var used  = sp + cp + ap;
+  var avail = Math.max(0, total - used);
+
+  function set(id, val) { var el=document.getElementById(id); if(el) el.textContent=val; }
+  set('evo-'+pid+'-speed-final', sFin); set('evo-'+pid+'-speed-badge', '+'+sp);
+  set('evo-'+pid+'-ctrl-final',  cFin); set('evo-'+pid+'-ctrl-badge',  '+'+cp);
+  set('evo-'+pid+'-aero-final',  aFin); set('evo-'+pid+'-aero-badge',  '+'+ap);
+  set('evo-'+pid+'-avail',       avail);
+  var usedEl = document.getElementById('evo-'+pid+'-used-label');
+  if (usedEl) {
+    var t = window.I18N ? window.I18N.t : function(k,d){ return d||k; };
+    usedEl.textContent = used + ' ' + t('evo_pts_used_of','de') + ' ' + total + ' ' + t('evo_pts_used_lbl','usados');
+  }
+
+  // Reset info
+  var resetInfoEl = document.getElementById('evo-'+pid+'-reset-info');
+  if (resetInfoEl && typeof PilotEvolution !== 'undefined') {
+    var days = PilotEvolution.daysUntilFreeReset(pid);
+    var t2 = window.I18N ? window.I18N.t : function(k,d){ return d||k; };
+    if (days === 0) {
+      resetInfoEl.textContent = t2('evo_reset_free_avail', 'Reset gratuito disponível!');
+      resetInfoEl.style.color = '#0f9';
+    } else {
+      resetInfoEl.textContent = t2('evo_reset_free_in', 'Próximo reset gratuito em') + ' ' + days + ' ' + t2('evo_reset_days', 'dias') + ' | ' + t2('evo_reset_paid_now', 'Resetar agora: 5 $CR');
+      resetInfoEl.style.color = '#555';
+    }
+  }
+}
+
+function onEvoSlider(pid, stat, val) {
+  val = parseInt(val);
+  if (!_evoPending[pid]) {
+    var st = PilotEvolution.getFinalStats(pid);
+    _evoPending[pid] = { speed: st.speed_pts, ctrl: st.ctrl_pts, aero: st.aero_pts, total: st.pts_total_ever };
+  }
+  _evoPending[pid][stat] = val;
+
+  // Verifica se excede o total
+  var p   = _evoPending[pid];
+  var sum = p.speed + p.ctrl + p.aero;
+  if (sum > p.total) {
+    // Ajusta o slider de volta
+    var excess = sum - p.total;
+    _evoPending[pid][stat] = Math.max(0, val - excess);
+    document.getElementById('sl-'+pid+'-'+stat).value = _evoPending[pid][stat];
+  }
+
+  updateEvoLabels(pid, _evoPending[pid].speed, _evoPending[pid].ctrl, _evoPending[pid].aero, p.total);
+}
+
+function saveEvo(pid) {
+  var btn = document.getElementById('evo-'+pid+'-save');
+  var fb  = document.getElementById('evo-'+pid+'-feedback');
+  if (!btn || !fb) return;
+  if (!_evoPending[pid]) { showEvoFb(fb, 'ok', window.I18N?window.I18N.t('evo_no_changes','Nenhuma alteração'):'Nenhuma alteração'); return; }
+
+  btn.disabled = true;
+  btn.textContent = window.I18N ? window.I18N.t('evo_saving','Salvando...') : 'Salvando...';
+
+  var p = _evoPending[pid];
+  PilotEvolution.distribute(pid, p.speed, p.ctrl, p.aero, function(res) {
+    btn.disabled = false;
+    btn.textContent = window.I18N ? window.I18N.t('evo_btn_save','SALVAR DISTRIBUIÇÃO') : 'SALVAR DISTRIBUIÇÃO';
+    if (res.ok) {
+      delete _evoPending[pid];
+      renderEvoPilot(pid);
+      updateEvoGlobalBadge();
+      showEvoFb(fb, 'ok', window.I18N ? window.I18N.t('evo_saved','Distribuição salva!') : 'Distribuição salva! ✓');
+    } else {
+      var msgs = {
+        insufficient: window.I18N ? window.I18N.t('evo_err_insufficient','Pontos insuficientes') : 'Pontos insuficientes',
+        db_error:     window.I18N ? window.I18N.t('evo_err_db','Erro ao salvar') : 'Erro ao salvar. Tente novamente.',
+      };
+      showEvoFb(fb, 'err', msgs[res.err] || res.err);
+    }
+  });
+}
+
+function resetEvo(pid) {
+  var fb   = document.getElementById('evo-'+pid+'-feedback');
+  var t    = window.I18N ? window.I18N.t.bind(window.I18N) : function(k,d){ return d||k; };
+  var free = PilotEvolution.canFreeReset(pid);
+  var msg  = free
+    ? t('evo_confirm_free_reset', 'Resetar distribuição gratuitamente?')
+    : t('evo_confirm_paid_reset', 'Resetar agora custa 5 $CR. Confirmar?');
+
+  if (!confirm(msg)) return;
+
+  PilotEvolution.reset(pid, !free, function(res) {
+    if (res.ok) {
+      delete _evoPending[pid];
+      renderEvoPilot(pid);
+      updateEvoGlobalBadge();
+      showEvoFb(fb, 'ok', t('evo_reset_ok', 'Resetado! Redistribua seus pontos.'));
+    } else {
+      var errs = {
+        too_soon:         t('evo_err_too_soon','Reset gratuito em')+' '+res.days_left+' '+t('evo_reset_days','dias'),
+        insufficient_cr:  t('evo_err_no_cr','$CR insuficiente. Precisa de 5 $CR.'),
+        spend_failed:     t('evo_err_spend','Erro ao debitar $CR.'),
+        no_cr_engine:     t('evo_err_engine','Motor $CR não disponível.'),
+      };
+      showEvoFb(fb, 'err', errs[res.err] || res.err);
+    }
+  });
+}
+
+function showEvoFb(el, type, msg) {
+  el.textContent = msg;
+  el.className = 'evo-feedback ' + type;
+  el.style.display = 'block';
+  setTimeout(function(){ el.style.display = 'none'; }, 4000);
+}
+
+function updateEvoGlobalBadge() {
+  var totalAvail = 0;
+  _evoPilots.forEach(function(pid) {
+    var st = PilotEvolution.getFinalStats(pid);
+    totalAvail += st.pts_available || 0;
+  });
+  var el = document.getElementById('evo-pts-global');
+  if (!el) return;
+  var t  = window.I18N ? window.I18N.t.bind(window.I18N) : function(k,d){ return d||k; };
+  if (totalAvail > 0) {
+    el.innerHTML = '<span style="color:var(--gold);font-family:Bebas Neue;font-size:1rem;">'+totalAvail+'</span> '+t('evo_pts_to_distribute','pts para distribuir');
+    el.style.color = '#FFD700';
+  } else {
+    el.textContent = t('evo_all_distributed','Tudo distribuído ✓');
+    el.style.color = '#555';
+  }
+}
+
+// ── MISSÕES ─────────────────────────────────────────────────────────────────
+function renderMissions() {
+  if (typeof Missions === 'undefined') return;
+  var list   = Missions.getList();
+  var el     = document.getElementById('miss-list');
+  if (!el) return;
+  var t      = window.I18N ? window.I18N.t.bind(window.I18N) : function(k,d){ return d||k; };
+
+  var icons = {
+    first_solo:'🏁', first_win:'⚔️', solo_10:'🔟', solo_25:'💪', solo_50:'💯',
+    win_5:'🥊', win_10:'🏆', record_1:'⏱️', record_5:'⚡', streak_3:'🔥',
+    streak_5:'💥', use_kenta:'🐱', use_yuki:'🐶', all_pilots:'🎭',
+    bet_first:'🎲', bet_10:'🃏', cr_100:'💎', top3_week:'🥉', top1_week:'🥇',
+  };
+
+  var html = list.map(function(m) {
+    var icon = icons[m.id] || '🎯';
+    var name = t(m.name_key, m.id);
+    var desc = t(m.desc_key, '');
+    var progStr = '';
+    if (m.progress !== null && m.target !== null && !m.completed) {
+      var pct = Math.round((m.progress / m.target) * 100);
+      progStr = '<div class="miss-bar-wrap"><div class="miss-bar-fill" style="width:'+pct+'%"></div></div>'
+              + '<span class="miss-prog">'+m.progress+'/'+m.target+'</span>';
+    } else if (m.completed && !m.once) {
+      progStr = '<span class="miss-prog">'+m.count+'x '+t('evo_mission_completed','completada')+'</span>';
+    } else if (m.completed) {
+      progStr = '<span class="miss-prog" style="color:#0f9">✓ '+t('evo_mission_done','Concluída')+'</span>';
+    }
+    return '<div class="miss-row'+(m.completed&&m.once?' miss-done':'')+'">'
+      + '<div class="miss-icon">'+icon+'</div>'
+      + '<div class="miss-info"><div class="miss-name">'+name+'</div>'
+      + (desc?'<div class="miss-prog">'+desc+'</div>':'')
+      + progStr
+      + '</div>'
+      + '<div class="miss-pts">+'+m.pts+'</div>'
+      + '</div>';
+  }).join('');
+
+  el.innerHTML = html || '<div class="tx-empty">'+t('evo_missions_none','Nenhuma missão encontrada.')+'</div>';
+}
+
+// Notificação de missão completada (chamada pelos games)
+window._onMissionAwarded = function(awarded) {
+  awarded.forEach(function(item, i) {
+    setTimeout(function() {
+      var t = window.I18N ? window.I18N.t.bind(window.I18N) : function(k,d){ return d||k; };
+      var toast = document.createElement('div');
+      toast.style.cssText = 'position:fixed;bottom:'+(20+i*75)+'px;right:20px;z-index:9999;'
+        + 'background:rgba(0,229,255,.95);color:#000;font-family:Bebas Neue,sans-serif;'
+        + 'letter-spacing:2px;padding:12px 20px;border-radius:10px;font-size:.88rem;'
+        + 'box-shadow:0 8px 30px rgba(0,229,255,.4);animation:slideIn .3s ease;';
+      toast.innerHTML = '🎯 '+t('evo_mission_unlocked','MISSÃO:')
+        + ' '+t(item.def.name_key, item.def.id)
+        + ' <span style="color:#005">+'+item.def.pts+' pts</span>';
+      document.body.appendChild(toast);
+      setTimeout(function(){ toast.style.opacity='0';toast.style.transition='opacity .5s';
+        setTimeout(function(){ toast.remove(); }, 500); }, 5000);
+    }, i * 600);
+  });
+  // Atualiza a UI de evolução se a página for o dashboard
+  if (typeof renderEvoPilot !== 'undefined') {
+    awarded.forEach(function(item){ renderEvoPilot(item.pilot); });
+    updateEvoGlobalBadge();
+  }
+};
 </script>
-<script src="audio.js"></script>
-<script src="background.js"></script>
+<script src="src/ui/audio.js"></script>
+<script src="src/ui/background.js"></script>
+
+<script>
+// ═══ MARCO 2.9 — render Garagem / Daily / Badges ═════════════════════════
+(function(){
+  function _t(k,fb){ try{return window.I18N?I18N.t(k,fb):fb;}catch(e){return fb;} }
+
+  function _drawCap(ctx, cx, cy, r, color, accent, kanji){
+    if(typeof CapSprite==='undefined') return;
+    CapSprite.drawCap(ctx, cx, cy, r, color, accent, kanji||'?', 0, 0, 0.5, false);
+  }
+
+  function renderGarage(){
+    var el = document.getElementById('m29-garage-body');
+    if(!el) return;
+    if(typeof PilotsData==='undefined' || typeof GarageEngine==='undefined'){
+      el.innerHTML = '<div style="color:#666;font-size:.78rem;text-align:center;padding:10px;">···</div>';
+      return;
+    }
+    var pilot = PilotsData.getSelected();
+    if(!pilot){
+      el.innerHTML = '<div style="color:#888;font-size:.78rem;text-align:center;padding:10px;">'+_t('dash_garage_no_pilot','Nenhum piloto selecionado.')+'<br><a href="pages/personagens.html" style="color:var(--acc);">'+_t('dash_garage_pick','Escolher piloto →')+'</a></div>';
+      return;
+    }
+    // Marco 2.9.2: usa PNG da tampinha (em vez do canvas vetorial)
+    var cust = GarageEngine.get(pilot.id);
+    el.innerHTML =
+      '<img class="m29-cap-preview" src="' + cust.img + '" alt="' + cust.name + '" '+
+        'onerror="this.outerHTML=\'<div class=&quot;m29-cap-preview&quot; style=&quot;background:'+cust.hex+';border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:Bebas Neue;letter-spacing:2px;&quot;>'+cust.code+'</div>\'"/>'+
+      '<div style="text-align:center;font-family:Bebas Neue;letter-spacing:2px;font-size:.95rem;color:#fff;">'+pilot.name+'</div>'+
+      '<div style="text-align:center;font-size:.65rem;color:#888;letter-spacing:1px;margin-bottom:8px;">'+cust.code+' · '+cust.name+'</div>'+
+      '<a href="pages/garagem.html" style="display:block;text-align:center;padding:6px;border:1px solid var(--gold);color:var(--gold);text-decoration:none;border-radius:6px;font-family:Bebas Neue;letter-spacing:2px;font-size:.78rem;">'+_t('dash_garage_open_btn','▶ ABRIR GARAGEM')+'</a>';
+  }
+
+  function renderDaily(){
+    var el = document.getElementById('m29-daily-body');
+    if(!el || typeof DailyStreak==='undefined') return;
+    DailyStreak.load(function(){
+      var s = DailyStreak.getCurrent();
+      var dayInCycle = ((s.current_streak) % 30);
+      var milestones = [7,14,21,30];
+      var calHtml = '';
+      for(var d=1; d<=30; d++){
+        var cls = '';
+        if(d <= dayInCycle) cls = 'done';
+        if(d === dayInCycle+1 && s.can_claim_today) cls = 'today';
+        if(milestones.indexOf(d)!==-1 && cls!=='done' && cls!=='today') cls = 'milestone';
+        calHtml += '<div class="d '+cls+'" title="'+_t('dash_daily_day','Dia')+' '+d+': '+(DailyStreak.REWARDS[d]||0)+' $CR">'+d+'</div>';
+      }
+      el.innerHTML =
+        '<div class="m29-streak-num">'+s.current_streak+'</div>'+
+        '<div class="m29-streak-lbl">'+_t('dash_daily_days','dias')+' · '+_t('dash_daily_longest','recorde:')+' '+s.longest_streak+'</div>'+
+        '<div class="m29-cal">'+calHtml+'</div>'+
+        '<button id="m29-claim-btn" class="m29-claim-btn" '+(s.can_claim_today?'':'disabled')+'>'+
+          (s.can_claim_today
+            ? (_t('dash_daily_claim','▶ RESGATAR')+' '+s.next_reward+' $CR')
+            : _t('dash_daily_done','Você já resgatou hoje.'))+
+        '</button>'+
+        '<div style="font-size:.65rem;color:#666;text-align:center;margin-top:6px;">'+_t('dash_daily_total','Total acumulado:')+' '+s.total_claimed_cr+' $CR</div>';
+
+      var btn = document.getElementById('m29-claim-btn');
+      if(btn && s.can_claim_today){
+        btn.onclick = function(){
+          btn.disabled = true; btn.textContent = '...';
+          DailyStreak.claim(function(res){
+            if(res.ok){
+              renderDaily();
+              if(typeof CREngine!=='undefined') CREngine.refreshBalance();
+            } else {
+              btn.disabled = false; btn.textContent = _t('dash_daily_claim','▶ RESGATAR');
+            }
+          });
+        };
+      }
+    });
+  }
+
+  function renderBadges(){
+    var el = document.getElementById('m29-badges-body');
+    if(!el || typeof BadgesEngine==='undefined') return;
+    BadgesEngine.load(function(){
+      var arr = BadgesEngine.getAll();
+      var earned = arr.filter(function(b){return b.earned;}).length;
+      var html = '<div style="font-size:.7rem;color:#888;text-align:center;margin-bottom:8px;letter-spacing:1px;">'+earned+' / '+arr.length+'</div>'+
+                 '<div class="m29-badges">';
+      arr.forEach(function(b){
+        html += '<div class="m29-badge'+(b.earned?' earned':'')+'" title="'+b.desc+'">'+
+                  b.icon+'<div class="lbl">'+b.name+'</div>'+
+                '</div>';
+      });
+      html += '</div>';
+      el.innerHTML = html;
+    });
+  }
+
+  function init(){
+    if(!localStorage.getItem('caprush_wallet')) return;
+    renderGarage();
+    renderDaily();
+    renderBadges();
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init);
+  else setTimeout(init, 200);
+})();
+</script>
 </body>
 </html>

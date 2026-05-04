@@ -4,3 +4,33 @@ dist/
 *.pem
 temp/
 .DS_Store
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# OS
+Thumbs.db
+desktop.ini
+
+# Vercel
+.vercel/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Build
+build/
+.cache/
+.tmp/
+
+# Env extras
+.env.local
+.env.*.local
+
+# Node — ignora em qualquer subpasta
+**/node_modules/
+**/package-lock.json
+**/.vercel/ 

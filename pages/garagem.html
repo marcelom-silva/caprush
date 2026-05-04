@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<script async src="https://vibej.am/2026/widget.js"></script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CapRush — Garagem</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--red:#FF2A2A;--gold:#FFD700;--dark:#0A0A0F;--acc:#00E5FF;--muted:#666680;--panel:rgba(14,14,26,.95);}
+*{margin:0;padding:0;box-sizing:border-box;}
+/* Marco 2.9.2: body transparente para o background.js animado aparecer */
+html{background:var(--dark);font-family:'Rajdhani',sans-serif;color:#E8E8F0;min-height:100vh;}
+body{background:transparent;font-family:'Rajdhani',sans-serif;color:#E8E8F0;min-height:100vh;}
+
+nav{display:flex;align-items:center;padding:10px 18px;background:rgba(5,5,12,.92);border-bottom:1px solid rgba(255,42,42,.25);gap:1.2rem;position:sticky;top:0;z-index:10;}
+.nav-logo{font-family:'Bebas Neue';font-size:1.3rem;letter-spacing:4px;background:linear-gradient(135deg,var(--red),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none;}
+.nav-link{color:#888;font-size:.78rem;letter-spacing:2px;text-decoration:none;text-transform:uppercase;transition:.2s;}
+.nav-link:hover{color:var(--gold);}
+.nav-link.active{color:var(--gold);}
+#flag-container{display:flex;gap:5px;margin-left:auto;}
+.flag-btn{width:24px;height:16px;border:1px solid rgba(255,255,255,.2);border-radius:3px;cursor:pointer;opacity:.6;background-size:cover;background-position:center;transition:.2s;}
+.flag-btn:hover{opacity:1;}
+.flag-pt{background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23009b3a"/><polygon points="1.5,0.2 2.7,1 1.5,1.8 0.3,1" fill="%23ffdf00"/><circle cx="1.5" cy="1" r="0.35" fill="%23002776"/></svg>')}
+.flag-us{background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23b22234"/><g fill="%23fff"><rect y="0.15" width="3" height="0.15"/><rect y="0.45" width="3" height="0.15"/><rect y="0.75" width="3" height="0.15"/><rect y="1.05" width="3" height="0.15"/><rect y="1.35" width="3" height="0.15"/><rect y="1.65" width="3" height="0.15"/></g><rect width="1.2" height="1.05" fill="%233c3b6e"/></svg>')}
+.flag-es{background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23c60b1e"/><rect y="0.5" width="3" height="1" fill="%23ffc400"/></svg>')}
+
+.wrap{max-width:1200px;margin:0 auto;padding:24px 16px;}
+h1{font-family:'Bebas Neue';font-size:2.5rem;letter-spacing:6px;color:var(--gold);margin-bottom:6px;}
+.sub{color:var(--muted);font-size:.9rem;letter-spacing:2px;margin-bottom:18px;}
+.warn-box{background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.3);border-radius:10px;padding:12px 14px;margin-bottom:20px;font-size:.85rem;color:#cda;}
+
+.section-title{font-family:'Bebas Neue';letter-spacing:3px;color:var(--gold);font-size:1.05rem;margin:18px 0 10px;}
+
+.cap-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-bottom:20px;}
+.cap-card{background:var(--panel);border:2px solid rgba(255,255,255,.08);border-radius:14px;padding:14px;cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s;position:relative;overflow:hidden;}
+.cap-card:hover{transform:translateY(-3px);border-color:rgba(255,255,255,.25);}
+.cap-card.sel{border-color:var(--cap-color,var(--gold));box-shadow:0 0 22px var(--cap-glow,rgba(255,215,0,.25));}
+.cap-card.sel::before{content:"✓";position:absolute;top:8px;right:10px;width:24px;height:24px;border-radius:50%;background:var(--cap-color,var(--gold));color:#000;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:.85rem;}
+
+.cap-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;}
+.cap-icon-code{display:flex;gap:6px;align-items:center;}
+.cap-icon{font-size:1.05rem;color:var(--cap-color,#ccc);}
+.cap-code{font-family:'Bebas Neue';letter-spacing:2px;color:var(--cap-color,#ccc);font-size:.95rem;}
+.cap-name{font-family:'Bebas Neue';font-size:1.4rem;letter-spacing:3px;color:#fff;margin-top:2px;}
+.cap-tag{font-size:.68rem;letter-spacing:2px;color:var(--cap-color,var(--muted));text-transform:uppercase;margin-bottom:8px;}
+
+.cap-img-wrap{width:100%;aspect-ratio:1.35/1;background:radial-gradient(ellipse at center, rgba(255,255,255,.04), transparent 70%);border-radius:8px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.cap-img{max-width:90%;max-height:100%;object-fit:contain;}
+.cap-img-fallback{width:88%;aspect-ratio:1.4/1;background:linear-gradient(135deg,var(--cap-color,#888),#000);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Bebas Neue';letter-spacing:3px;font-size:.9rem;opacity:.7;}
+
+.stat-row{display:flex;align-items:center;gap:8px;font-size:.7rem;letter-spacing:1px;margin:3px 0;color:#bbb;}
+.stat-lbl{flex:0 0 78px;text-transform:uppercase;}
+.stat-bar{flex:1;height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;}
+.stat-fill{height:100%;background:var(--cap-color,#888);border-radius:3px;transition:width .4s;}
+
+.preview-section{display:grid;grid-template-columns:1fr 1.4fr;gap:18px;margin-bottom:18px;}
+@media(max-width:780px){.preview-section{grid-template-columns:1fr;}}
+
+.preview-card{background:var(--panel);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px;text-align:center;}
+.pilot-meta{margin-bottom:14px;}
+.pilot-photo{width:84px;height:84px;border-radius:50%;object-fit:cover;object-position:50% 5%;border:2px solid rgba(255,255,255,.15);background:#1a1a28;}
+.pilot-name{font-family:'Bebas Neue';font-size:1.4rem;letter-spacing:3px;color:#fff;margin-top:6px;}
+.pilot-rar{font-size:.68rem;letter-spacing:3px;margin-top:2px;text-transform:uppercase;}
+.pilot-meta-extra{font-size:.7rem;color:var(--muted);margin-top:4px;letter-spacing:1px;}
+.btn-change-pilot{display:inline-block;margin-top:10px;padding:6px 12px;border:1px solid var(--acc);color:var(--acc);text-decoration:none;font-family:'Bebas Neue';letter-spacing:2px;font-size:.78rem;border-radius:6px;}
+.btn-change-pilot:hover{background:var(--acc);color:#000;}
+
+.preview-divider{height:1px;background:rgba(255,255,255,.08);margin:14px 0;}
+
+.big-preview{display:flex;align-items:center;gap:14px;}
+.big-preview canvas{flex-shrink:0;background:transparent;}
+.big-preview-info{flex:1;min-width:0;text-align:left;}
+.big-cap-name{font-family:'Bebas Neue';font-size:1.4rem;letter-spacing:3px;color:#fff;}
+.big-cap-tag{font-size:.7rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-top:4px;}
+
+.cost-box{background:rgba(255,42,42,.08);border:1px solid rgba(255,42,42,.3);border-radius:10px;padding:12px;margin:14px 0;}
+.cost-box.free{background:rgba(0,229,255,.08);border-color:rgba(0,229,255,.3);}
+.cost-box.same{background:rgba(102,102,128,.1);border-color:rgba(102,102,128,.3);}
+.cost-line{font-size:.85rem;color:#fff;margin-bottom:4px;}
+.cost-info{font-size:.72rem;color:var(--muted);}
+.btn-apply{width:100%;padding:12px;background:linear-gradient(135deg,var(--red),var(--gold));border:none;border-radius:10px;font-family:'Bebas Neue';letter-spacing:3px;color:#000;font-size:1rem;cursor:pointer;}
+.btn-apply:disabled{opacity:.4;cursor:not-allowed;background:#444;color:#888;}
+
+.stats-decorative-note{font-size:.65rem;color:var(--muted);margin-top:8px;font-style:italic;letter-spacing:.5px;}
+
+/* Marco 2.9.2: barra de "ir pro jogo" depois de aplicar a tampinha */
+.play-bar{display:none;flex-direction:column;gap:8px;margin-top:14px;}
+.play-bar.show{display:flex;}
+.play-bar .play-bar-title{font-family:'Bebas Neue';letter-spacing:3px;color:var(--gold);font-size:1rem;text-align:center;margin-bottom:4px;}
+.play-bar a{display:block;padding:11px;border-radius:10px;font-family:'Bebas Neue';letter-spacing:3px;text-align:center;text-decoration:none;font-size:.95rem;transition:.2s;}
+.play-bar .pb-solo{background:linear-gradient(135deg,var(--red),var(--gold));color:#000;}
+.play-bar .pb-solo:hover{filter:brightness(1.1);}
+.play-bar .pb-local{background:rgba(0,229,255,.12);color:var(--acc);border:1px solid var(--acc);}
+.play-bar .pb-local:hover{background:var(--acc);color:#000;}
+.play-bar .pb-online{background:rgba(255,215,0,.12);color:var(--gold);border:1px solid var(--gold);}
+.play-bar .pb-online:hover{background:var(--gold);color:#000;}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(10,10,22,.96);border:1px solid var(--acc);padding:14px 22px;border-radius:10px;font-size:.9rem;color:#fff;z-index:9999;box-shadow:0 6px 20px rgba(0,0,0,.6);}
+.toast.err{border-color:var(--red);}
+.toast.ok{border-color:var(--gold);}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../index.html" class="nav-logo">CAP RUSH</a>
+  <a href="game/caprush-game.html" class="nav-link" data-i18n="play">JOGAR</a>
+  <a href="personagens.html" class="nav-link" data-i18n="pilots">PILOTOS</a>
+  <a href="ranking.html" class="nav-link" data-i18n="ranking">RANKING</a>
+  <a href="../dashboard.html" class="nav-link" data-i18n="dash_nav">CARTEIRA</a>
+  <span style="color:var(--gold);font-family:Bebas Neue;letter-spacing:3px;font-size:.85rem;" data-i18n="garage">GARAGEM</span>
+  <div id="flag-container">
+    <button class="flag-btn flag-pt" onclick="setLang('pt')"></button>
+    <button class="flag-btn flag-us" onclick="setLang('en')"></button>
+    <button class="flag-btn flag-es" onclick="setLang('es')"></button>
+  </div>
+</nav>
+
+<div class="wrap">
+  <h1 data-i18n="garage_title">GARAGEM</h1>
+  <div class="sub" data-i18n="garage_sub">Escolha sua tampinha NFT</div>
+
+  <div class="warn-box">
+    <strong data-i18n="garage_warn_title">⚠ AVISO:</strong>
+    <span data-i18n="garage_warn_desc">A primeira escolha é gratuita. Trocas posteriores custam 200 $CR.</span>
+  </div>
+
+  <div class="preview-section" id="preview-section">
+    <div class="preview-card">
+      <div class="pilot-meta">
+        <img id="pilot-photo" class="pilot-photo" alt=""/>
+        <div class="pilot-name" id="pilot-name">—</div>
+        <div class="pilot-rar" id="pilot-rar">—</div>
+        <div class="pilot-meta-extra" id="pilot-meta-extra"></div>
+        <a href="personagens.html" class="btn-change-pilot" data-i18n="garage_change_pilot">▶ TROCAR PILOTO</a>
+      </div>
+      <div class="preview-divider"></div>
+      <div class="big-preview">
+        <canvas id="preview-cv" width="160" height="160"></canvas>
+        <div class="big-preview-info">
+          <div class="big-cap-name" id="big-cap-name">—</div>
+          <div class="big-cap-tag" id="big-cap-tag" data-i18n=""></div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title" data-i18n="garage_templates">▼ ESCOLHA SUA TAMPINHA</div>
+      <div class="cap-grid" id="cap-grid"></div>
+      <div class="cost-box" id="cost-box">
+        <div class="cost-line" id="cost-line">—</div>
+        <div class="cost-info" id="cost-info"></div>
+      </div>
+      <button class="btn-apply" id="btn-apply" disabled data-i18n="garage_select_first">Selecione uma tampinha para confirmar</button>
+      <div class="stats-decorative-note" data-i18n="garage_stats_decorative">Atributos informativos — afetarão física no Marco 4 (Oficina).</div>
+
+      <!-- Marco 2.9.2: barra "ir pro jogo" — só aparece depois de aplicar a tampinha -->
+      <div class="play-bar" id="play-bar">
+        <div class="play-bar-title" data-i18n="garage_pick_mode">▼ ESCOLHA O MODO</div>
+        <a href="game/caprush-game.html" class="pb-solo" onclick="localStorage.setItem('caprush_lastmode','solo')" data-i18n="pilots_solo">▶ SOLO vs IA</a>
+        <a href="game/game-multi-local.html" class="pb-local" onclick="localStorage.setItem('caprush_lastmode','local')" data-i18n="pilots_duo">👥 2P LOCAL</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../src/ui/i18n.js"></script>
+<script src="../src/core/CapSprite.js"></script>
+<script src="../src/engines/cr-engine.js"></script>
+<script src="../src/engines/pilots-data.js"></script>
+<script src="../src/engines/garage-engine.js"></script>
+<script src="../src/engines/badges-engine.js"></script>
+<script src="../src/ui/audio.js"></script>
+<script src="../src/ui/background.js"></script>
+
+<script>
+function setLang(l){if(window.I18N)I18N.setLang(l);localStorage.setItem('lang',l);}
+function _t(k,fb){try{return window.I18N?I18N.t(k,fb):fb;}catch(e){return fb;}}
+
+(function(){
+  var pilot = (typeof PilotsData !== 'undefined') ? PilotsData.getSelected() : null;
+  if(!pilot){
+    document.querySelector('.wrap').innerHTML =
+      '<div style="text-align:center;padding:60px 20px;color:#888;">' +
+      '<h2 style="color:var(--gold);font-family:Bebas Neue;letter-spacing:3px;">' + _t('garage_no_pilot','VOCÊ PRECISA SELECIONAR UM PILOTO ANTES.') + '</h2>' +
+      '<a href="personagens.html" style="display:inline-block;margin-top:20px;padding:10px 20px;background:var(--gold);color:#000;font-family:Bebas Neue;letter-spacing:2px;text-decoration:none;border-radius:8px;">▶ ESCOLHER PILOTO</a>' +
+      '</div>';
+    return;
+  }
+
+  var current = GarageEngine.get(pilot.id);
+  var selT = current.template;
+
+  // Header do piloto
+  var ph = document.getElementById('pilot-photo');
+  if(ph) ph.src = pilot.img;
+  document.getElementById('pilot-name').textContent = pilot.name;
+  document.getElementById('pilot-rar').textContent  = (PilotsData.rarityLabels[pilot.rarity] || '');
+  document.getElementById('pilot-rar').style.color  = (PilotsData.rarityColors[pilot.rarity] || '#888');
+  document.getElementById('pilot-meta-extra').textContent = pilot.code + ' · ' + pilot.species;
+
+  // Render preview vetorial grande (mostra como ficará no jogo)
+  function drawBigPreview(){
+    var cv = document.getElementById('preview-cv');
+    if(!cv) return;
+    var ctx = cv.getContext('2d');
+    ctx.clearRect(0,0,160,160);
+    var cap = GarageEngine.getCap(selT);
+    CapSprite.drawCap(ctx, 80, 80, 60, cap.hex, cap.accent, pilot.kanji||'?', 0, 0, 0.5, true);
+  }
+  function updateBigInfo(){
+    var cap = GarageEngine.getCap(selT);
+    document.getElementById('big-cap-name').textContent = cap.code + ' · ' + cap.name;
+    var tagEl = document.getElementById('big-cap-tag');
+    tagEl.setAttribute('data-i18n', cap.tagline_key);
+    tagEl.textContent = _t(cap.tagline_key, '');
+  }
+
+  // ── Grid de tampinhas ─────────────────────────────────────────────────
+  var grid = document.getElementById('cap-grid');
+  GarageEngine.CAPS.forEach(function(cap){
+    var el = document.createElement('div');
+    el.className = 'cap-card' + (cap.id === selT ? ' sel' : '');
+    el.style.setProperty('--cap-color', cap.hex);
+    el.style.setProperty('--cap-glow', _hexToRgba(cap.hex, 0.35));
+
+    var statsHtml = '';
+    var statKeys = ['velocidade','aceleracao','controle','aderencia'];
+    statKeys.forEach(function(k){
+      var v = cap.stats[k] || 0;
+      statsHtml +=
+        '<div class="stat-row">' +
+          '<span class="stat-lbl" data-i18n="garage_stat_' + k + '">' + k.toUpperCase() + '</span>' +
+          '<div class="stat-bar"><div class="stat-fill" style="width:' + v + '%"></div></div>' +
+        '</div>';
+    });
+
+    el.innerHTML =
+      '<div class="cap-head">' +
+        '<div class="cap-icon-code">' +
+          '<span class="cap-icon">' + cap.icon + '</span>' +
+          '<span class="cap-code">' + cap.code + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="cap-name">' + cap.name + '</div>' +
+      '<div class="cap-tag" data-i18n="' + cap.tagline_key + '">' + _t(cap.tagline_key, '') + '</div>' +
+      '<div class="cap-img-wrap">' +
+        '<img class="cap-img" src="' + cap.img + '" alt="' + cap.name + '" ' +
+          'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';"/>' +
+        '<div class="cap-img-fallback" style="display:none;">' + cap.code + '</div>' +
+      '</div>' +
+      statsHtml;
+
+    el.onclick = function(){ selT = cap.id; refresh(); };
+    grid.appendChild(el);
+  });
+
+  function _hexToRgba(hex, a){
+    if(!hex||hex.charAt(0)!=='#') return 'rgba(255,255,255,'+a+')';
+    var n=parseInt(hex.replace('#',''),16);
+    return 'rgba('+((n>>16)&0xFF)+','+((n>>8)&0xFF)+','+(n&0xFF)+','+a+')';
+  }
+
+  function refresh(){
+    Array.prototype.forEach.call(grid.children, function(el, i){
+      el.classList.toggle('sel', GarageEngine.CAPS[i].id === selT);
+    });
+    drawBigPreview();
+    updateBigInfo();
+    updateCost();
+    if(window.I18N && I18N.refresh) I18N.refresh();
+  }
+
+  function updateCost(){
+    var box = document.getElementById('cost-box');
+    var line = document.getElementById('cost-line');
+    var info = document.getElementById('cost-info');
+    var btn = document.getElementById('btn-apply');
+
+    var changed = selT !== current.template;
+    var cost = GarageEngine.calcCost(pilot.id, selT);
+
+    box.classList.remove('free','same');
+    if(current.isFirst){
+      box.classList.add('free');
+      line.textContent = _t('garage_first_free','PRIMEIRA: GRÁTIS');
+      info.textContent = _t('garage_first_free_info','Primeira escolha é gratuita.');
+      btn.disabled = false;
+      btn.textContent = _t('garage_apply','▶ APLICAR');
+    } else if(!changed){
+      box.classList.add('same');
+      line.textContent = _t('garage_no_change','SEM ALTERAÇÃO');
+      info.textContent = _t('garage_no_change_info','Você ainda está com a tampinha atual.');
+      btn.disabled = true;
+      btn.textContent = _t('garage_no_change','SEM ALTERAÇÃO');
+    } else {
+      line.textContent = _t('garage_cost_info','Esta troca custa') + ' ' + cost + ' $CR';
+      info.textContent = '';
+      btn.disabled = false;
+      btn.textContent = _t('garage_apply','▶ APLICAR') + ' (' + cost + ' $CR)';
+    }
+  }
+
+  function showToast(msg, kind){
+    var t = document.createElement('div');
+    t.className = 'toast ' + (kind || '');
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(function(){ t.style.opacity='0'; t.style.transition='.4s'; }, 2800);
+    setTimeout(function(){ t.remove(); }, 3300);
+  }
+
+  document.getElementById('btn-apply').onclick = function(){
+    var btn = this;
+    btn.disabled = true;
+    btn.textContent = '...';
+    var wasFirst = current.isFirst;
+    GarageEngine.apply(pilot.id, selT, function(res){
+      if(res.ok){
+        current = GarageEngine.get(pilot.id);
+        showToast(res.cost === 0
+          ? _t('garage_ok_free','✓ Aplicado com sucesso!')
+          : _t('garage_ok_paid','✓ Aplicado! ') + '−' + res.cost + ' $CR', 'ok');
+        if(wasFirst && typeof BadgesEngine !== 'undefined' && !BadgesEngine.has('GARAGE_RAT')){
+          BadgesEngine.grant('GARAGE_RAT');
+        }
+        if(typeof CREngine !== 'undefined' && CREngine.refreshBalance) CREngine.refreshBalance();
+        // Marco 2.9.2: tampinha aplicada → mostra barra de modos
+        var pb = document.getElementById('play-bar');
+        if(pb) pb.classList.add('show');
+        refresh();
+      } else if(res.err === 'insufficient_cr'){
+        showToast(_t('garage_err_insufficient','Saldo $CR insuficiente. Você precisa de') + ' ' + res.cost + ' $CR.', 'err');
+        refresh();
+      } else if(res.err === 'invalid_template'){
+        showToast(_t('garage_err_invalid','Seleção inválida.'), 'err');
+        refresh();
+      } else {
+        showToast(_t('garage_err_generic','Não foi possível aplicar. Tente novamente.'), 'err');
+        refresh();
+      }
+    });
+  };
+
+  // Marco 2.9.2: se já tem tampinha aplicada (não isFirst), exibe play-bar
+  if(!current.isFirst){
+    var pb0 = document.getElementById('play-bar');
+    if(pb0) pb0.classList.add('show');
+  }
+
+  refresh();
+})();
+</script>
+</body>
+</html>

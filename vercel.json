@@ -3,9 +3,6 @@
   "outputDirectory": ".",
   "installCommand": "",
   "framework": null,
-  "rewrites": [
-    { "source": "/client/(.*)", "destination": "/client/$1" }
-  ],
   "headers": [
     {
       "source": "/(.*)",

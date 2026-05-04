@@ -7,7 +7,7 @@
 <title>CapRush Overdrive!</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet"/>
 <!-- Marco 2: Privy Embedded Wallet -->
-<script type="module" src="privy-auth.js"></script>
+<script type="module" src="src/auth/privy-auth.js"></script>
 <style>
 body{min-height:100vh;width:100%;overflow-x:hidden;overflow:hidden;position:relative;z-index:1;}
 :root{--red:#FF2A2A;--gold:#FFD700;--dark:#020208}
@@ -32,11 +32,29 @@ nav{position:fixed;top:0;right:0;padding:18px 24px;z-index:3;display:flex;gap:12
 .cap::after{content:'';position:absolute;inset:7px;border-radius:50%;background:radial-gradient(circle at 28% 22%,#ff3f3f,#9d0000 60%,#400000);box-shadow:inset 0 -12px 24px rgba(0,0,0,.8),inset 0 8px 16px rgba(255,255,255,.16)}
 .cap span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:'Bebas Neue';font-size:1.55rem;letter-spacing:3px;color:#fff;text-shadow:0 3px 0 #000,0 0 16px rgba(0,0,0,1);z-index:2}
 .cap:hover{filter:brightness(1.35) drop-shadow(0 0 32px var(--gold));z-index:15;transform:scale(1.15)}
-/* ── Tampinha $CR ── */
-#cr-cap::after{background:transparent!important;box-shadow:none!important;}
-#cr-cap:hover::after{box-shadow:none!important;}
-#cr-logo-inner{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:82px;height:82px;object-fit:contain;z-index:3;display:block;filter:drop-shadow(0 0 8px rgba(255,200,0,.45));}
-#cr-cap span#nav-cr-bal{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);font-size:.82rem;letter-spacing:1.5px;color:#FFD700;text-shadow:0 1px 0 #000,0 0 12px rgba(255,180,0,1);line-height:1.3;white-space:nowrap;z-index:3;text-align:center;}
+#cr-cap::after{background:radial-gradient(circle at 30% 30%,#2a1a00,#0a0800);box-shadow:inset 0 -6px 16px rgba(0,0,0,.8),0 0 20px rgba(255,215,0,.25)}
+#cr-cap:hover::after{box-shadow:0 0 30px rgba(255,215,0,.5),inset 0 -6px 16px rgba(0,0,0,.6)}
+/* Logo image - positioned upper half */
+#cr-logo-inner{
+  position:absolute;
+  top:14px;left:50%;
+  transform:translateX(-50%);
+  width:62px;height:62px;
+  background:url('assets/images/ui/tokenCR.png') center/contain no-repeat;
+  z-index:3;
+  filter:drop-shadow(0 0 8px rgba(255,215,0,.6));
+}
+/* Balance text - positioned lower */
+#cr-cap span#nav-cr-bal{
+  position:absolute;
+  bottom:16px;left:50%;
+  transform:translateX(-50%);
+  font-size:.99rem;letter-spacing:1px;
+  color:#FFD700;
+  text-shadow:0 1px 4px #000,0 0 8px rgba(255,215,0,.9);
+  line-height:1.2;white-space:nowrap;
+  z-index:3;
+}
 .cap.locked{filter:grayscale(.8) brightness(.6);pointer-events:none}
 .cursor{position:fixed;width:40px;height:40px;pointer-events:none;z-index:100;transform:translate(-50%,-50%)}
 .cursor svg{width:100%;height:100%;animation:spin 2s linear infinite;filter:drop-shadow(0 0 14px var(--gold))}
@@ -84,10 +102,11 @@ nav{position:fixed;top:0;right:0;padding:18px 24px;z-index:3;display:flex;gap:12
   <div id="user-display" style="display:none" class="user-info">
     <img id="user-avatar" class="user-avatar" src="" alt="" onerror="this.style.display='none';document.getElementById('user-initials').style.display='flex'"/><div id="user-initials" style="display:none;width:30px;height:30px;border-radius:50%;border:2px solid var(--gold);background:#1A0505;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:.75rem;color:var(--gold);" id="user-initials"></div>
     <span id="user-nick" class="user-nick"></span>
+    <span id="clan-badge-nav" style="display:none;font-size:.65rem;letter-spacing:1.5px;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.25);border-radius:8px;padding:2px 7px;color:var(--gold);cursor:pointer;" onclick="window.location.href='pages/clans.html'"></span>
     <span id="wallet-pill" style="display:none;background:rgba(255,107,0,.12);border:1px solid rgba(255,107,0,.3);border-radius:20px;padding:3px 10px;font-family:monospace;font-size:.68rem;color:#ff9944;cursor:pointer;" title="Copiar endereço Solana" onclick="(function(){var a=localStorage.getItem('caprush_wallet');if(a&&navigator.clipboard)navigator.clipboard.writeText(a);})()"></span>
     <button class="login-btn" onclick="privyLogout()" style="font-size:.7rem;padding:5px 10px;margin-left:4px">SAIR</button>
   </div>
-  <button id="loginBtn" class="login-btn" onclick="privyLogin()">ENTRAR COM GOOGLE</button>
+  <button id="loginBtn" class="login-btn">ENTRAR COM GOOGLE</button>
   <button id="soundBtn" onclick="toggleAudio()" class="login-btn" style="padding:6px 10px;border-radius:50%;width:42px;height:42px;font-size:18px">🔇</button>
   <div id="flag-container">
     <button class="flag-btn flag-pt" onclick="setLang('pt')"></button>
@@ -99,16 +118,17 @@ nav{position:fixed;top:0;right:0;padding:18px 24px;z-index:3;display:flex;gap:12
 <div class="stage">
   <div class="orbit">
     <div class="center-logo" id="center">
-      <img src="Whisk_2_transparent.png" alt="CapRush Overdrive">
+      <img src="assets/images/ui/Whisk_2_transparent.png" alt="CapRush Overdrive">
     </div>
-    <a href="personagens.html" class="cap locked" id="playBtn"><span data-i18n="play">JOGAR</span></a>
-    <a href="personagens.html"  class="cap"><span data-i18n="pilots">PILOTOS</span></a>
-    <a href="ranking.html"      class="cap"><span data-i18n="ranking">RANKING</span></a>
-    <a href="manual.html"       class="cap"><span data-i18n="manual">MANUAL</span></a>
-    <span class="cap locked" title="Em breve!"><span data-i18n="garage">GARAGEM</span></span>
-    <a href="caprush-brand.html" class="cap"><span data-i18n="saiba_mais">Saiba+</span></a>
+    <a href="pages/personagens.html" class="cap locked" id="playBtn"><span data-i18n="play">JOGAR</span></a>
+    <a href="pages/personagens.html"  class="cap"><span data-i18n="pilots">PILOTOS</span></a>
+    <a href="pages/ranking.html"      class="cap"><span data-i18n="ranking">RANKING</span></a>
+    <a href="pages/manual.html"       class="cap"><span data-i18n="manual">MANUAL</span></a>
+    <a href="pages/garagem.html"      class="cap"><span data-i18n="garage">GARAGEM</span></a>
+    <span class="cap locked" title="Em breve!" data-i18n-title="oficina_locked_title"><span data-i18n="oficina">OFICINA</span></span>
+    <a href="pages/caprush-brand.html" class="cap"><span data-i18n="saiba_mais">Saiba+</span></a>
     <a href="dashboard.html" class="cap" id="cr-cap">
-      <img id="cr-logo-inner" src="tokenCR.png" alt="$CR"/>
+      <div id="cr-logo-inner"></div>
       <span id="nav-cr-bal">0<br/>$CR</span>
     </a>
   </div>
@@ -116,7 +136,7 @@ nav{position:fixed;top:0;right:0;padding:18px 24px;z-index:3;display:flex;gap:12
 
 <div class="hint" id="hint-txt">faça login para jogar</div>
 
-<script src="i18n.js"></script>
+<script src="src/ui/i18n.js"></script>
 <script>
 // ── Cursor ────────────────────────────────────────────────────────────────
 var cur=document.getElementById('cur');
@@ -134,13 +154,45 @@ caps.forEach(function(el){
   el.addEventListener('click',function(e){
     if(el.classList.contains('locked')){e.preventDefault();return;}
     var link=el.getAttribute('href');
+    // Marco 2.9.2: JOGAR rota condicional — falta piloto? vai pra personagens.
+    // Falta tampinha? vai pra garagem. Ambos OK? abre último modo escolhido (default Solo).
+    if(el.id === 'playBtn'){
+      link = _resolvePlayDestination();
+    }
     document.body.style.transition='transform 0.5s ease-in,opacity 0.5s';
     document.body.style.transform='scale(1.6)';document.body.style.opacity='0.4';
     setTimeout(function(){window.location.href=link;},300);
   });
 });
 
-// ── Sessão / UI ───────────────────────────────────────────────────────────
+// Marco 2.9.2: roteia o JOGAR conforme estado das seleções (sem depender de scripts externos)
+function _resolvePlayDestination(){
+  // 1) Piloto selecionado em localStorage?
+  var pid = localStorage.getItem('caprush_pilot');
+  if(!pid) return 'pages/personagens.html';
+  // 2) Tampinha escolhida pra esse piloto?
+  // Aplicada quando is_first === false (passou pelo apply da garagem)
+  var tampOk = false;
+  try {
+    var raw = localStorage.getItem('caprush_garage_' + pid);
+    if(raw){
+      var d = JSON.parse(raw);
+      if(d && d.template && d.is_first === false) tampOk = true;
+    }
+  } catch(e){}
+  if(!tampOk) return 'pages/garagem.html';
+  // 3) Tudo OK — vai pro último modo (default solo)
+  var lastMode = localStorage.getItem('caprush_lastmode') || 'solo';
+  if(lastMode === 'local')  return 'pages/game/game-multi-local.html';
+  if(lastMode === 'online') return 'pages/game/game-multi-online.html';
+  return 'pages/game/caprush-game.html';
+}
+
+// ── Sessão localStorage ───────────────────────────────────────────────────
+function getSession(){try{return JSON.parse(localStorage.getItem('caprush_user')||'null');}catch(e){return null;}}
+function saveSession(s){localStorage.setItem('caprush_user',JSON.stringify(s));}
+function clearSession(){localStorage.removeItem('caprush_user');}
+
 function applySession(s){
   if(!s) return;
   document.getElementById('loginBtn').style.display='none';
@@ -151,89 +203,77 @@ function applySession(s){
   var ini=document.getElementById('user-initials');if(ini)ini.textContent=(s.nickname||s.name||'P').charAt(0);
   document.getElementById('playBtn').classList.remove('locked');
   document.getElementById('hint-txt').textContent='Clique em JOGAR para começar';
-  window.CAPRUSH_NICKNAME=s.nickname||s.name;
-  var addr=s.walletAddress||localStorage.getItem('caprush_wallet')||'';
-  if(addr&&addr.length>8){var p=document.getElementById('wallet-pill');if(p){p.textContent=addr.slice(0,4)+'..'+addr.slice(-4);p.style.display='inline-block';}}
-  if(typeof CREngine!=='undefined'){CREngine.getBalance(function(bal){var el=document.getElementById('nav-cr-bal');if(el)el.innerHTML=bal.toFixed(1)+'<br/>$CR';});}
-}
-function applyLogout(){
-  document.getElementById('loginBtn').style.display='';
-  document.getElementById('user-display').style.display='none';
-  document.getElementById('playBtn').classList.add('locked');
-  document.getElementById('hint-txt').textContent='faça login para jogar';
-  var p=document.getElementById('wallet-pill');if(p)p.style.display='none';
+  // Salva nickname globalmente para o GameLoop usar ao salvar scores
+  window.CAPRUSH_NICKNAME = s.nickname || s.name;
 }
 
-// ── Nickname modal ─────────────────────────────────────────────────────────
-var _pendingSession=null;
-function _openNickModal(s){
-  _pendingSession=s;
+function logout(){clearSession();location.reload();}
+
+// ── Google Sign-In callback ───────────────────────────────────────────────
+var _pendingPayload=null;
+window.onGoogleLogin=function(response){
+  // Decodifica JWT (payload — sem verificar assinatura, só para UI)
+  var parts=response.credential.split('.');
+  var payload=JSON.parse(atob(parts[1].replace(/-/g,'+').replace(/_/g,'/')));
+  var existing=getSession();
+  if(existing && existing.google_id===payload.sub){
+    // Já logado com esta conta
+    applySession(existing);
+    return;
+  }
+  // Novo usuário → pede nickname
+  _pendingPayload=payload;
   document.getElementById('nick-modal').classList.add('open');
-  document.getElementById('nick-input').value=(s.name||'').split(' ')[0].toUpperCase().replace(/[^A-Z0-9]/g,'');
   setTimeout(function(){document.getElementById('nick-input').focus();},100);
-}
+};
+
 document.getElementById('nick-confirm').onclick=function(){
   var raw=document.getElementById('nick-input').value.trim().replace(/\s/g,'').toUpperCase();
   var err=document.getElementById('nick-error');
   if(raw.length<3){err.style.display='block';return;}
-  err.style.display='none';if(!_pendingSession)return;
-  localStorage.setItem('caprush_nickname',raw);localStorage.setItem('caprush_nick',raw);
-  _pendingSession.nickname=raw;
-  localStorage.setItem('caprush_privy_session',JSON.stringify(_pendingSession));
-  // Salva em caprush_user também para retrocompat com cr-engine.js
-  localStorage.setItem('caprush_user',JSON.stringify({google_id:_pendingSession.google_id,nickname:raw,name:_pendingSession.name,picture:_pendingSession.picture,email:_pendingSession.email}));
-  _pendingSession=null;document.getElementById('nick-modal').classList.remove('open');
-  applySession(JSON.parse(localStorage.getItem('caprush_privy_session')||'{}'));
+  err.style.display='none';
+  if(!_pendingPayload) return;
+  var session={
+    google_id: _pendingPayload.sub,
+    nickname:  raw,
+    name:      _pendingPayload.name,
+    picture:   _pendingPayload.picture,
+    email:     _pendingPayload.email
+  };
+  saveSession(session);
+  _pendingPayload=null;
+  document.getElementById('nick-modal').classList.remove('open');
+  applySession(session);
 };
-document.getElementById('nick-input').addEventListener('keydown',function(e){if(e.key==='Enter')document.getElementById('nick-confirm').click();});
 
-// ── Privy ──────────────────────────────────────────────────────────────────
-function privyLogin(){
-  var btn=document.getElementById('loginBtn');btn.textContent='CONECTANDO...';btn.disabled=true;
-  function go(){PrivyAuth.login().catch(function(){btn.textContent='ENTRAR COM GOOGLE';btn.disabled=false;});}
-  if(window.PrivyAuth)go();else window.addEventListener('privyAuthReady',function once(){window.removeEventListener('privyAuthReady',once);go();});
-}
-function privyLogout(){
-  // Limpa tudo ANTES de chamar PrivyAuth.logout() para garantir estado limpo
-  localStorage.removeItem('caprush_user');
-  localStorage.removeItem('caprush_privy_session');
-  localStorage.removeItem('caprush_wallet');
-  localStorage.removeItem('caprush_custom_nickname');
-  if(window.PrivyAuth){PrivyAuth.logout().catch(function(){});}
-  applyLogout();
-  // Reload garante que o iframe do Privy e o estado da página sejam limpos
-  setTimeout(function(){location.reload();},300);
-}
-window.addEventListener('privyAuthLogin',function(e){
-  var s=e.detail;document.getElementById('loginBtn').textContent='ENTRAR COM GOOGLE';document.getElementById('loginBtn').disabled=false;
-  if(!localStorage.getItem('caprush_custom_nickname')){localStorage.setItem('caprush_custom_nickname','1');_openNickModal(s);}else{applySession(s);}
-});
-window.addEventListener('privyAuthLogout',function(){applyLogout();});
-window.addEventListener('privyAuthError',function(){
-  document.getElementById('loginBtn').textContent='ENTRAR COM GOOGLE';document.getElementById('loginBtn').disabled=false;
-  document.getElementById('hint-txt').textContent='Erro no login. Tente novamente.';
-  setTimeout(function(){document.getElementById('hint-txt').textContent='faça login para jogar';},4000);
+document.getElementById('nick-input').addEventListener('keydown',function(e){
+  if(e.key==='Enter') document.getElementById('nick-confirm').click();
 });
 
-// ── Restore de sessão ──────────────────────────────────────────────────────
-function tryRestoreSession(){
-  if(!window.PrivyAuth)return;
-  var stored=PrivyAuth.getSession();
-  if(stored&&stored.id){
-    applySession(stored);
-    PrivyAuth.restoreSession().then(function(fresh){if(fresh)applySession(fresh);}).catch(function(){});
+// Botão ENTRAR dispara Google One Tap
+var GOOGLE_CLIENT_ID='260195350476-no0mcp0ak3mmc3gag9v83lighvjov85e.apps.googleusercontent.com'; // ← substituir depois de criar no Google Cloud
+document.getElementById('loginBtn').onclick=function(){
+  if(typeof google!=='undefined'&&google.accounts){
+    google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:window.onGoogleLogin});
+    google.accounts.id.prompt(function(notification){
+      if(notification.isNotDisplayed()||notification.isSkippedMoment()){
+        // Fallback: popup
+        google.accounts.id.renderButton(document.createElement('div'),{});
+      }
+    });
+  } else {
+    alert('Google Sign-In não carregou. Verifique sua conexão e tente novamente.');
   }
-}
-window.addEventListener('privyAuthReady',tryRestoreSession);
-if(window.PrivyAuth)tryRestoreSession();
+};
 
-// ── Retrocompatibilidade Marco 1 ───────────────────────────────────────────
-// SÓ restaura sessão Google antiga se NÃO houver logout explícito registrado.
-// O logout agora remove caprush_user, então esta condição nunca é verdadeira pós-logout.
+// Verifica sessão existente ao carregar
 window.addEventListener('load',function(){
-  var hasPrivy=!!localStorage.getItem('caprush_privy_session');
-  var hasLegacy=null;try{hasLegacy=JSON.parse(localStorage.getItem('caprush_user')||'null');}catch(e){}
-  if(!hasPrivy&&hasLegacy&&hasLegacy.google_id){applySession(hasLegacy);}
+  var s=getSession();
+  if(s) applySession(s);
+  // Inicializa Google silenciosamente para auto-login
+  if(typeof google!=='undefined'&&google.accounts){
+    google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:window.onGoogleLogin,auto_select:true});
+  }
 });
 
 window.addEventListener('pageshow',function(){
@@ -241,9 +281,9 @@ window.addEventListener('pageshow',function(){
   document.body.style.opacity='1';
 });
 </script>
-<script src="cr-engine.js"></script>
-<script src="audio.js"></script>
-<script src="background.js"></script>
+<script src="src/engines/cr-engine.js"></script>
+<script src="src/ui/audio.js"></script>
+<script src="src/ui/background.js"></script>
 
 <script>
 // Load CR balance into nav display

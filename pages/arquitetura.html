@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<script async src="https://vibej.am/2026/widget.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CapRush - Arquitetura v0.11.2</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red:  #FF2A2A;
+    --gold: #FFD700;
+    --dark: #05050A;
+    --acc:  #00E5FF;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%;
+    min-height: 100vh;
+  }
+
+  /* Marco 2.9.2: cor escura no html, body transparente p/ background animado */
+  html {
+    background: var(--dark);
+  }
+
+  body {
+    background: transparent;
+    color: #E8E8F0;
+    font-family: 'Rajdhani', sans-serif;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background:
+      radial-gradient(1200px 800px at 80% -20%, rgba(255, 42, 42, .12), transparent 60%),
+      radial-gradient(900px 600px at 10% 120%,  rgba(0, 229, 255, .10), transparent 60%),
+      #05050A;
+  }
+
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    opacity: .04;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, .1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, .1) 1px, transparent 1px);
+    background-size: 44px 44px;
+    animation: grid 20s linear infinite;
+  }
+
+  @keyframes grid {
+    to { background-position: 44px 44px; }
+  }
+
+  /* NAV */
+  nav {
+    display: flex;
+    align-items: center;
+    padding: 12px 24px;
+    gap: 1.4rem;
+    background: rgba(5, 5, 12, .70);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 42, 42, .25);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .nav-logo {
+    font-family: 'Bebas Neue';
+    font-size: 1.35rem;
+    letter-spacing: 4px;
+    background: linear-gradient(135deg, var(--red), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-decoration: none;
+  }
+
+  .nav-link {
+    color: #AAA;
+    text-decoration: none;
+    font-size: .82rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: color .2s;
+  }
+
+  .nav-link:hover { color: var(--gold); }
+
+  .flag-btn {
+    width: 24px;
+    height: 16px;
+    border: 1px solid rgba(255, 255, 255, .2);
+    border-radius: 3px;
+    cursor: pointer;
+    opacity: .6;
+    background-size: cover;
+  }
+
+  .flag-btn:hover { opacity: 1; }
+
+  /* LAYOUT */
+  .wrap {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 40px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  @media (max-width: 900px) {
+    .wrap { grid-template-columns: 1fr; }
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    position: sticky;
+    top: 90px;
+    height: fit-content;
+  }
+
+  .sidebar a {
+    display: block;
+    color: #666;
+    text-decoration: none;
+    padding: 8px 0 8px 12px;
+    border-left: 2px solid transparent;
+    font-size: .85rem;
+    letter-spacing: 1px;
+    transition: .2s;
+  }
+
+  .sidebar a:hover,
+  .sidebar a.active {
+    color: var(--gold);
+    border-left-color: var(--gold);
+  }
+
+  /* TIPOGRAFIA */
+  h1 {
+    font-family: 'Bebas Neue';
+    font-size: clamp(2.8rem, 6vw, 4rem);
+    letter-spacing: 5px;
+    background: linear-gradient(135deg, var(--red), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+    filter: drop-shadow(0 0 20px rgba(255, 42, 42, .25));
+  }
+
+  .subtitle {
+    color: #777;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-size: .8rem;
+    margin-bottom: 32px;
+  }
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Bebas Neue';
+    font-size: 1.5rem;
+    color: var(--gold);
+    margin: 36px 0 16px;
+    letter-spacing: 2px;
+  }
+
+  h2 svg {
+    width: 20px;
+    height: 20px;
+    opacity: .8;
+    flex-shrink: 0;
+  }
+
+  /* CARD */
+  .card {
+    background: rgba(255, 255, 255, .03);
+    border: 1px solid rgba(255, 255, 255, .08);
+    backdrop-filter: blur(16px);
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin: 18px 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--acc), transparent);
+    opacity: .5;
+  }
+
+  /* MISC */
+  code {
+    background: rgba(0, 229, 255, .10);
+    color: var(--acc);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: .9em;
+  }
+
+  ul { margin-left: 20px; }
+  li { margin: 8px 0; line-height: 1.6; }
+  p  { line-height: 1.75; color: #C8C8D8; }
+
+  .badge {
+    display: inline-block;
+    padding: 4px 10px;
+    background: rgba(255, 215, 0, .10);
+    border: 1px solid rgba(255, 215, 0, .30);
+    border-radius: 20px;
+    font-size: .7rem;
+    color: var(--gold);
+    margin-left: 10px;
+    letter-spacing: 1px;
+  }
+
+  #progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--red), var(--gold));
+    z-index: 100;
+    width: 0%;
+    transition: width .1s;
+  }
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<nav>
+  <a href="../index.html" class="nav-logo">CAP RUSH</a>
+  <a href="game/caprush-game.html" class="nav-link">JOGAR</a>
+  <a href="ranking.html"       class="nav-link">RANKING</a>
+  <a href="caprush-brand.html" class="nav-link">MARCA</a>
+  <div style="margin-left: auto; display: flex; gap: 5px;">
+    <button class="flag-btn"
+      style="background-image: url('data:image/svg+xml,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 viewBox%3D%220 0 3 2%22%3E%3Crect width%3D%223%22 height%3D%222%22 fill%3D%22%23009b3a%22%2F%3E%3Cpolygon points%3D%221.5%2C0.2 2.7%2C1 1.5%2C1.8 0.3%2C1%22 fill%3D%22%23ffdf00%22%2F%3E%3Ccircle cx%3D%221.5%22 cy%3D%221%22 r%3D%220.35%22 fill%3D%22%23002776%22%2F%3E%3C%2Fsvg%3E');"
+      onclick="if(window.I18N) I18N.setLang('pt')" title="PT"></button>
+    <button class="flag-btn"
+      style="background-image: url('data:image/svg+xml,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 viewBox%3D%220 0 3 2%22%3E%3Crect width%3D%223%22 height%3D%222%22 fill%3D%22%23b22234%22%2F%3E%3Crect width%3D%221.2%22 height%3D%221.05%22 fill%3D%22%233c3b6e%22%2F%3E%3C%2Fsvg%3E');"
+      onclick="if(window.I18N) I18N.setLang('en')" title="EN"></button>
+    <button class="flag-btn"
+      style="background-image: url('data:image/svg+xml,%3Csvg xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22 viewBox%3D%220 0 3 2%22%3E%3Crect width%3D%223%22 height%3D%222%22 fill%3D%22%23c60b1e%22%2F%3E%3Crect y%3D%220.5%22 width%3D%223%22 height%3D%221%22 fill%3D%22%23ffc400%22%2F%3E%3C%2Fsvg%3E');"
+      onclick="if(window.I18N) I18N.setLang('es')" title="ES"></button>
+  </div>
+</nav>
+
+<div class="wrap">
+  <aside class="sidebar">
+    <a href="#stack" class="active">Stack</a>
+    <a href="#fluxo">Fluxo</a>
+    <a href="#roadmap">Roadmap</a>
+  </aside>
+
+  <div class="content">
+
+    <h1>ARQUITETURA v0.11.2 <span class="badge">LIVE</span></h1>
+    <div class="subtitle">CapRush Overdrive — Marcos 1 · 2 · 2.5 · 2.7 · 2.8 · 2.9 · 2.9.1 · 2.9.2 ✅ · Maio 2026</div>
+
+    <!-- STACK -->
+    <h2 id="stack">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="2" y="3" width="20" height="14" rx="2"/>
+        <path d="M8 21l8-10"/>
+      </svg>
+      STACK ATUAL — Marco 2.7
+    </h2>
+    <div class="card">
+      <ul>
+        <li><strong>Frontend:</strong> HTML5 Canvas 2D + Vanilla JS (sem framework) · Motor de física próprio</li>
+        <li><strong>Áudio:</strong> Web Audio API procedural 148 BPM Am · SFX throttled · 3 trilhas OGG</li>
+        <li><strong>Login:</strong> <strong style="color: #FFD700;">Privy OAuth</strong> — Google → PKCE redirect → DID Solana (<code>did:privy:...</code>) · sem iframe, sem CORS</li>
+        <li><strong>Wallet:</strong> Privy Embedded Wallet — DID como identificador (Marco 2) · endereço Base58 no Marco 3 via Vercel Function</li>
+        <li><strong>Token $CR:</strong> <code>cr-engine.js</code> off-chain · <code>spendCR()</code> para reset/apostas · on-chain no Marco 3</li>
+        <li><strong>Evolução:</strong> <code>pilot-evolution.js</code> · 19 missões · cap 25pts/stat · reset mensal gratuito ou 5 $CR</li>
+        <li><strong>Apostas:</strong> <code>bet_matches</code> Supabase · lock → corrida → <code>settle_bet</code> RPC</li>
+        <li><strong>Clãs:</strong> <code>clan-engine.js</code> · 4 tabelas · 5 RPCs · Líder/Oficial/Membro · pool $CR coletivo</li>
+        <li><strong>Blockchain:</strong> Solana Mainnet + Fogo SVM — Marco 3 (Q3 2026)</li>
+        <li><strong>Backend:</strong> Supabase Postgres (REST + RPCs) · Vercel CDN</li>
+        <li><strong>Multiplayer:</strong> PeerJS WebRTC P2P · apostas 1v1 com árbitro Supabase</li>
+        <li><strong>i18n:</strong> PT / EN / ES — 400+ chaves</li>
+        <li><strong>Pilotos:</strong> 5 NFTs — YUKI ✅ KENTA ✅ BRUNA 🔒 DUO 🔒 TAPZ 🔒 + RACER-D (Boss IA)</li>
+      </ul>
+    </div>
+
+    <!-- FLUXO -->
+    <h2 id="fluxo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M3 12h18M12 3v18"/>
+      </svg>
+      FLUXO v0.9
+    </h2>
+    <div class="card">
+      <p>
+        1. <code>index.html</code> — Privy OAuth + Nickname + badge <code>[TAG]</code> do clã no nav<br>
+        2. <code>personagens.html</code> — Piloto com stats evoluídos + badge de pontos disponíveis<br>
+        3. <code>caprush-game.html</code> — Solo vs Racer-D → <strong>+1 $CR</strong> + check missões<br>
+        &nbsp;&nbsp;&nbsp;└ <code>client/game-multi-local.html</code> — 1v1 Local → vencedor <strong>+3 $CR</strong> + missões<br>
+        &nbsp;&nbsp;&nbsp;└ <code>client/game-multi-online.html</code> — 1v1 Online normal (+3 $CR) ou apostado (pot inteiro)<br>
+        4. <code>dashboard.html</code> — $CR · evolução · missões · meu clã<br>
+        5. <code>clans.html</code> — explorar/criar/gerenciar clãs · ranking por cr_pool<br>
+        6. <code>ranking.html</code> — runs ORDER BY time_ms · 3 abas (Solo / Local / Online)
+      </p>
+    </div>
+
+    <!-- ROADMAP -->
+    <h2 id="roadmap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 6 12 12 16 14"/>
+      </svg>
+      ROADMAP INVESTIDOR
+    </h2>
+    <div class="card">
+      <ul>
+        <li>✅ <strong>Marco 1:</strong> Motor física · 2 pistas · 3 modos · Ranking · i18n · Motor $CR off-chain · Dashboard · Vibe Jam 2026</li>
+        <li>✅ <strong>Marco 2:</strong> Privy OAuth PKCE · DID Solana · $CR nos 3 modos · 5 pilotos com fotos</li>
+        <li>✅ <strong>Marco 2.5:</strong> Evolução RPG de pilotos · 19 missões · Apostas 1v1 · Physics dinâmico</li>
+        <li>✅ <strong>Marco 2.7:</strong> Sistema de Clãs · pool $CR coletivo · hierarquia · convites · ranking</li>
+        <li>✅ <strong>Marco 2.8:</strong> TrackV3 visual top-down · obstáculos boost/oil/spin · multi com voltas configuráveis</li>
+        <li>✅ <strong>Marco 2.9:</strong> 11 pilotos NFT (5 raridades) · Garagem inicial · Daily Login 30 dias · 6 Badges</li>
+        <li>✅ <strong>Marco 2.9.1:</strong> Refactor de organização: raiz limpa · src/ modular · Yuki→PilotRenderer</li>
+        <li>✅ <strong>Marco 2.9.2:</strong> Garagem refeita (4 PNGs fixas) · fluxo JOGAR inteligente · IA Racer-D mais robusta · Monza overhaul · som de derrapagem por tampinha</li>
+        <li>🔄 <strong>Marco 3 (Q3 2026 — Próximo):</strong> SPL Token $CR on-chain · Endereço Solana real (Vercel Function) · Mint NFT pilotos (Metaplex) · Airdrop saldos</li>
+        <li>⏳ <strong>Marco 4 (Q4 2026):</strong> Smart contract Anchor · Apostas on-chain · Oficina (upgrades funcionais da tampinha)</li>
+        <li>🔮 <strong>Marco 5+ (2027):</strong> Marketplace NFT · DAO governança · Staking $CR · Campeonatos globais</li>
+      </ul>
+    </div>
+
+    <p style="margin-top: 40px; color: #555; text-align: center;">
+      dev@caprush.gg &nbsp;·&nbsp; Privy App ID ativo &nbsp;·&nbsp; Marcos 1 → 2.9.2 ✅ &nbsp;·&nbsp; caprush.vercel.app
+    </p>
+
+  </div>
+</div>
+
+<script>
+  /* Barra de progresso de scroll */
+  window.addEventListener('scroll', function() {
+    var h   = document.documentElement;
+    var pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+    document.getElementById('progress').style.width = pct + '%';
+  });
+
+  /* Sidebar ativa conforme scroll */
+  var sideLinks = document.querySelectorAll('.sidebar a');
+  var observer  = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        sideLinks.forEach(function(l) { l.classList.remove('active'); });
+        var match = document.querySelector('.sidebar a[href="#' + entry.target.id + '"]');
+        if (match) match.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-40% 0px' });
+
+  document.querySelectorAll('h2[id]').forEach(function(h) { observer.observe(h); });
+</script>
+<script src="../src/ui/background.js"></script>
+<script src="../src/ui/audio.js"></script>
+
+<script src="../src/ui/i18n.js"></script>
+</body>
+</html>
