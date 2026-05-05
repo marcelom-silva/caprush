@@ -1,6 +1,32 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+<!-- Marco 2.9.2: Guard de pre-requisitos -->
+<script>
+(function(){
+  try {
+    var pid = localStorage.getItem('caprush_pilot');
+    if (!pid) {
+      window.location.replace('../personagens.html');
+      return;
+    }
+    var tampOk = false;
+    try {
+      var raw = localStorage.getItem('caprush_garage_' + pid);
+      if (raw) {
+        var d = JSON.parse(raw);
+        if (d && d.template && d.is_first === false) tampOk = true;
+      }
+    } catch(e) {}
+    if (!tampOk) {
+      window.location.replace('../garagem.html');
+      return;
+    }
+  } catch(e) {
+    window.location.replace('../personagens.html');
+  }
+})();
+</script>
 <script async src="https://vibej.am/2026/widget.js"></script>
 <!-- Playables SDK -->
 <script>// Playables SDK v1.0.0 ... (truncated for brevity) </script>
@@ -467,11 +493,7 @@ function postScoreOnline(winner){
   var SURL='https://rigghudagbzrzadsbeml.supabase.co/rest/v1/runs';
   fetch(SURL,{method:'POST',
     headers:{'Content-Type':'application/json','apikey':SKEY_BET,'Authorization':'Bearer '+SKEY_BET,'Prefer':'return=minimal'},
-    body:JSON.stringify({
-      wallet:wallet, nickname:nick, pilot:winner.name, time_ms:_ms, launches:0,
-      mode:'online', solana_address:wallet,
-      env: (location.hostname==='localhost'||location.hostname==='127.0.0.1') ? 'dev' : 'production'
-    })
+    body:JSON.stringify({wallet:wallet,nickname:nick,pilot:winner.name,time_ms:_ms,launches:0,mode:'online',solana_address:wallet})
   }).catch(function(){});
 
   if(isLocalWinner){

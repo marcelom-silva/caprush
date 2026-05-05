@@ -1,6 +1,32 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+<!-- Marco 2.9.2: Guard de pre-requisitos -->
+<script>
+(function(){
+  try {
+    var pid = localStorage.getItem('caprush_pilot');
+    if (!pid) {
+      window.location.replace('../personagens.html');
+      return;
+    }
+    var tampOk = false;
+    try {
+      var raw = localStorage.getItem('caprush_garage_' + pid);
+      if (raw) {
+        var d = JSON.parse(raw);
+        if (d && d.template && d.is_first === false) tampOk = true;
+      }
+    } catch(e) {}
+    if (!tampOk) {
+      window.location.replace('../garagem.html');
+      return;
+    }
+  } catch(e) {
+    window.location.replace('../personagens.html');
+  }
+})();
+</script>
 <script async src="https://vibej.am/2026/widget.js"></script>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>CapRush - 1v1 Local</title>
@@ -39,14 +65,13 @@ html,body{width:100%;height:100%;background:var(--dark);font-family:'Rajdhani',s
 #fbg{width:100%;height:75px;background:#1A1A28;border:1px solid #333;border-radius:4px;position:relative;overflow:hidden;}
 #force-bar-fill{position:absolute;bottom:0;left:0;right:0;height:0%;background:linear-gradient(0deg,var(--red),var(--gold));transition:height .05s;}
 #force-value{font-family:'Bebas Neue';font-size:1.3rem;color:var(--gold);text-align:center;}
-/* Pilot cards padronizados (Marco 2.9.2: layout vertical novo) */
-.pilot-card-std{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:9px;padding:8px 6px;transition:border-color .3s;}
+/* Pilot cards padronizados */
+.pilot-card-std{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:8px;transition:border-color .3s;}
 .pilot-card-std.active-turn{border-color:var(--gold);box-shadow:0 0 10px rgba(255,215,0,.22);}
-.pc-top{display:flex;gap:8px;align-items:center;justify-content:center;margin-bottom:6px;}
-.pc-photo{width:46px;height:46px;border-radius:50%;object-fit:cover;object-position:50% 5%;border:2px solid rgba(255,255,255,.14);background:#1a1a28;flex-shrink:0;}
-.pc-name{font-family:'Bebas Neue';letter-spacing:2px;font-size:.95rem;line-height:1.1;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.pc-time{font-size:.55rem;color:#666;text-align:center;margin-top:3px;font-family:'Bebas Neue';letter-spacing:1px;}
-canvas#cv-p1, canvas#cv-p2{flex-shrink:0;background:#0a0a0f;border:1px solid rgba(255,255,255,.05);}
+.pc-row{display:flex;align-items:center;gap:7px;margin-bottom:5px;}
+.pc-photo-old{width:38px;height:38px;border-radius:50%;object-fit:cover;object-position:50% 5%;border:2px solid rgba(255,255,255,.12);flex-shrink:0;}
+.ar{display:flex;justify-content:space-between;font-size:.62rem;color:#AAA;margin:2px 0;}
+.av{font-weight:700;}
 /* Turn */
 #score-box{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:6px;padding:5px;}
 #turn-label{font-family:'Bebas Neue';font-size:.78rem;letter-spacing:2px;text-align:center;margin-top:2px;}
@@ -118,26 +143,40 @@ canvas#cv-p1, canvas#cv-p2{flex-shrink:0;background:#0a0a0f;border:1px solid rgb
       <div id="fbg"><div id="force-bar-fill"></div></div>
       <div id="force-value">0%</div>
 
-      <!-- P1 card (Marco 2.9.2: layout vertical foto+tampinha em cima, nome embaixo) -->
+      <!-- P1 card -->
       <div class="pt" data-i18n="multi_pilot1">PILOTO 1</div>
       <div class="pilot-card-std" id="pc-p1">
-        <div class="pc-top">
-          <img id="p1-photo" class="pc-photo" src="" alt=""/>
-          <canvas id="cv-p1" width="46" height="46" style="border-radius:50%;"></canvas>
+        <div class="pc-inner">
+          <div class="pc-left">
+            <img id="p1-photo" class="pc-photo" src="" alt=""/>
+            <canvas id="cv-p1" width="46" height="46" style="border-radius:50%;"></canvas>
+          </div>
+          <div class="pc-right">
+            <div class="pc-name" id="p1-name" style="color:var(--acc)">—</div>
+            <div style="font-size:.55rem;color:#555;margin-bottom:3px;" id="p1-time-sm">00:00.0</div>
+            <div class="ar"><span data-i18n="stat-speed">Velocidade</span><span class="av" id="p1-vel">—</span></div>
+            <div class="ar"><span data-i18n="stat-control">Controle</span><span class="av" id="p1-ctrl">—</span></div>
+            <div class="ar"><span data-i18n="stat-aero">Aerodin.</span><span class="av" id="p1-aero">—</span></div>
+          </div>
         </div>
-        <div class="pc-name" id="p1-name" style="color:var(--acc)">—</div>
-        <div class="pc-time" id="p1-time-sm">00:00.0</div>
       </div>
 
       <!-- P2 card -->
       <div class="pt" data-i18n="multi_pilot2">PILOTO 2</div>
       <div class="pilot-card-std" id="pc-p2">
-        <div class="pc-top">
-          <img id="p2-photo" class="pc-photo" src="" alt=""/>
-          <canvas id="cv-p2" width="46" height="46" style="border-radius:50%;"></canvas>
+        <div class="pc-inner">
+          <div class="pc-left">
+            <img id="p2-photo" class="pc-photo" src="" alt=""/>
+            <canvas id="cv-p2" width="46" height="46" style="border-radius:50%;"></canvas>
+          </div>
+          <div class="pc-right">
+            <div class="pc-name" id="p2-name" style="color:var(--p2)">—</div>
+            <div style="font-size:.55rem;color:#555;margin-bottom:3px;" id="p2-time-sm">00:00.0</div>
+            <div class="ar"><span data-i18n="stat-speed">Velocidade</span><span class="av" id="p2-vel">—</span></div>
+            <div class="ar"><span data-i18n="stat-control">Controle</span><span class="av" id="p2-ctrl">—</span></div>
+            <div class="ar"><span data-i18n="stat-aero">Aerodin.</span><span class="av" id="p2-aero">—</span></div>
+          </div>
         </div>
-        <div class="pc-name" id="p2-name" style="color:var(--p2)">—</div>
-        <div class="pc-time" id="p2-time-sm">00:00.0</div>
       </div>
 
       <!-- Turno -->
@@ -187,13 +226,13 @@ canvas#cv-p1, canvas#cv-p2{flex-shrink:0;background:#0a0a0f;border:1px solid rgb
 <script src="../../src/scenes/TrackMonza.js"></script>
 
 <script>
-// ─── Dados dos pilotos (fallback estático — paths absolutos Marco 2.9.2) ─
+// ─── Dados dos pilotos (fallback estático) ───────────────────────────────
 var PILOTS_DATA = {
-  YUKI:  {color:'#00E5FF',accent:'#0a5a7a',kanji:'\u96EA',vel:92,ctrl:94,aero:90,spd:0.92,img:'/assets/images/pilots/yuki-piloto.png'},
-  KENTA: {color:'#FF8C00',accent:'#7a3a00',kanji:'\u9B54',vel:94,ctrl:90,aero:92,spd:0.94,img:'/assets/images/pilots/kenta-piloto.png'},
-  CAL:   {color:'#BBBBBB',accent:'#888888',kanji:'\u5929',vel:80,ctrl:82,aero:78,spd:0.80,img:'/assets/images/pilots/cal-piloto.png'},
-  JOAO:  {color:'#FF3333',accent:'#7a0000',kanji:'\u7FFC',vel:78,ctrl:78,aero:84,spd:0.78,img:'/assets/images/pilots/joao-piloto.png'},
-  SHERLOCK:{color:'#5A8AD8',accent:'#1a3a5a',kanji:'\u8B0E',vel:78,ctrl:84,aero:78,spd:0.78,img:'/assets/images/pilots/sherlock-piloto.png'}
+  YUKI:  {color:'#00E5FF',accent:'#0a5a7a',kanji:'\u96EA',vel:92,ctrl:94,aero:90,spd:0.92,img:'public/assets/images/yuki-piloto.png'},
+  KENTA: {color:'#FF8C00',accent:'#7a3a00',kanji:'\u9B54',vel:94,ctrl:90,aero:92,spd:0.94,img:'public/assets/images/kenta-piloto.png'},
+  CAL:   {color:'#BBBBBB',accent:'#888888',kanji:'\u5929',vel:80,ctrl:82,aero:78,spd:0.80,img:'public/assets/images/cal-piloto.png'},
+  JOAO:  {color:'#FF3333',accent:'#7a0000',kanji:'\u7FFC',vel:78,ctrl:78,aero:84,spd:0.78,img:'public/assets/images/joao-piloto.png'},
+  SHERLOCK:{color:'#5A8AD8',accent:'#1a3a5a',kanji:'\u8B0E',vel:78,ctrl:84,aero:78,spd:0.78,img:'public/assets/images/sherlock-piloto.png'}
 };
 
 // Marco 2.9: prioriza dados do PilotsData se disponível
@@ -283,21 +322,27 @@ var animT=0,lt=0;
   // P1
   document.getElementById('p1-photo').src = p0.img;
   document.getElementById('p1-name').textContent=P[0].name; document.getElementById('p1-name').style.color=p0.color;
+  document.getElementById('p1-vel').textContent=p0.vel;   document.getElementById('p1-vel').style.color=p0.color;
+  document.getElementById('p1-ctrl').textContent=p0.ctrl; document.getElementById('p1-ctrl').style.color=p0.color;
+  document.getElementById('p1-aero').textContent=p0.aero; document.getElementById('p1-aero').style.color=p0.color;
   document.getElementById('p1-hud-lbl').textContent=P[0].name; document.getElementById('p1-hud-lbl').style.color=p0.color;
   document.getElementById('p1-lap').style.color=p0.color;
   // P2
   document.getElementById('p2-photo').src = p1.img;
   document.getElementById('p2-name').textContent=P[1].name; document.getElementById('p2-name').style.color=p1.color;
+  document.getElementById('p2-vel').textContent=p1.vel;   document.getElementById('p2-vel').style.color=p1.color;
+  document.getElementById('p2-ctrl').textContent=p1.ctrl; document.getElementById('p2-ctrl').style.color=p1.color;
+  document.getElementById('p2-aero').textContent=p1.aero; document.getElementById('p2-aero').style.color=p1.color;
   document.getElementById('p2-hud-lbl').textContent=P[1].name; document.getElementById('p2-hud-lbl').style.color=p1.color;
   document.getElementById('p2-lap').style.color=p1.color;
   // Overlay
   document.getElementById('ol-vs').textContent=P[0].name+' vs '+P[1].name;
   document.getElementById('ol-vs').style.color=p0.color;
-  // Preview caps animados (cor do piloto)
+  // Preview caps
   ['cv-p1','cv-p2'].forEach(function(id,i){
     var cv=document.getElementById(id); if(!cv)return;
     var cx2=cv.getContext('2d'), sp=P[i].spec;
-    (function draw(){cx2.clearRect(0,0,46,46);CapSprite.drawCap(cx2,23,23,19,sp.color,sp.accent,sp.kanji,Date.now()*.001,0,.5,false);requestAnimationFrame(draw);})();
+    (function draw(){cx2.clearRect(0,0,46,46);CapSprite.drawCap(cx2,23,23,18,sp.color,sp.accent,sp.kanji,Date.now()*.001,0,.5,false);requestAnimationFrame(draw);})();
   });
 })();
 
@@ -307,10 +352,8 @@ function resize(){
   canvas.width=Math.max(w.offsetWidth-168,320); canvas.height=Math.max(w.offsetHeight,280);
   TrackMonza.init(canvas.width,canvas.height);
   var _sp=TrackMonza.getStartPos(), TW=TrackMonza.TW;
-  // Marco 2.9.2 (H): tampinhas lado a lado VERTICAL, ambas atrás (oeste) da faixa.
-  // A faixa atravessa a pista horizontal, então "lado a lado" é Y diferente.
-  P[0].phys.reset(_sp.x,_sp.y-TW*0.30,'asfalto'); P[0].respawn={x:_sp.x,y:_sp.y-TW*0.30};
-  P[1].phys.reset(_sp.x,_sp.y+TW*0.30,'asfalto'); P[1].respawn={x:_sp.x,y:_sp.y+TW*0.30};
+  P[0].phys.reset(_sp.x-TW*0.3,_sp.y,'asfalto'); P[0].respawn={x:_sp.x-TW*0.3,y:_sp.y};
+  P[1].phys.reset(_sp.x+TW*0.3,_sp.y,'asfalto'); P[1].respawn={x:_sp.x+TW*0.3,y:_sp.y};
   P.forEach(function(p){p.cps=cloneCPs(TrackMonza.checkpoints);});
 }
 window.addEventListener('resize',resize); setTimeout(resize,80);
@@ -376,11 +419,7 @@ function postScoreMulti(winnerName, pilotId, elapsedSec, won){
   var SURL   = 'https://rigghudagbzrzadsbeml.supabase.co/rest/v1/runs';
   var SKEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpZ2dodWRhZ2J6cnphZHNiZW1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzk4OTUsImV4cCI6MjA5MTk1NTg5NX0.2fXODjCXc7IjsF7KS5cAMC-jt9ovxturuQUKmiApO9A';
   fetch(SURL,{method:'POST',headers:{'Content-Type':'application/json','apikey':SKEY,'Authorization':'Bearer '+SKEY,'Prefer':'return=minimal'},
-    body:JSON.stringify({
-      wallet:wallet, nickname:nick, pilot:pilotId, time_ms:_ms, launches:0,
-      mode:'local', solana_address:wallet,
-      env: (location.hostname==='localhost'||location.hostname==='127.0.0.1') ? 'dev' : 'production'
-    })
+    body:JSON.stringify({wallet:wallet,nickname:nick,pilot:pilotId,time_ms:_ms,launches:0,mode:'local',solana_address:wallet})
   }).catch(function(){});
   if(typeof CREngine!=='undefined' && won){
     CREngine.awardRace({mode:'local',time_ms:_ms,won:true,previous_best_ms:null});
@@ -410,11 +449,9 @@ function onWin(winner){
 }
 function restartGame(){
   overlay.style.display='none'; TrackMonza.resetCPs();
-  if(TrackMonza.clearProjectiles) TrackMonza.clearProjectiles();
   var TW=TrackMonza.TW,CH=canvas.height;
   var sp2=TrackMonza.getStartPos();
-  P[0].phys.reset(sp2.x,sp2.y-TW*0.30,'asfalto'); P[1].phys.reset(sp2.x,sp2.y+TW*0.30,'asfalto');
-  P[0].respawn={x:sp2.x,y:sp2.y-TW*0.30}; P[1].respawn={x:sp2.x,y:sp2.y+TW*0.30};
+  P[0].phys.reset(sp2.x-TW*0.3,sp2.y,'asfalto'); P[1].phys.reset(sp2.x+TW*0.3,sp2.y,'asfalto');
   P.forEach(function(p){p.cps=cloneCPs(TrackMonza.checkpoints);p.lap=1;p.cp=0;p.t0=0;p.elapsed=0;p.finished=false;p.respawn=null;p.anim={rot:0,glow:0,gdir:1,trail:[]};});
   cur=0; phase='WAIT';
   document.getElementById('log-box').innerHTML=''; document.getElementById('force-bar-fill').style.height='0%'; document.getElementById('force-value').textContent='0%';
@@ -438,8 +475,6 @@ function spawnSparks(x,y,vx,vy,n){
 function loop(now){
   if(phase==='WAIT'||phase==='FINISH'){if(phase!=='FINISH')requestAnimationFrame(loop);return;}
   var dt=Math.min((now-lt)/1000,.05);lt=now;animT+=dt;
-  // Marco 2.9.2 (5i): atualiza canhões em todas as fases (até pra mostrar tiros voando)
-  if(TrackMonza.tickCannons) TrackMonza.tickCannons(dt*1000);
   ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,canvas.width,canvas.height);
   TrackMonza.render(ctx,canvas.width,canvas.height,animT);
 
@@ -452,16 +487,6 @@ function loop(now){
     if(obs&&obs.nx!=null){p.phys.bounce(obs.nx,obs.ny,.72);SoundEngine.hit();logEv('Bateu em obstáculo!');}
     // arquibancadas
     if(typeof TrackMonza.checkStands==='function'){var st=TrackMonza.checkStands(ph.pos,CAP_R);if(st&&st.nx!=null){p.phys.bounce(st.nx,st.ny,.72);SoundEngine.hit();logEv('Arquibancada! Ricochete!','ev');}}
-    // Marco 2.9.2 (5i): projéteis dos canhões → empurrão na tampinha em movimento
-    if(TrackMonza.checkProjectiles){
-      var hit = TrackMonza.checkProjectiles(ph.pos, CAP_R);
-      if(hit){
-        var cv=p.phys.snap().vel;
-        p.phys.setVel(cv.x*0.2 + hit.vx*1.5, cv.y*0.2 + hit.vy*1.5);
-        SoundEngine.hit(); logEv('💥 Canhão acertou em cheio!','ev');
-        spawnSparks(ph.pos.x, ph.pos.y, hit.vx, hit.vy, 14);
-      }
-    }
 
     // cap × cap + sparks on collision
     var pa=P[0].phys.snap(),pb=P[1].phys.snap();
@@ -469,24 +494,6 @@ function loop(now){
     if(cdst>0.1&&cdst<CAP_R*2){var cnx=cdx/cdst,cny=cdy/cdst,va=(pb.vel.x-pa.vel.x)*cnx+(pb.vel.y-pa.vel.y)*cny;if(va<0){var j=-(1.72)*va/2;P[0].phys.setVel(pa.vel.x-j*cnx,pa.vel.y-j*cny);P[1].phys.setVel(pb.vel.x+j*cnx,pb.vel.y+j*cny);SoundEngine.hit();spawnSparks((pa.pos.x+pb.pos.x)*.5,(pa.pos.y+pb.pos.y)*.5,pa.vel.x-pb.vel.x,pa.vel.y-pb.vel.y,12);}}
     // Pothole check (stop cap instantly)
     if(TrackMonza.checkPothole){var ph3=P[cur].phys.snap();var pot=TrackMonza.checkPothole(ph3.pos,CAP_R,ph3.moving);if(pot){var _ep=TrackMonza.potholeEscapePos?TrackMonza.potholeEscapePos(pot):{x:pot.x+pot.r*0.86,y:pot.y};P[cur].phys.reset(_ep.x,_ep.y,'asfalto');logEv('Buraco! Jogue para sair!','ev');SoundEngine.hit();spawnSparks(pot.x,pot.y,0,0,8);}}
-
-    // Marco 2.9.2 (E3): twister Monza — empurra na direção da seta giratória
-    if(TrackMonza.detectSpin){
-      var spM=TrackMonza.detectSpin(ph.pos);
-      if(spM){
-        var nowSpM=Date.now();
-        if(!p._spinCd || nowSpM-p._spinCd>700){
-          p._spinCd=nowSpM;
-          var dirM=TrackMonza.getSpinDirection?TrackMonza.getSpinDirection(spM.zone, animT):{x:1,y:0};
-          var pushVM=320;
-          var cvM=p.phys.snap().vel;
-          p.phys.setVel(cvM.x*0.4 + dirM.x*pushVM, cvM.y*0.4 + dirM.y*pushVM);
-          if(SoundEngine.twister) SoundEngine.twister();
-          logEv('Twister! Lançada pela ventania!','ev');
-          spawnSparks(ph.pos.x, ph.pos.y, dirM.x*50, dirM.y*50, 8);
-        }
-      }
-    }
     // Elastic chicane bounce
     var obsR=TrackMonza.checkObstacles(ph.pos,CAP_R);
     if(obsR&&obsR.elastic){p.phys.bounce(obsR.nx,obsR.ny,1.15);SoundEngine.hit();logEv('Chicane! Ricochete!','ev');}

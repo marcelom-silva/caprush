@@ -1,240 +1,722 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+<!-- Marco 2.9.2: Guard de pré-requisitos.
+     Antes de carregar QUALQUER asset do jogo, verifica se o usuário escolheu
+     piloto e aplicou tampinha. Se não, redireciona pra página de escolha.
+     Roda inline no topo do <head> pra ser SÍNCRONO e bloquear o resto. -->
+<script>
+(function(){
+  try {
+    var pid = localStorage.getItem('caprush_pilot');
+    if (!pid) {
+      window.location.replace('../personagens.html');
+      return;
+    }
+    // Verifica tampinha aplicada (is_first === false significa que o usuário
+    // já passou pela garagem e aplicou alguma tampinha)
+    var tampOk = false;
+    try {
+      var raw = localStorage.getItem('caprush_garage_' + pid);
+      if (raw) {
+        var d = JSON.parse(raw);
+        if (d && d.template && d.is_first === false) tampOk = true;
+      }
+    } catch(e) {}
+    if (!tampOk) {
+      window.location.replace('../garagem.html');
+      return;
+    }
+  } catch(e) {
+    // Em caso de erro inesperado, redireciona pra escolha de piloto
+    // (mais seguro que deixar o jogo carregar quebrado)
+    window.location.replace('../personagens.html');
+  }
+})();
+</script>
 <script async src="https://vibej.am/2026/widget.js"></script>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>CapRush - Solo</title>
+<title>CapRush - Jogar</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
 <style>
-:root{--red:#FF2A2A;--gold:#FFD700;--dark:#0A0A0F;--panel:rgba(8,8,18,.95);--acc:#00E5FF;}
+:root{--red:#FF2A2A;--gold:#FFD700;--dark:#0A0A0F;--acc:#00E5FF;}
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{width:100%;height:100%;background:var(--dark);font-family:'Rajdhani',sans-serif;color:#E8E8F0;overflow:hidden;}
-#shell{display:flex;flex-direction:column;width:100%;height:100%;}
-#hud{display:flex;justify-content:space-between;align-items:center;padding:5px 14px;background:var(--panel);border-bottom:1px solid rgba(255,42,42,.3);flex-shrink:0;height:42px;}
-.hlogo{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:3px;background:linear-gradient(135deg,var(--red),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;cursor:pointer;text-decoration:none;}
-.hrow{display:flex;gap:1.2rem;}
-.hs{text-align:center;}
-.hs label{display:block;font-size:.55rem;letter-spacing:2px;color:#666680;text-transform:uppercase;}
-.hs span{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--gold);}
-#wrap{position:relative;flex:1;min-height:0;display:flex;}
-#gameCanvas{display:block;flex:1;cursor:crosshair;}
+#topbar{display:flex;align-items:center;justify-content:space-between;padding:8px 20px;background:rgba(8,8,18,.97);border-bottom:2px solid var(--red);height:46px;flex-shrink:0;}
+.tlogo{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:4px;background:linear-gradient(135deg,var(--red),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-decoration:none;}
+.tlinks{display:flex;gap:1.2rem;align-items:center;}
+.tlinks a{color:#888;font-size:.75rem;letter-spacing:2px;text-decoration:none;text-transform:uppercase;transition:color .2s;}
+.tlinks a:hover{color:var(--gold);}
+.tbadge{background:var(--red);color:#fff;font-size:.6rem;letter-spacing:2px;padding:2px 7px;border-radius:2px;text-transform:uppercase;}
+#gframe{width:100%;height:calc(100vh - 46px);border:none;display:block;}
 
-#panel{width:155px;flex-shrink:0;background:var(--panel);border-left:1px solid rgba(255,42,42,.2);display:flex;flex-direction:column;padding:9px;gap:9px;overflow:hidden;}
-.pt{font-family:'Bebas Neue',sans-serif;font-size:.88rem;letter-spacing:2px;color:var(--red);border-bottom:1px solid rgba(255,42,42,.25);padding-bottom:3px;display:flex;justify-content:space-between;align-items:center;}
-.audio-btns{display:flex;gap:5px;}
-.audio-btn{background:rgba(255,42,42,.1);border:1px solid rgba(255,42,42,.3);color:#888;border-radius:3px;font-size:.8rem;padding:1px 5px;cursor:pointer;transition:all .2s;line-height:1;}
-.audio-btn:hover{background:rgba(255,42,42,.25);color:#ccc;}
-.audio-btn.off{opacity:.35;color:#555;}
-#fbg{width:100%;height:90px;background:#1A1A28;border:1px solid #333;border-radius:4px;position:relative;overflow:hidden;}
-#force-bar-fill{position:absolute;bottom:0;left:0;right:0;height:0%;background:linear-gradient(0deg,var(--red),var(--gold));transition:height .05s;}
-#flbl{font-size:.65rem;color:#666680;letter-spacing:1px;text-transform:uppercase;text-align:center;}
-#force-value{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--gold);text-align:center;}
-#cc{background:#1A1A28;border:1px solid rgba(255,42,42,.3);border-radius:6px;padding:7px;text-align:center;}
-#cnm{font-family:'Bebas Neue',sans-serif;font-size:.88rem;color:var(--acc);letter-spacing:2px;}
-.ar{display:flex;justify-content:space-between;font-size:.65rem;color:#666680;margin-top:2px;}
-.av{color:var(--gold);font-weight:700;}
-#log-box{flex:1;overflow-y:auto;font-size:.6rem;color:#555570;}
-#log-box p{padding:2px 0;border-bottom:1px solid #1A1A28;}
-#log-box p.ev{color:var(--gold);}
-#surf-legend{font-size:.6rem;color:#666680;margin-top:2px;}
-.sl-row{display:flex;align-items:center;gap:4px;margin:2px 0;}
-.sl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+nav{
+  display:flex;
+  align-items:center;
+  padding:12px 24px;
+  background:rgba(5,5,12,.85);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(255,42,42,.3);
+  gap:1.4rem;
+  position:relative;
+  z-index:10;
+}
 
-#overlay{position:absolute;left:0;top:0;right:155px;bottom:0;background:rgba(0,0,0,.82);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:20;cursor:pointer;}
-/* Marco 2.9.2: cards P1+P2 — foto e tampinha lado a lado em cima, nome embaixo. Sem nome de tampinha. */
-.pcard{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);border-radius:9px;padding:8px 6px;margin-bottom:6px;}
-.pcard.p2{background:linear-gradient(180deg,rgba(255,42,42,.07),rgba(255,42,42,.02));border-color:rgba(255,42,42,.25);}
-.pcard.active{border-color:var(--gold);box-shadow:0 0 10px rgba(255,215,0,.22);}
-.pc-top{display:flex;gap:8px;align-items:center;justify-content:center;margin-bottom:6px;}
-.pc-photo{width:46px;height:46px;border-radius:50%;object-fit:cover;object-position:50% 5%;border:2px solid rgba(255,255,255,.14);background:#1a1a28;flex-shrink:0;}
-.pc-cap{width:46px;height:46px;border-radius:50%;flex-shrink:0;background:#0a0a0f;border:1px solid rgba(255,255,255,.05);}
-.pc-nm{font-family:'Bebas Neue',sans-serif;letter-spacing:2px;font-size:.95rem;line-height:1.1;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-#overlay h2{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:5px;color:var(--gold);text-shadow:0 0 20px rgba(255,215,0,.5);margin-bottom:.5rem;}
-#overlay p{color:#AAA;letter-spacing:2px;font-size:.85rem;margin:.2rem 0;}
-.pulse{animation:pulse 1.2s ease-in-out infinite;}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-#btnBack{position:absolute;top:8px;left:8px;z-index:25;background:rgba(255,42,42,.15);border:1px solid var(--red);color:var(--red);font-family:'Rajdhani',sans-serif;font-size:.75rem;letter-spacing:2px;padding:3px 8px;cursor:pointer;border-radius:3px;text-decoration:none;}
-#btnBack:hover{background:var(--red);color:#fff;}
-#btnMulti{position:absolute;top:8px;right:168px;z-index:25;
-  background:linear-gradient(135deg,rgba(0,229,255,.25),rgba(0,229,255,.10));
-  border:2px solid var(--acc);color:var(--acc);
-  font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:3px;
-  padding:5px 14px;cursor:pointer;border-radius:6px;text-decoration:none;
+.nav-logo{
+  font-family:'Bebas Neue';
+  font-size:1.35rem;
+  letter-spacing:4px;
+  background:linear-gradient(135deg,var(--red),var(--gold));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  text-decoration:none;
+}
+
+.nav-link{
+  color:#AAA;
+  text-decoration:none;
+  font-size:.8rem;
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+
+.nav-link:hover,
+.nav-link.active{
+  color:var(--gold);
+}
+
+.nav-right{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.flag-btn{
+  width:26px;
+  height:18px;
+  border:none;
+  cursor:pointer;
+  background-size:cover;
+  border-radius:2px;
+}
+
+.flag-pt{background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23009b3a"/><polygon points="1.5,0.2 2.7,1 1.5,1.8 0.3,1" fill="%23ffdf00"/><circle cx="1.5" cy="1" r="0.35" fill="%23002776"/></svg>')}
+.flag-us{background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23b22234"/><g fill="%23fff"><rect y="0.15" width="3" height="0.15"/><rect y="0.45" width="3" height="0.15"/><rect y="0.75" width="3" height="0.15"/><rect y="1.05" width="3" height="0.15"/><rect y="1.35" width="3" height="0.15"/><rect y="1.65" width="3" height="0.15"/></g><rect width="1.2" height="1.05" fill="%233c3b6e"/></svg>')}
+.flag-es{background-image:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2"><rect width="3" height="2" fill="%23c60b1e"/><rect y="0.5" width="3" height="1" fill="%23ffc400"/></svg>')}
+
+#cyberOverlay{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:999;
+
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,0.03) 0px,
+      rgba(255,255,255,0.03) 1px,
+      transparent 2px,
+      transparent 4px
+    );
+
+  mix-blend-mode: overlay;
+  animation: flicker 0.2s infinite;
+}
+
+@keyframes flicker{
+  0%{opacity:.9;}
+  50%{opacity:1;}
+  100%{opacity:.95;}
+}
+
+#game-root{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  background:#05050c;
+}
+
+#wrap{
+  display:flex;
+  width:100%;
+  height:100%;
+  position:relative;
+}
+
+#gameCanvas{
+  display:block;
+  flex:1;
+
+  /* 🔥 mantém proporção */
+  max-width:100%;
+  max-height:100%;
+
+  /* remove stretch */
+  width:auto;
+  height:auto;
+}
+
+#panel{
+  width:170px;
+  display:flex;
+  flex-direction:column;
+
+  background:linear-gradient(
+    180deg,
+    rgba(10,10,20,.95),
+    rgba(5,5,12,.98)
+  );
+
+  border-left:1px solid rgba(255,42,42,.2);
+
+  box-shadow:
+    -10px 0 30px rgba(0,0,0,.7),
+    inset 0 0 20px rgba(255,255,255,.02);
+
+  padding:12px;
+  gap:12px;
+}
+
+.pt{
+  font-family:'Bebas Neue';
+  font-size:.88rem;
+  letter-spacing:2px;
+  color:#FF2A2A;
+  border-bottom:1px solid rgba(255,42,42,.25);
+}
+
+#overlay{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  z-index:40;
+  text-align:center;
+
+  background:radial-gradient(
+    circle at center,
+    rgba(0,0,0,.7),
+    rgba(0,0,0,.95)
+  );
+}
+
+#overlay p{
+  margin-top:6px;
+}
+
+.audio-btn{
+  background:rgba(255,42,42,.15);
+  border:1px solid rgba(255,42,42,.4);
+  color:#aaa;
+
+  border-radius:4px;
+  font-size:.8rem;
+  padding:3px 6px;
+
+  transition:.2s;
+}
+
+.audio-btn:hover{
+  background:rgba(255,42,42,.4);
+  color:#fff;
+  box-shadow:0 0 8px rgba(255,42,42,.6);
+}
+
+.ar{
+  display:flex;
+  justify-content:space-between;
+  font-size:.65rem;
+  color:#AAA;
+}
+
+/* card do piloto */
+.pilot-card-rx{
+  background:linear-gradient(180deg,rgba(255,42,42,.06),rgba(255,42,42,.02));
+  border:1px solid rgba(255,42,42,.28);
+  border-radius:8px;
+  padding:10px;
+  margin-top:4px;
+}
+
+.av{
+  color:#FFD700;
   font-weight:700;
-  animation: btnMultiPulse 1.6s ease-in-out infinite;
 }
-#btnMulti:hover{background:var(--acc);color:#000;animation:none;box-shadow:0 0 16px rgba(0,229,255,.7);}
-@keyframes btnMultiPulse{
-  0%,100%{box-shadow:0 0 6px rgba(0,229,255,.35),inset 0 0 6px rgba(0,229,255,.15);transform:scale(1);}
-  50%    {box-shadow:0 0 18px rgba(0,229,255,.85),inset 0 0 12px rgba(0,229,255,.35);transform:scale(1.04);}
+
+.sl-row{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  font-size:.6rem;
 }
+
+.sl-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+}
+
+#hud{
+  position:absolute;
+  top:8px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:30;
+
+  background:linear-gradient(
+    180deg,
+    rgba(10,10,20,.92),
+    rgba(5,5,12,.85)
+  );
+
+  padding:6px 16px;
+  border-radius:8px;
+
+  border:1px solid rgba(255,215,0,.25);
+
+  box-shadow:
+    0 6px 18px rgba(0,0,0,.7),
+    inset 0 0 8px rgba(255,255,255,.04);
+
+  backdrop-filter:blur(10px);
+}
+
+.hrow{
+  display:flex;
+  gap:20px;
+}
+
+.hs{
+  text-align:center;
+}
+
+.hs label{
+  font-size:.6rem;
+  color:#666;
+}
+
+.hs span{
+  font-family:'Bebas Neue';
+  font-size:1.4rem;
+  color:#FFD700;
+  text-shadow:0 0 8px rgba(255,215,0,.4);
+}
+
+#fbg{
+  width:100%;
+  height:90px;
+  background:#1A1A28;
+  border:1px solid #333;
+  border-radius:4px;
+  position:relative;
+}
+
+#force-bar-fill{
+  position:absolute;
+  bottom:0;
+  left:0;
+  right:0;
+  height:0%;
+
+  background:linear-gradient(
+    to top,
+    #00E5FF 0%,
+    #FFD700 50%,
+    #FF2A2A 100%
+  );
+
+  box-shadow:
+    0 0 10px rgba(255,42,42,.4);
+
+  transition:height 0.12s cubic-bezier(.22,1,.36,1);
+}
+
+#force-value{
+  text-align:center;
+  font-family:'Bebas Neue';
+  font-size:1.5rem;
+  color:#FFD700;
+  text-shadow:0 0 10px rgba(255,215,0,.5);
+}
+
+#btnMulti{
+  text-decoration:none !important;
+
+  position:absolute;
+  top:60px;
+  right:calc(170px + 2px);
+
+  background:linear-gradient(135deg,#00E5FF,#00BFFF);
+  border:none;
+  color:#fff;
+
+  font-family:'Bebas Neue';
+  letter-spacing:2px;
+
+  padding:10px 20px;
+  border-radius:14px;
+
+  box-shadow:
+    0 6px 20px rgba(0,229,255,.35),
+    inset 0 0 10px rgba(255,255,255,.25);
+
+  backdrop-filter:blur(6px);
+
+  transition:.25s cubic-bezier(.22,1,.36,1);
+}
+
+#btnMulti:hover{
+  transform:translateY(-3px) scale(1.06);
+
+  box-shadow:
+    0 10px 30px rgba(0,229,255,.7),
+    0 0 20px rgba(0,229,255,.4);
+}
+
+#btnMulti:link,
+#btnMulti:visited,
+#btnMulti:hover,
+#btnMulti:active{
+  text-decoration:none !important;
+}
+
+.audio-btns{
+  display:flex;
+  gap:5px;
+  justify-content:flex-end;
+}
+
+.panel-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+#cc{
+  background:linear-gradient(
+    180deg,
+    rgba(255,255,255,.03),
+    rgba(255,255,255,.01)
+  );
+
+  border:1px solid rgba(255,42,42,.3);
+  border-radius:10px;
+
+  padding:15px;
+
+  box-shadow:0 0 10px rgba(0,0,0,.6);
+}
+
+#cc canvas{
+  overflow:visible;
+}
+
+#cc > div:first-child{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+}
+
+#cnm{
+  font-family:'Bebas Neue';
+  letter-spacing:2px;
+  color:#00E5FF;
+  margin-bottom:6px;
+}
+
+#log-box{
+  flex:1;
+  overflow-y:auto;
+  font-size:.6rem;
+  color:#555570;
+  min-height:80px;
+}
+#log-box p{
+  padding:2px 0;
+  border-bottom:1px solid #1A1A28;
+  line-height:1.5;
+}
+#log-box p.ev{color:var(--gold);}
+#log-box p.ev2{color:var(--acc);}
+#log-box p.win{color:#44FF88;font-weight:700;}
+#log-box p.bad{color:#FF6B6B;}
+
+#overlay h2{
+  font-family:'Bebas Neue';
+  letter-spacing:3px;
+  font-size:2rem;
+}
+
+#overlay{
+  cursor:pointer;
+}
+
+#overlay .pulse{
+  animation:pulseGlow 1.2s infinite;
+}
+
+@keyframes pulseGlow{
+  0%{opacity:.4;}
+  50%{opacity:1;}
+  100%{opacity:.4;}
+}
+
+/* ── CARD DE PILOTO PADRONIZADO ────────────────────────────────── */
+.pilot-card-std{
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:10px;
+  padding:8px 9px;
+  margin-bottom:5px;
+  transition:border-color .3s,box-shadow .3s;
+}
+.pilot-card-std.active-turn{border-color:var(--gold);box-shadow:0 0 12px rgba(255,215,0,.22);}
+.pilot-card-rx{
+  background:linear-gradient(180deg,rgba(255,42,42,.07),rgba(255,42,42,.02));
+  border:1px solid rgba(255,42,42,.25);
+  border-radius:10px;
+  padding:8px 9px;
+  margin-bottom:5px;
+}
+.pc-inner{display:flex;gap:8px;align-items:flex-start;}
+.pc-left{display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;}
+.pc-photo{width:54px;height:54px;border-radius:50%;object-fit:cover;object-position:50% 5%;border:2px solid rgba(255,255,255,.15);}
+.pc-right{flex:1;min-width:0;}
+.pc-name{font-family:'Bebas Neue';font-size:.88rem;letter-spacing:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:4px;}
+.ar{display:flex;justify-content:space-between;font-size:.62rem;color:#AAA;margin:2px 0;}
+.av{font-weight:700;}
+
+/* Difficulty selector */
+.diff-row{display:flex;gap:10px;justify-content:center;margin:10px 0;}
+.diff-btn{font-family:'Bebas Neue';font-size:.85rem;letter-spacing:2px;padding:7px 18px;
+  border-radius:6px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);
+  color:#AAA;cursor:pointer;transition:.2s;}
+.diff-btn:hover{border-color:var(--gold);color:var(--gold);}
+.diff-btn.diff-active{color:#000;font-weight:700;}
+.diff-btn.d1.diff-active{background:#44CC44;border-color:#44CC44;}
+.diff-btn.d2.diff-active{background:#FFD700;border-color:#FFD700;}
+.diff-btn.d3.diff-active{background:#FF2A2A;border-color:#FF2A2A;}
 </style>
-<script src="../../src/ui/i18n.js"></script>
+<script src="/i18n.js"></script>
 </head>
 <body>
-<div id="shell">
-  <div id="hud">
-    <a href="../../index.html" class="hlogo">CAP RUSH</a>
-    <div class="hrow">
-      <div class="hs"><label>Volta</label><span id="hud-lap">1/2</span></div>
-      <div class="hs"><label>Checkpoint</label><span id="hud-cp">0/3</span></div>
-      <div class="hs"><label>Tempo</label><span id="hud-time">00:00.0</span></div>
-      <div class="hs"><label>Melhor</label><span id="hud-best">--:--.--</span></div>
+
+<div style="display:flex;flex-direction:column;height:100vh;">
+
+  <!-- 🔥 NAV PADRÃO (igual manual) -->
+  <nav>
+    <a href="index.html" class="nav-logo">CAP RUSH</a>
+
+    <a href="ranking.html" class="nav-link" data-i18n="ranking">RANKING</a>
+    <a href="manual.html" class="nav-link" data-i18n="manual">MANUAL</a>
+    
+    <div class="nav-right">
+
+      <!-- 🌍 FLAGS -->
+      <div id="flag-container">
+        <button class="flag-btn flag-pt" onclick="setLang('pt')"></button>
+        <button class="flag-btn flag-us" onclick="setLang('en')"></button>
+        <button class="flag-btn flag-es" onclick="setLang('es')"></button>
+      </div>
     </div>
+  </nav>
+
+  <!-- 🎮 GAME FULLSCREEN -->
+  <div id="game-root">
+    <div id="hud">
+      <div class="hrow">
+        <div class="hs"><label data-i18n="game_lap">Volta</label><span id="hud-lap">1/2</span></div>
+        <div class="hs"><label data-i18n="game_cp">Checkpoint</label><span id="hud-cp">0/3</span></div>
+        <div class="hs"><label data-i18n="game_time">Tempo</label><span id="hud-time">00:00.0</span></div>
+        <div class="hs"><label data-i18n="game_best">Melhor</label><span id="hud-best">--:--.--</span></div>
+      </div>
+    </div>
+
+    <div id="wrap">
+
+      <canvas id="gameCanvas"></canvas>
+      <div id="panel">
+        <!-- 🔥 PAINEL RESTAURADO -->
+        <div class="panel-top">
+          <div class="pt" data-i18n="game_force">FORÇA</div>
+
+          <div class="audio-btns">
+            <button class="audio-btn" onclick="toggleBGM()">♫</button>
+            <button class="audio-btn" onclick="toggleSFX()">▶▶</button>
+          </div>
+        </div>
+
+        <div id="flbl" data-i18n="game_potencia">Potencia</div>
+        <div id="fbg"><div id="force-bar-fill"></div></div>
+        <div id="force-value">0%</div>
+
+        <div class="pt" data-i18n="game_pilot">PILOTO</div>
+        <!-- Card Jogador — preenchido por JS via localStorage -->
+        <div class="pilot-card-std" id="player-card">
+          <div class="pc-inner">
+            <div class="pc-left">
+              <img id="player-photo" class="pc-photo" src="client/public/assets/images/yuki-piloto.png" alt=""/>
+              <canvas id="capPreview" width="46" height="46" style="border-radius:50%;"></canvas>
+            </div>
+            <div class="pc-right">
+              <div class="pc-name" id="player-name" style="color:#00E5FF">YUKI</div>
+              <div class="ar"><span data-i18n="stat-speed">Velocidade</span><span class="av" id="player-vel" style="color:#00E5FF">82</span></div>
+              <div class="ar"><span data-i18n="stat-control">Controle</span><span class="av" id="player-ctrl" style="color:#00E5FF">91</span></div>
+              <div class="ar"><span data-i18n="stat-aero">Aerodin.</span><span class="av" id="player-aero" style="color:#00E5FF">75</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Racer-D (Boss) -->
+        <div class="pilot-card-rx" id="boss-card">
+          <div class="pc-inner">
+            <div class="pc-left">
+              <img class="pc-photo" src="client/public/assets/images/racer-x-piloto.png" alt="Racer-D"
+                   onerror="this.style.opacity='.3'"/>
+              <canvas id="capPreviewRX" width="46" height="46" style="border-radius:50%;"></canvas>
+            </div>
+            <div class="pc-right">
+              <div class="pc-name" style="color:#FF2A2A">RACER-D</div>
+              <div class="ar"><span data-i18n="stat-speed">Velocidade</span><span class="av" style="color:#FF2A2A">???</span></div>
+              <div class="ar"><span data-i18n="stat-control">Controle</span><span class="av" style="color:#FF2A2A">???</span></div>
+              <div class="ar"><span data-i18n="stat-aero">Aerodin.</span><span class="av" style="color:#FF2A2A">???</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt" data-i18n="game_track">PISTA</div>
+        <div id="surf-legend">
+          <div class="sl-row"><div class="sl-dot" style="background:#5C4530;"></div><span data-i18n="game_surf_asfalto">Asfalto</span></div>
+          <div class="sl-row"><div class="sl-dot" style="background:#00A0FF;"></div><span data-i18n="game_surf_agua">Água</span></div>
+          <div class="sl-row"><div class="sl-dot" style="background:#38B838;"></div><span data-i18n="game_surf_grama">Grama</span></div>
+        </div>
+
+        <div class="pt" data-i18n="game_events">EVENTOS</div>
+        <div id="log-box"></div>
+
+      </div>
+
+      <div id="overlay">
+        <h2>PRONTO?</h2>
+      <div style="font-size:.7rem;letter-spacing:3px;color:#666;margin-bottom:6px">DIFICULDADE</div>
+      <div class="diff-row">
+        <button class="diff-btn d1" onclick="setDiff(1)">😊 FÁCIL</button>
+        <button class="diff-btn d2" onclick="setDiff(2)">⚡ MÉDIO</button>
+        <button class="diff-btn d3" onclick="setDiff(3)">💀 DIFÍCIL</button>
+      </div>
+        <p>Clique aqui para começar</p>
+        <p style="font-size:.78rem;color:#666;margin-top:.4rem">
+          Clique e arraste a tampinha para mirar
+        </p>
+        <br>
+        <p class="pulse">▶ CLIQUE PARA COMEÇAR</p>
+      </div>
+    </div>
+
+    <a href="client/game-multi.html" id="btnMulti">2P →</a>
   </div>
-  <div id="wrap">
-    <canvas id="gameCanvas"></canvas>
-    <div id="panel">
-      <div class="pt">
-        <span>FORCA</span>
-        <div class="audio-btns">
-          <button class="audio-btn" id="btn-bgm" onclick="toggleBGM()" title="Musica">&#9836;</button>
-          <button class="audio-btn" id="btn-sfx" onclick="toggleSFX()" title="Efeitos">&#9654;&#9654;</button>
-        </div>
-      </div>
-      <div id="flbl">Potencia</div>
-      <div id="fbg"><div id="force-bar-fill"></div></div>
-      <div id="force-value">0%</div>
-      <div class="pt" data-i18n="game_pilot">PILOTO</div>
-      <!-- Card P1 (jogador) - populado por JS abaixo -->
-      <div class="pcard p1" id="card-p1">
-        <div class="pc-top">
-          <img id="p1-photo" class="pc-photo" alt=""/>
-          <canvas id="p1-cap" class="pc-cap" width="46" height="46"></canvas>
-        </div>
-        <div class="pc-nm" id="p1-name" style="color:#00E5FF">—</div>
-      </div>
-      <!-- Card P2 (Racer-D) -->
-      <div class="pcard p2" id="card-p2">
-        <div class="pc-top">
-          <img id="p2-photo" class="pc-photo" alt="Racer-D"
-               onerror="this.style.opacity='.3'"/>
-          <canvas id="p2-cap" class="pc-cap" width="46" height="46"></canvas>
-        </div>
-        <div class="pc-nm" style="color:#FF2A2A">RACER-D</div>
-      </div>
-      <div class="pt">PISTA</div>
-      <div id="surf-legend">
-        <div class="sl-row"><div class="sl-dot" style="background:#5C4530;"></div><span>Asfalto (normal)</span></div>
-        <div class="sl-row"><div class="sl-dot" style="background:#00A0FF;border:1px solid #00E5FF;"></div><span>Agua (mais aderente)</span></div>
-        <div class="sl-row"><div class="sl-dot" style="background:#38B838;border:1px solid #60E060;"></div><span>Grama (desliza mais)</span></div>
-        <div class="sl-row"><div class="sl-dot" style="background:#5C3A1A;"></div><span>Obstaculos</span></div>
-      </div>
-      <div class="pt">EVENTOS</div>
-      <div id="log-box"></div>
-    </div>
-    <div id="overlay">
-      <h2>PRONTO?</h2>
-      <p>Clique aqui para comecar</p>
-      <p style="font-size:.78rem;color:#666680;margin-top:.4rem">Clique e arraste a tampinha para mirar</p>
-      <br>
-      <p class="pulse">&#9654; CLIQUE PARA COMECAR</p>
-    </div>
-    <a href="../../index.html" id="btnBack">&larr; LOBBY</a>
-    <a href="game-multi.html" id="btnMulti" data-i18n="btn_2p_local">▶ 2P</a>
-  </div>
+
 </div>
-<script src="../../src/auth/privy-auth.js" type="module"></script>
-<script src="../../src/core/Vector2D.js"></script>
-<script src="../../src/core/Physics.js"></script>
-<script src="../../src/core/SoundEngine.js"></script>
-<script src="../../src/core/CapSprite.js"></script>
-<script src="../../src/engines/cr-engine.js"></script>
-<script src="../../src/engines/pilot-evolution.js"></script>
-<script src="../../src/engines/missions.js"></script>
-<script src="../../src/engines/pilots-data.js"></script>
-<script src="../../src/engines/garage-engine.js"></script>
-<script src="../../src/engines/badges-engine.js"></script>
-<script src="../../src/entities/RacerX.js"></script>
-<script src="../../src/entities/PilotRenderer.js"></script>
-<script src="../../src/scenes/TrackV3.js"></script>
-<script src="../../src/scenes/TrackMonza.js"></script>
-<script src="../../src/ui/pregame-anim.js"></script>
-<script src="../../src/ui/audio.js"></script>
-<script src="../../src/core/GameLoop.js"></script>
+
 <script>
+function setLang(lang){
+  localStorage.setItem("lang", lang);
+  if(window.I18N) I18N.setLang(lang);   // i18n.js v1.4
+  if(window.GL)   GL(lang);             // GameLoop (legado)
+}
 
 function toggleBGM(){
-  var on=SoundEngine.toggleBGM();
-  document.getElementById('btn-bgm').classList.toggle('off',!on);
+  if(typeof toggleAudio === 'function') toggleAudio();
+  if(typeof toggleAudio==='function') toggleAudio();
 }
 function toggleSFX(){
-  var on=SoundEngine.toggleSFX();
-  document.getElementById('btn-sfx').classList.toggle('off',!on);
+  if(window.SoundEngine) SoundEngine.toggleSFX();
 }
+</script>
 
-// Marco 2.9.2: popula cards P1 (piloto selecionado) e P2 (Racer-D)
-// foto + tampinha vetorial animada + nome. Stats omitidos a pedido.
+<script src="client/src/core/Vector2D.js"></script>
+<script src="client/src/core/Physics.js"></script>
+<script src="client/src/core/SoundEngine.js"></script>
+<script src="client/src/core/CapSprite.js"></script>
+<script src="client/src/entities/Yuki.js"></script>
+<script src="client/src/entities/Kenta.js"></script>
+<script src="client/src/entities/RacerX.js"></script>
+<script src="client/src/scenes/TrackV3.js"></script>
+<script src="pregame-anim.js?v=1777216229"></script>
+<script src="client/src/core/GameLoop.js?v=1777216229"></script>
+
+<script src="audio.js"></script>
+
+<script>
+// ── Inicializa painel com piloto salvo em personagens.html ──
 (function(){
-  // ── Card P1 (jogador) ──────────────────────────────────────────────────
-  var pid = localStorage.getItem('caprush_pilot') || 'CAL';
-  var p   = (typeof PilotsData !== 'undefined') ? PilotsData.byId(pid) : null;
-  var cap = (typeof GarageEngine !== 'undefined' && p) ? GarageEngine.get(p.id) : null;
+  var PILOTS_DATA = {
+    YUKI:  {color:'#00E5FF',accent:'#00A5C8',kanji:'\u96EA',vel:82,ctrl:91,aero:75,img:'client/public/assets/images/yuki-piloto.png'},
+    KENTA: {color:'#FF9900',accent:'#CC6600',kanji:'\u9B54',vel:88,ctrl:76,aero:83,img:'client/public/assets/images/kenta-piloto.png'}
+  };
+  var pid = localStorage.getItem('caprush_pilot') || 'YUKI';
+  var spec = PILOTS_DATA[pid] || PILOTS_DATA.YUKI;
 
-  var color  = (cap && cap.hex)    || (p && p.color)   || '#00E5FF';
-  var accent = (cap && cap.accent) || (p && p.accent)  || '#0a5a7a';
-  var kanji  = (p && p.kanji)      || '\u96EA';
-  var name   = (p && p.name)       || pid;
-  var img    = (p && p.img)        || '/assets/images/pilots/cal-piloto.png';
+  // Atualiza foto, nome e stats do card do jogador
+  var ph = document.getElementById('player-photo');
+  if(ph) ph.src = spec.img;
+  var pn = document.getElementById('player-name');
+  if(pn){ pn.textContent = pid; pn.style.color = spec.color; }
+  var pv = document.getElementById('player-vel');
+  if(pv){ pv.textContent = spec.vel; pv.style.color = spec.color; }
+  var pc2 = document.getElementById('player-ctrl');
+  if(pc2){ pc2.textContent = spec.ctrl; pc2.style.color = spec.color; }
+  var pa = document.getElementById('player-aero');
+  if(pa){ pa.textContent = spec.aero; pa.style.color = spec.color; }
 
-  var p1ph = document.getElementById('p1-photo');
-  if(p1ph){ p1ph.src = img; }
-  var p1nm = document.getElementById('p1-name');
-  if(p1nm){ p1nm.textContent = name; p1nm.style.color = color; }
-
-  var p1cv = document.getElementById('p1-cap');
-  if(p1cv && typeof CapSprite !== 'undefined'){
-    var p1cx = p1cv.getContext('2d');
-    (function loop(){
-      p1cx.clearRect(0,0,46,46);
-      CapSprite.drawCap(p1cx, 23, 23, 19, color, accent, kanji, Date.now()*0.001, 0, 0.5, false);
-      requestAnimationFrame(loop);
-    })();
+  // Preview cap do jogador
+  var cv=document.getElementById('capPreview');
+  if(!cv) return;
+  var cx=cv.getContext('2d');
+  function draw(){
+    cx.clearRect(0,0,46,46);
+    CapSprite.drawCap(cx,23,23,18,spec.color,spec.accent,spec.kanji,Date.now()*.001,0,.5,false);
+    requestAnimationFrame(draw);
   }
-
-  // ── Card P2 (Racer-D / Boss) ───────────────────────────────────────────
-  var rd = (typeof PilotsData !== 'undefined') ? PilotsData.byId('RACER_D') : null;
-  var rdImg = (rd && rd.img) || '/assets/images/pilots/racer-x-piloto.png';
-  var p2ph = document.getElementById('p2-photo');
-  if(p2ph) p2ph.src = rdImg;
-
-  var p2cv = document.getElementById('p2-cap');
-  if(p2cv && typeof CapSprite !== 'undefined'){
-    var p2cx = p2cv.getContext('2d');
-    (function loop(){
-      p2cx.clearRect(0,0,46,46);
-      CapSprite.drawCap(p2cx, 23, 23, 19, '#FF2A2A', '#7a0000', 'X', Date.now()*0.0015, 0, 0.7, false);
-      requestAnimationFrame(loop);
-    })();
-  }
-
-  // Marca card ativo conforme fase do GameLoop (window.__gameState exposto pelo GameLoop)
-  setInterval(function(){
-    var s = window.__gameState;
-    if(!s) return;
-    var c1 = document.getElementById('card-p1');
-    var c2 = document.getElementById('card-p2');
-    if(!c1 || !c2) return;
-    var enemyTurn = (s.phase === 'ENEMY_AIM' || s.phase === 'ENEMY_MOVING');
-    c1.classList.toggle('active', !enemyTurn);
-    c2.classList.toggle('active', enemyTurn);
-  }, 200);
+  draw();
 })();
+</script>
 
-// Patch: startGame deve chamar BGM automaticamente
-// (GameLoop.js ja chama SoundEngine.resume; aqui garantimos o BGM)
-var _origOverlayClick = null;
-document.addEventListener('DOMContentLoaded', function(){
-  SoundEngine.init();
-  var overlay = document.getElementById('overlay');
-  if(overlay){
-    overlay.addEventListener('click', function(){
-      SoundEngine.resume();
-      SoundEngine.startBGM();
-    }, {once:true});
+<!-- Preview Racer-D -->
+<script>
+(function(){
+  var cv=document.getElementById('capPreviewRX');
+  if(!cv) return;
+  var cx=cv.getContext('2d');
+  function draw(){
+    cx.clearRect(0,0,46,46);
+    CapSprite.drawCap(cx,23,23,18,'#FF2A2A','#AA0000','X',Date.now()*.0015,0,.7,false);
+    requestAnimationFrame(draw);
   }
-});
+  draw();
+})();
+</script>
+
+
+<script>
+function setDiff(d){
+  localStorage.setItem('caprush_difficulty',d);
+  document.querySelectorAll('.diff-btn').forEach(function(b){b.classList.remove('diff-active');});
+  var active=document.querySelector('.d'+d);
+  if(active) active.classList.add('diff-active');
+}
+// Init from storage
+(function(){
+  var saved=parseInt(localStorage.getItem('caprush_difficulty')||'2');
+  setDiff(saved);
+})();
 </script>
 </body>
 </html>
