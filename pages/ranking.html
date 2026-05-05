@@ -136,20 +136,32 @@ nav{display:flex;align-items:center;padding:12px 24px;background:rgba(5,5,12,.7)
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 const supabase = createClient('https://rigghudagbzrzadsbeml.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpZ2dodWRhZ2J6cnphZHNiZW1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzNzk4OTUsImV4cCI6MjA5MTk1NTg5NX0.2fXODjCXc7IjsF7KS5cAMC-jt9ovxturuQUKmiApO9A');
 
+// Marco 2.9.2: catálogo COMPLETO de avatares (11 pilotos jogáveis).
+// Todas as chaves em UPPERCASE pra normalizar lookup.
 const imgs = {
-  CAL:'../assets/images/pilots/cal-piloto.png',
-  JOAO:'../assets/images/pilots/joao-piloto.png',
-  SHERLOCK:'../assets/images/pilots/sherlock-piloto.png',
-  PLUSH:'../assets/images/pilots/plush-piloto.png',
-  URUBU_MENGAO:'../assets/images/pilots/urubu-mengao-piloto.png',
-  DUO:'../assets/images/pilots/duo-collie-piloto.png',
-  BITKONG:'../assets/images/pilots/bitkong-piloto.png',
-  BRUNA:'../assets/images/pilots/bruna-piloto.png',
-  KENTA:'../assets/images/pilots/kenta-piloto.png',
-  YUKI:'../assets/images/pilots/yuki-piloto.png',
-  TAPZ:'../assets/images/pilots/tapz-piloto.png',
+  CAL:          '../assets/images/pilots/cal-piloto.png',
+  JOAO:         '../assets/images/pilots/joao-piloto.png',
+  SHERLOCK:     '../assets/images/pilots/sherlock-piloto.png',
+  PLUSH:        '../assets/images/pilots/plush-piloto.png',
+  URUBU_MENGAO: '../assets/images/pilots/urubu-mengao-piloto.png',
+  DUO:          '../assets/images/pilots/duo-collie-piloto.png',
+  BRUNA:        '../assets/images/pilots/bruna-piloto.png',
+  KENTA:        '../assets/images/pilots/kenta-piloto.png',
+  YUKI:         '../assets/images/pilots/yuki-piloto.png',
+  BITKONG:      '../assets/images/pilots/bitkong-piloto.png',
+  TAPZ:         '../assets/images/pilots/tapz-piloto.png',
+  RACER_D:      '../assets/images/pilots/racer-x-piloto.png',
 };
+// Avatar genérico (silhueta) pra pilotos sem PNG cadastrado (ex: BITKONG)
 const FALLBACK_AVATAR = '../assets/images/pilots/cal-piloto.png';
+// Lookup case-insensitive: aceita "Yuki", "YUKI", "yuki", "yUkI" — todos
+// retornam o mesmo avatar. Importante pq registros antigos do banco têm
+// formatos misturados (capitalização inconsistente).
+function pilotImg(rawName){
+  if (!rawName) return FALLBACK_AVATAR;
+  const key = String(rawName).toUpperCase().replace(/-/g, '_').trim();
+  return imgs[key] || FALLBACK_AVATAR;
+}
 function getDisplayName(r){ return r.nickname || r.wallet || 'ANON'; }
 function fmt(ms){const s=Math.floor(ms/1000),m=Math.floor(s/60);return `${String(m).padStart(2,'0')}:${String(s%60).padStart(2,'0')}.${String(Math.floor((ms%1000)/10)).padStart(2,'0')}`}
 
@@ -168,9 +180,9 @@ async function load(){
   if(!data || data.length===0){document.getElementById('board').innerHTML='<div style="text-align:center;color:#555;padding:60px">Nenhuma corrida ainda. Jogue para aparecer!</div>';return}
 
   const top3 = data.slice(0,3);
-  document.getElementById('podium').innerHTML = [1,0,2].map(i=>{const r=top3[i];if(!r)return'';return `<div class="pod pod-${i+1}"><div class="pod-rank">${i+1}</div><div class="pod-avatar"><img src="${imgs[r.pilot]||FALLBACK_AVATAR}"></div><div class="pod-name">${getDisplayName(r)}</div><div class="pod-time">${fmt(r.time_ms)}</div><div class="pod-wallet" style="font-size:.8rem;color:#888;margin-top:2px">${r.mode||'solo'}</div></div>`}).join('');
+  document.getElementById('podium').innerHTML = [1,0,2].map(i=>{const r=top3[i];if(!r)return'';return `<div class="pod pod-${i+1}"><div class="pod-rank">${i+1}</div><div class="pod-avatar"><img src="${pilotImg(r.pilot)}"></div><div class="pod-name">${getDisplayName(r)}</div><div class="pod-time">${fmt(r.time_ms)}</div><div class="pod-wallet" style="font-size:.8rem;color:#888;margin-top:2px">${r.mode||'solo'}</div></div>`}).join('');
 
-  document.getElementById('board').innerHTML = data.map((r,i)=>`<div class="row"><div class="pos ${i<3?'top3':''}">${i+1}</div><div class="player"><div class="p-avatar"><img src="${imgs[r.pilot]||FALLBACK_AVATAR}"></div><div class="p-name">${getDisplayName(r)}</div><div class="p-wallet" style="color:#888;font-size:.7rem">${r.pilot}</div></div><div class="time">${fmt(r.time_ms)}</div><div class="launches"><img src="../assets/images/ui/tokenCR.png" width="26" height="26" style="vertical-align:middle;margin-right:5px;"> ${r.launches}</div></div>`).join('');
+  document.getElementById('board').innerHTML = data.map((r,i)=>`<div class="row"><div class="pos ${i<3?'top3':''}">${i+1}</div><div class="player"><div class="p-avatar"><img src="${pilotImg(r.pilot)}"></div><div class="p-name">${getDisplayName(r)}</div><div class="p-wallet" style="color:#888;font-size:.7rem">${r.pilot}</div></div><div class="time">${fmt(r.time_ms)}</div><div class="launches"><img src="../assets/images/ui/tokenCR.png" width="26" height="26" style="vertical-align:middle;margin-right:5px;"> ${r.launches}</div></div>`).join('');
 }
 load();
 </script>
