@@ -15,6 +15,8 @@ Canvas 2D · **Privy OAuth** · **Token $CR off-chain** · **Evolução RPG** ·
                   inteligente, IA Racer-D mais robusta, Monza overhaul (canhões
                   funcionais, buracos visíveis, chicanes nas bordas, heliponto,
                   CPs menores), som de derrapagem por tampinha
+- ✅ **Marco 6 Fase A** — Lances simultâneos encriptados (commit-reveal SHA-256 + árbitro Supabase)
+                  no modo 1v1 Online. Candidatura ao RTG Hidden-Information Games da Arcium.
 
 ## Estrutura do Repositório
 
@@ -124,7 +126,7 @@ DEDICADO 🔥 (30 dias) · BOSS_SLAYER 👑 (vencer Hard Solo) · FIRST_BLOOD �
 | Áudio       | Web Audio API 148 BPM + 3x OGG                                    |
 | Login       | Privy OAuth (Google → PKCE → DID Solana)                          |
 | Token $CR   | cr-engine.js off-chain → on-chain no Marco 3                      |
-| Multiplayer | PeerJS WebRTC P2P                                                 |
+| Multiplayer | PeerJS WebRTC P2P + **Arcium Commit-Reveal** (lances encriptados no 1v1 Online)                                                 |
 | i18n        | PT / EN / ES (600+ chaves)                                        |
 | Deploy      | Vercel CDN                                                        |
 
@@ -135,6 +137,7 @@ runs · cr_ledger · cr_transactions · achievements_unlocked
 pilot_evolution · missions_completed · bet_matches
 clans · clan_members · clan_invites · clan_activity
 user_pilots_owned · cap_customization · daily_streak · badges_earned
+**mpc_rounds** · hash_a · hash_b · lance revelado · árbitro Arcium Fase A
 ```
 
 ## Como Rodar Localmente

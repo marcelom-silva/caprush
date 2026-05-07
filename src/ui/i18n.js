@@ -433,6 +433,20 @@ const dict = {
     "brand_feat14_t":"Garagem F-Zero","brand_feat14_d":"6 templates de tampinha inspirados nas naves do F-Zero × 8 cores = 48 visuais por piloto.",
     "brand_feat15_t":"Daily Login 30 Dias","brand_feat15_d":"Recompensa progressiva: 720 $CR/mês total. Marcos semanais e dia 30 entrega Badge DEDICADO.",
     "brand_feat16_t":"Sistema de Badges","brand_feat16_d":"6 conquistas permanentes com toast animado.",
+
+    "arcium_title":"LANCES SECRETOS",
+    "arcium_subtitle":"Modo Simultâneo Encriptado",
+    "arcium_desc":"No modo 1v1 Online, os lances são encriptados antes de serem enviados. Nenhum jogador vê o lance do oponente — os dois revelam ao mesmo tempo. Fim da vantagem de quem espera o outro atirar.",
+    "arcium_how_title":"COMO FUNCIONA",
+    "arcium_how_1":"Você mira e confirma o lance — ele é encriptado com SHA-256 e um salt aleatório.",
+    "arcium_how_2":"O hash (não o lance real) vai para o árbitro. Seu oponente faz o mesmo.",
+    "arcium_how_3":"Quando os dois commitaram, ambos revelam lance + salt. O árbitro valida os hashes.",
+    "arcium_how_4":"Com ambos os lances validados, o jogo aplica os dois simultaneamente. Jogo justo.",
+    "arcium_tech":"Tecnologia: commit-reveal com SHA-256 via Web Crypto API. Árbitro: Supabase. Fase A do Marco 6 — migração para Arcium MPC real no Marco 6 completo.",
+    "arcium_status":"✅ Ativo no 1v1 Online",
+    "arcium_badge_t":"Lances Simultâneos",
+    "arcium_badge_d":"No 1v1 Online, ninguém vê o lance do outro antes de atirar — esquema commit-reveal encriptado.",
+
   },
   en: {
     play:"PLAY", pilots:"PILOTS", ranking:"LEADERBOARD", manual:"MANUAL",
@@ -850,6 +864,20 @@ const dict = {
     "brand_feat14_t":"F-Zero Garage","brand_feat14_d":"6 bottlecap templates inspired by F-Zero ships × 8 colors = 48 visuals per pilot.",
     "brand_feat15_t":"30-Day Daily Login","brand_feat15_d":"Progressive reward: 720 $CR/month total. Weekly milestones and day 30 delivers DEDICATED Badge.",
     "brand_feat16_t":"Badge System","brand_feat16_d":"6 permanent achievements with animated toast.",
+
+    "arcium_title":"SECRET SHOTS",
+    "arcium_subtitle":"Encrypted Simultaneous Mode",
+    "arcium_desc":"In 1v1 Online mode, moves are encrypted before being sent. Neither player sees the opponent's move — both are revealed at the same time. No more advantage for whoever waits to shoot last.",
+    "arcium_how_title":"HOW IT WORKS",
+    "arcium_how_1":"You aim and confirm your move — it is encrypted with SHA-256 and a random salt.",
+    "arcium_how_2":"The hash (not the real move) goes to the arbiter. Your opponent does the same.",
+    "arcium_how_3":"When both have committed, both reveal their move + salt. The arbiter validates the hashes.",
+    "arcium_how_4":"With both moves validated, the game applies them simultaneously. Fair play guaranteed.",
+    "arcium_tech":"Tech: commit-reveal scheme with SHA-256 via Web Crypto API. Arbiter: Supabase. Phase A of Marco 6 — migration to real Arcium MPC in the full Marco 6.",
+    "arcium_status":"✅ Active in 1v1 Online",
+    "arcium_badge_t":"Simultaneous Shots",
+    "arcium_badge_d":"In 1v1 Online, no one sees the opponent's move before shooting — encrypted commit-reveal scheme.",
+
   },
   es: {
     play:"JUGAR", pilots:"PILOTOS", ranking:"CLASIFICACIÓN", manual:"MANUAL",
@@ -1259,6 +1287,20 @@ const dict = {
     "brand_feat14_t":"Garaje F-Zero","brand_feat14_d":"6 plantillas × 8 colores = 48 visuales por piloto.",
     "brand_feat15_t":"Inicio Diario 30 Días","brand_feat15_d":"Recompensa progresiva: 720 $CR/mes.",
     "brand_feat16_t":"Sistema de Insignias","brand_feat16_d":"6 logros permanentes con toast animado.",
+
+    "arcium_title":"LANZAMIENTOS SECRETOS",
+    "arcium_subtitle":"Modo Simultáneo Encriptado",
+    "arcium_desc":"En el modo 1v1 Online, los lanzamientos se encriptan antes de enviarse. Ningún jugador ve el movimiento del oponente — ambos se revelan al mismo tiempo. Se acabó la ventaja de esperar al otro.",
+    "arcium_how_title":"CÓMO FUNCIONA",
+    "arcium_how_1":"Apuntas y confirmas tu lanzamiento — se encripta con SHA-256 y un salt aleatorio.",
+    "arcium_how_2":"El hash (no el lanzamiento real) va al árbitro. Tu oponente hace lo mismo.",
+    "arcium_how_3":"Cuando ambos han hecho commit, ambos revelan lanzamiento + salt. El árbitro valida los hashes.",
+    "arcium_how_4":"Con ambos lanzamientos validados, el juego los aplica simultáneamente. Juego justo garantizado.",
+    "arcium_tech":"Tecnología: esquema commit-reveal con SHA-256 vía Web Crypto API. Árbitro: Supabase. Fase A del Marco 6 — migración a Arcium MPC real en el Marco 6 completo.",
+    "arcium_status":"✅ Activo en 1v1 Online",
+    "arcium_badge_t":"Lanzamientos Simultáneos",
+    "arcium_badge_d":"En 1v1 Online, nadie ve el movimiento del oponente antes de lanzar — esquema commit-reveal encriptado.",
+
   }
 };
 function getLang(){return localStorage.getItem('lang')||'pt'}

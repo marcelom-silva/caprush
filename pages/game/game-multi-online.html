@@ -167,6 +167,7 @@
 <script src="../../src/entities/PilotRenderer.js"></script>
 <script src="../../src/engines/pilots-data.js"></script>
 <script src="../../src/engines/garage-engine.js"></script>
+<script src="../../src/engines/arcium-engine.js"></script>
 <script src="../../src/scenes/TrackV3.js"></script>
 <script src="../../src/scenes/TrackMonza.js"></script>
 <script>
@@ -265,7 +266,7 @@ var myId=0,peer=null,conn=null,phase='WAIT',cur=0,ds=null,dc=null,lt=0,animT=0,s
 function resize(){var w=canvas.parentElement;canvas.width=w.offsetWidth-155;canvas.height=w.offsetHeight||400;TrackMonza.init(canvas.width,canvas.height);var s=TrackMonza.getStartPos();P.forEach(function(p,i){var o=i===0?-14:14;p.phys.reset(s.x,s.y+o,'asfalto');p.respawn={x:s.x,y:s.y+o};p.cps=cloneCPs(TrackMonza.checkpoints)})}
 window.addEventListener('resize',resize);setTimeout(resize,80);
 function setStatus(t){document.getElementById('mp-turn').textContent=t;document.getElementById('ov-status').textContent=t;logEv(t)}
-document.getElementById('btnHost').onclick=function(){setStatus('Conectando PeerServer...');peer=new Peer({debug:2});peer.on('open',function(id){setStatus('SALA: '+id);myId=0;cur=0;logEv('Host pronto');startGame()});peer.on('error',function(e){setStatus('ERRO: '+e.type);logEv('Host erro '+e.type)});peer.on('connection',function(c){conn=c;setupConn();logEv('Guest conectou');if(conn&&conn.open)conn.send({t:'pilot_id',id:_myPilot,color:_myCapColor,accent:_myCapAccent});})};
+document.getElementById('btnHost').onclick=function(){setStatus('Conectando PeerServer...');peer=new Peer({debug:2});peer.on('open',function(id){setStatus('SALA: '+id);myId=0;cur=0;logEv('Host pronto');startGame()});peer.on('error',function(e){setStatus('ERRO: '+e.type);logEv('Host erro '+e.type)});peer.on('connection',function(c){conn=c;setupConn();logEv('Guest conectou');if(conn&&conn.open)var _arc=Math.random().toString(36).slice(2,10);_arciumInit(_arc,true);conn.send({t:'pilot_id',id:_myPilot,color:_myCapColor,accent:_myCapAccent,arcium_room:_arc});})}; 
 document.getElementById('btnJoin').onclick=function(){var id=document.getElementById('roomId').value.trim();if(!id){setStatus('Digite ID');return}setStatus('Conectando...');peer=new Peer({debug:2});peer.on('open',function(){conn=peer.connect(id,{reliable:true});conn.on('open',function(){myId=1;cur=0;setStatus('CONECTADO');logEv('Entrou na sala');setupConn();if(conn&&conn.open)conn.send({t:'pilot_id',id:_myPilot,color:_myCapColor,accent:_myCapAccent});startGame()});conn.on('error',function(e){setStatus('Erro conn');logEv('Conn erro')})});peer.on('error',function(e){setStatus('ERRO: '+e.type);logEv('Join erro '+e.type)})};
 function setupConn(){conn.on('data',function(d){if(d.t==='pilot_id'){var oppSpec=PILOTS_O[d.id]||PILOTS_O.YUKI;P[1].name=d.id;P[1].color=oppSpec.color;P[1].accent=oppSpec.accent;P[1].kanji=oppSpec.kanji;applyPilotToCard(d.id,'opp');var p1nm=document.getElementById('p1-name');if(p1nm){p1nm.textContent=d.id;p1nm.style.color=oppSpec.color;}}if(d.t==='flick'){var p=P[d.p];p.phys.flick(new Vector2D(d.fx,d.fy),new Vector2D(d.tx,d.ty),1);if(!p.t0)p.t0=performance.now();}});conn.on('close',function(){setStatus('Desconectado')})}
 function _doStartGame(){overlay.style.display='none';SoundEngine.resume();phase='AIM';if(!P[myId].t0)P[myId].t0=performance.now();showTurn();requestAnimationFrame(function(t){lt=t;loop(t)});}
@@ -290,7 +291,103 @@ canvas.addEventListener('mouseup',function(e){if(!ds||myId!==cur)return;doFlick(
 canvas.addEventListener('touchstart',function(e){if(phase!=='AIM'||myId!==cur)return;if(nearActive(cpos(e))){ds=cpos(e);dc=cpos(e)}},{passive:true});
 canvas.addEventListener('touchmove',function(e){if(ds)dc=cpos(e.touches[0])},{passive:false});
 canvas.addEventListener('touchend',function(e){if(!ds||myId!==cur)return;doFlick(cpos({touches:e.changedTouches}))});
-function doFlick(to){var p=P[myId];p.phys.flick(ds,to,1);if(!p.t0)p.t0=performance.now();if(conn&&conn.open)conn.send({t:'flick',p:myId,fx:ds.x,fy:ds.y,tx:to.x,ty:to.y});ds=null;dc=null;phase='MOVING'}
+// Marco 6 (Fase A) — Arcium commit-reveal
+// Substitui envio direto do lance pelo PeerJS por esquema encriptado.
+// O oponente NÃO vê o lance até ambos terem commitado.
+var _arciumRound = 0;       // incrementa a cada turno
+var _arciumActive = false;  // true = modo simultâneo ativo
+var _arciumSlot = null;     // 'a' (host) ou 'b' (guest)
+var _arciumRoom = null;     // room_code compartilhado com o oponente
+
+// Quando conectar, trocamos room_code e slot via PeerJS pra inicializar Arcium
+function _arciumInit(roomCode, isHost){
+  _arciumRoom   = roomCode;
+  _arciumSlot   = isHost ? 'a' : 'b';
+  _arciumActive = true;
+  console.log('[Arcium] Modo simultâneo ATIVO | Room:', roomCode, '| Slot:', _arciumSlot);
+}
+
+function doFlick(to){
+  var p = P[myId];
+  var flickResult = p.phys.flick(ds, to, 1);
+  if(!p.t0) p.t0 = performance.now();
+
+  var forcePct = typeof flickResult === 'number' ? flickResult :
+                 (flickResult && flickResult.forcePct) ? flickResult.forcePct : 50;
+  var angle    = typeof flickResult === 'object' && flickResult.angle != null
+                 ? flickResult.angle
+                 : Math.atan2(ds.y - to.y, ds.x - to.x);
+
+  // ── MODO ARCIUM (simultâneo) ──────────────────────────────────────────
+  if(_arciumActive && _arciumRoom){
+    _arciumRound++;
+    var myWallet = localStorage.getItem('caprush_wallet') ||
+                   (function(){ try{ return JSON.parse(localStorage.getItem('caprush_privy_session')||'{}').id||'anon'; }catch(e){ return 'anon'; } })();
+
+    ArciumEngine.init(_arciumRoom, _arciumRound, _arciumSlot, myWallet);
+
+    // Mostra feedback visual de "lance encriptado"
+    logEv('🔒 Lance encriptado... aguardando oponente');
+    document.getElementById('mp-turn').textContent = '🔒 AGUARDANDO...';
+
+    // Fase 1: commita o lance (publica só o hash)
+    ArciumEngine.commit({ forcePct: forcePct, angle: angle }, function(ok){
+      if(!ok){
+        // Fallback: se Arcium falhar, usa PeerJS direto (graceful degradation)
+        console.warn('[Arcium] Commit falhou — fallback pra PeerJS direto');
+        if(conn && conn.open) conn.send({t:'flick', p:myId, fx:ds.x, fy:ds.y, tx:to.x, ty:to.y});
+        ds = null; dc = null; phase = 'MOVING';
+        return;
+      }
+
+      // Fase 2: aguarda oponente commitar, revela, valida
+      ArciumEngine.waitAndReveal(function(result){
+        if(!result.ok){
+          if(result.err === 'hash_mismatch'){
+            logEv('⚠️ TRAPAÇA DETECTADA! Lance do oponente inválido.');
+          } else if(result.err === 'timeout_commit' || result.err === 'timeout_reveal'){
+            logEv('⏱️ Oponente não respondeu a tempo.');
+          }
+          // Em caso de erro, não aplica lance — volta pra AIM
+          phase = 'AIM';
+          document.getElementById('mp-turn').textContent = 'VEZ DE ' + P[cur].name;
+          return;
+        }
+
+        // Ambos os lances validados — aplica simultaneamente
+        var myL  = result.myLance;
+        var oppL = result.opponentLance;
+        var oppId = 1 - myId;
+
+        logEv('🔓 Lances revelados! Aplicando simultaneamente...');
+
+        // Aplica meu lance (já aplicado pela física local — só confirma)
+        // Aplica lance do oponente
+        var oppFrom = new Vector2D(P[oppId].phys.pos.x + oppL.forcePct,
+                                   P[oppId].phys.pos.y);
+        var oppDx = Math.cos(oppL.angle) * oppL.forcePct;
+        var oppDy = Math.sin(oppL.angle) * oppL.forcePct;
+        var oppTo = new Vector2D(P[oppId].phys.pos.x - oppDx,
+                                 P[oppId].phys.pos.y - oppDy);
+        P[oppId].phys.flick(oppFrom, oppTo, 1);
+        if(!P[oppId].t0) P[oppId].t0 = performance.now();
+
+        // Notifica oponente via PeerJS (só pra sync de estado, não de lance)
+        if(conn && conn.open) conn.send({ t:'arcium_sync', round: _arciumRound });
+
+        phase = 'MOVING';
+        document.getElementById('mp-turn').textContent = 'LANCES APLICADOS';
+      });
+    });
+
+  // ── MODO LEGACY (alternado) ───────────────────────────────────────────
+  } else {
+    if(conn && conn.open) conn.send({t:'flick', p:myId, fx:ds.x, fy:ds.y, tx:to.x, ty:to.y});
+    phase = 'MOVING';
+  }
+
+  ds = null; dc = null;
+}
 function loop(now){var dt=Math.min((now-lt)/1000,.05);lt=now;animT+=dt;ctx.clearRect(0,0,canvas.width,canvas.height);TrackMonza.render(ctx,canvas.width,canvas.height,animT);if(phase==='MOVING'){P[0].phys.step(dt,bnd());P[1].phys.step(dt,bnd());var a=P[0],b=P[1],pa=a.phys.snap(),pb=b.phys.snap(),d=Math.hypot(pb.pos.x-pa.pos.x,pb.pos.y-pa.pos.y);if(d<28&&d>0.1){var nx=(pb.pos.x-pa.pos.x)/d,ny=(pb.pos.y-pa.pos.y)/d,va=(pb.vel.x-pa.vel.x)*nx+(pb.vel.y-pa.vel.y)*ny;if(va<0){var j=-(1.72)*va/2;a.phys.setVel(pa.vel.x-j*nx,pa.vel.y-j*ny);b.phys.setVel(pb.vel.x+j*nx,pb.vel.y+j*ny);SoundEngine.hit()}}P.forEach(function(p){var ph=p.phys.snap();var o=TrackMonza.checkObstacles(ph.pos,CAP_R);if(o&&o.nx!=null){p.phys.bounce(o.nx,o.ny);SoundEngine.hit()}if(TrackMonza.isOnTrack(ph.pos)){var t=Date.now();if(TrackMonza.detectPuddle(ph.pos)){p.phys.setSurface('agua');if(t-sndT.water>700){SoundEngine.splash();sndT.water=t}}else if(TrackMonza.detectGrassOnTrack(ph.pos)){p.phys.setSurface('grama');if(t-sndT.grass>900){SoundEngine.grass();sndT.grass=t}}else p.phys.setSurface('asfalto')}else if(TrackMonza.detectInner(ph.pos)){var rp=p.respawn||TrackMonza.getStartPos();p.phys.reset(rp.x,rp.y,'asfalto')}for(var i=0;i<p.cps.length;i++){var c=p.cps[i];if(c.ok)continue;if(Math.hypot(ph.pos.x-c.x,ph.pos.y-c.y)<c.r){c.ok=true;p.cp++;p.respawn={x:c.x,y:c.y};SoundEngine.checkpoint();logEv(p.name+' CP'+p.cp);updPanel()}}if(p.cp>=NCPS&&TrackMonza.checkLap(ph.pos)){p.cp=0;p.cps=cloneCPs(TrackMonza.checkpoints);if(p.lap>=LAPS){p.finished=true;p.elapsed=(performance.now()-p.t0)/1000;SoundEngine.victory();logEv(p.name+' VENCEU')}else{p.lap++;logEv(p.name+' V'+p.lap);updPanel()}}if(p.t0)p.elapsed=(performance.now()-p.t0)/1000;document.getElementById('p'+p.id+'-time').textContent=((p.elapsed/60|0).toString().padStart(2,'0'))+':'+((p.elapsed%60).toFixed(1).padStart(4,'0'));document.getElementById('p'+p.id+'-lap').textContent='V'+p.lap+'/'+LAPS+' CP'+p.cp+'/'+NCPS});var stop=!P[0].phys.snap().moving&&!P[1].phys.snap().moving;if(stop){phase='AIM';cur=1-cur;document.getElementById('mp-turn').textContent='VEZ DE '+P[cur].name;document.getElementById('force-value').textContent='0%';document.getElementById('force-bar-fill').style.height='0%'}}P.forEach(function(p){var ph=p.phys.snap(),s=ph.speed;p.anim.rot+=s*dt*.006;p.anim.glow+=.03*p.anim.gdir;if(p.anim.glow>=1||p.anim.glow<=0)p.anim.gdir*=-1;p.anim.trail.push({x:ph.pos.x,y:ph.pos.y});if(p.anim.trail.length>20)p.anim.trail.shift();CapSprite.drawTrail(ctx,p.anim.trail,p.color,s);CapSprite.drawCap(ctx,ph.pos.x,ph.pos.y,16,p.color,p.accent,p.kanji,p.anim.rot,s,p.anim.glow)});requestAnimationFrame(loop)}
 // Portal auto
 if(new URLSearchParams(location.search).get('portal')==='true'){document.getElementById('overlay').querySelector('h2').textContent='PORTAL ATIVO';}
@@ -402,7 +499,7 @@ document.getElementById('btnHost').onclick = async function(){
     peer=new Peer({debug:2});
     peer.on('open',function(id){startGame();});
     peer.on('error',function(e){setStatus('ERRO: '+e.type);});
-    peer.on('connection',function(c){conn=c;setupConn();logEv('Guest conectou');if(conn&&conn.open)conn.send({t:'pilot_id',id:_myPilot,color:_myCapColor,accent:_myCapAccent,bet_match_id:_betMatchId,bet_amount:_betAmount});});
+    peer.on('connection',function(c){conn=c;setupConn();logEv('Guest conectou');if(conn&&conn.open)var _arc2=Math.random().toString(36).slice(2,10);_arciumInit(_arc2,true);conn.send({t:'pilot_id',id:_myPilot,color:_myCapColor,accent:_myCapAccent,bet_match_id:_betMatchId,bet_amount:_betAmount,arcium_room:_arc2});});
   } else {
     // Sem aposta — comportamento original
     setStatus('Conectando PeerServer...');
@@ -452,6 +549,10 @@ function setupConn(){conn.on('data',function(d){
     if(d.bet_match_id){ _betMatchId = d.bet_match_id; _betAmount = d.bet_amount||10; _betEnabled=true; }
   }
   if(d.t==='flick'){var p=P[d.p];p.phys.flick(new Vector2D(d.fx,d.fy),new Vector2D(d.tx,d.ty),d.spd||1);if(!p.t0)p.t0=performance.now();}
+  // Marco 6: guest recebe arcium_room do host no pilot_id e inicializa modo simultâneo
+  if(d.t==='pilot_id' && d.arcium_room && !_arciumActive){ _arciumInit(d.arcium_room, false); }
+  // Marco 6: sync de round após reveal — só log (lance já aplicado via Arcium)
+  if(d.t==='arcium_sync'){ console.log('[Arcium] Sync round', d.round); }
   if(d.t==='finish'){
     // Oponente terminou — temos o tempo dele
     P[1-myId].remoteTimeMs = d.time_ms;

@@ -247,6 +247,7 @@ p{line-height:1.75;color:#C8C8D8;margin-bottom:14px;font-size:1.02rem}
     <a href="#clans" data-i18n="manual-menu-clans">Clãs</a>
     <a href="#jogar" data-i18n="manual-menu-how">Como Jogar</a>
     <a href="#modos" data-i18n="manual-menu-modes">Modos</a>
+    <a href="#arcium" style="color:#00E5FF;">🔒 <span data-i18n="arcium_title">Lances Secretos</span></a>
   </aside>
 
   <div class="content">
@@ -336,6 +337,30 @@ p{line-height:1.75;color:#C8C8D8;margin-bottom:14px;font-size:1.02rem}
       <p style="margin-top:10px"><strong>1V1 LOCAL</strong> — <span data-i18n="manual-mode-local-d">Dois jogadores no mesmo dispositivo. YUKI vs KENTA na pista Monza.</span></p>
       <p style="margin-top:10px"><strong>1V1 ONLINE</strong> — <span data-i18n="manual-mode-online-d">Dois jogadores via WebRTC P2P. Opcional: ative o modo apostado com $CR.</span></p>
     </div>
+  </div>
+</div>
+
+<!-- ═══ SEÇÃO ARCIUM ═══════════════════════════════════════════════════════ -->
+<div class="wrap" style="margin-top:-20px">
+  <div></div>
+  <div>
+    <h2 id="arcium" style="display:flex;align-items:center;gap:10px;font-family:'Bebas Neue';font-size:1.5rem;color:#00E5FF;margin:36px 0 16px;letter-spacing:2px;">
+      🔒 <span data-i18n="arcium_title">LANCES SECRETOS</span>
+      <span style="font-size:.7rem;background:rgba(0,229,255,.15);border:1px solid rgba(0,229,255,.4);border-radius:20px;padding:3px 10px;letter-spacing:2px;color:#00E5FF;" data-i18n="arcium_status">✅ Ativo no 1v1 Online</span>
+    </h2>
+    <p style="color:#AAA;margin-bottom:16px;" data-i18n="arcium_desc">No modo 1v1 Online, os lances são encriptados antes de serem enviados. Nenhum jogador vê o lance do oponente — os dois revelam ao mesmo tempo. Fim da vantagem de quem espera o outro atirar.</p>
+
+    <div style="background:rgba(0,229,255,.04);border:1px solid rgba(0,229,255,.18);border-radius:14px;padding:20px 24px;margin:18px 0;">
+      <p style="font-family:'Bebas Neue';color:#00E5FF;letter-spacing:3px;font-size:1rem;margin-bottom:12px;" data-i18n="arcium_how_title">COMO FUNCIONA</p>
+      <ol style="margin-left:20px;color:#C8C8D8;line-height:1.8;">
+        <li data-i18n="arcium_how_1">Você mira e confirma o lance — ele é encriptado com SHA-256 e um salt aleatório.</li>
+        <li data-i18n="arcium_how_2">O hash (não o lance real) vai para o árbitro. Seu oponente faz o mesmo.</li>
+        <li data-i18n="arcium_how_3">Quando os dois commitaram, ambos revelam lance + salt. O árbitro valida os hashes.</li>
+        <li data-i18n="arcium_how_4">Com ambos os lances validados, o jogo aplica os dois simultaneamente. Jogo justo.</li>
+      </ol>
+    </div>
+
+    <p style="color:#555;font-size:.82rem;line-height:1.7;" data-i18n="arcium_tech">Tecnologia: commit-reveal com SHA-256 via Web Crypto API. Árbitro: Supabase. Fase A do Marco 6 — migração para Arcium MPC real no Marco 6 completo.</p>
   </div>
 </div>
 

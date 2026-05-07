@@ -14,6 +14,11 @@
   buracos visíveis e detectáveis, chicanes nas bordas, heliponto restaurado,
   CPs menores), som de derrapagem distinto por tampinha
 
+- **Marco 6 — Fase A** ✅ (adiantado em Maio 2026) — Lances simultâneos encriptados no 1v1 Online:
+  commit-reveal SHA-256 via Web Crypto API, árbitro centralizado Supabase, tabela `mpc_rounds`.
+  Nenhum jogador vê o lance do oponente — revelação simultânea após ambos commitarem.
+  Candidatura ao RTG Hidden-Information Games da Arcium para migração pra MPC real (Fase B).
+
 ## 🔄 Marco 3 — SPL Token On-Chain (Q3 2026 — PRÓXIMO)
 - [ ] Mint SPL Token $CR (100M supply)
 - [ ] Vercel Function pra wallet Solana real
@@ -33,8 +38,15 @@
 - [ ] Torneios patrocinados com prize pool
 - [ ] Sistema de leilões para NFTs raras
 
-## 🔮 Marco 6 — Ecossistema (2027)
-- [ ] Arcium — lances secretos encriptados
+## ✅ Marco 6 — Fase A (concluído em Maio 2026)
+- [x] Commit-reveal SHA-256 (Web Crypto API) no 1v1 Online
+- [x] Árbitro centralizado Supabase (`mpc_rounds`)
+- [x] Revelação simultânea — nenhum jogador vê o lance do outro antes de atirar
+- [x] Graceful degradation para PeerJS direto se árbitro falhar
+- [x] Candidatura ao RTG Hidden-Information Games da Arcium
+
+## 🔮 Marco 6 — Fase B (2027, pendente aprovação RTG)
+- [ ] Migração para Arcium MPC real (multi-party computation sem árbitro centralizado)
 - [ ] DAO de governança com $CR
 - [ ] Staking $CR (yield em temporadas)
 - [ ] Campeonatos globais
