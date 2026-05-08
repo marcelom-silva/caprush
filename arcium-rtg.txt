@@ -1,0 +1,22 @@
+Bottle Cap Racing Game · Solo vs AI · 1v1 Local · 1v1 Online Canvas 2D · Private OAuth · Off-chain $CR Token · RPG Evolution · Clans · 11 NFT Pilots · Garage 4 Bottle Caps PNG · Daily Login · Badges
+
+The game consists of 4 fixed PNG bottle caps, each with its own color, decorative statistical profile, and unique sound. It replaces the old system of 6 templates x 8 colors.
+
+arcium-engine.js — commit/reveal logic with SHA-256
+Database adjustment
+Integration in game-multi-online.html
+
+- Player makes a move → SHA-256(forcePct + angle + randomSalt) is generated locally → only the hash goes to Supabase. Nobody knows the real move.
+- The engine polls Supabase every 800ms. When it sees that the opponent has also committed → it reveals forcePct, angle, and salt. The arbiter (Supabase) validates: SHA-256(move+salt) == published hash. If it doesn't match, it detects cheating and marks it in the bank.
+- With both moves validated, the game applies simultaneously. Neither player had the advantage of seeing the other's move.
+
+Referee table
+Stores hashes, revealed moves, salts, and status (committing → revealing → resolved). Manual clearing of rounds older than 24 hours is available in the archive.
+
+In game-multi-online.html
+- Host generates an arcium_room (8 random characters) when the guest connects, sends it along with the pilot_id
+- Guest receives the arcium_room in the pilot_id
+- doFlick() detects if Arcium is active
+- If commit fails (e.g., Supabase down), it automatically drops to PeerJS directly — the game continues to function normally
+- Visual feedback: "🔒 Encrypted bid... awaiting opponent" while waiting.
+
